@@ -1,0 +1,124 @@
+# Biblion
+# Copyright (C) 2019-2023 Hadeed
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+_('on_loan')
+_('on_shelf')
+_('missing')
+_('in_transit')
+_('at_desk')
+
+_('patrons')
+_('librarian')
+_('staff')
+
+_('gnd')
+_('rero')
+_('idref')
+
+# Menu language
+_('ui_language_en')
+_('ui_language_fr')
+_('ui_language_de')
+_('ui_language_it')
+
+# provisionActivity
+_('bf:Publication')
+_('bf:Manufacture')
+_('bf:Distribution')
+_('bf:Production')
+_('bf:Place')
+_('Date(s) uncertain or unknown')
+
+# Harvested source
+_('ebibliomedia')
+_('mv-cantook')
+
+# Trigger
+_('cancel')
+_('checkin')
+_('checkout')
+_('extend')
+_('receive')
+_('request')
+_('validate_request')
+
+# Dynamic Menu
+_('Tools')
+_('Interlibrary loan request')
+_('Help')
+_('Login')
+_('Professional interface')
+_('Logout')
+_('Edit my profile')
+_('Change password')
+_('Sign Up')
+
+# Test alert message
+_('This is a TEST VERSION.')
+_('Go to the production site.')
+
+# Acquisitions status
+_('approved')
+_('cancelled')
+_('ordered')
+_('partially_received')
+_('pending')
+_('received')
+
+# Acquisitions type
+_('monograph')
+_('serial')
+_('standing_order')
+_('monographic_set')
+_('planned_order')
+_('multi_volume')
+
+
+# Phone
+_('Phone')
+_('Phones')
+_('Business')
+_('Domicile')
+_('Mobile')
+
+
+# Login screen
+_('Hide password')
+
+# OneOf in the stats JSONschema
+
+## categories
+_('catalog')
+_('circulation')
+_('user_management')
+
+## indicators
+_('number_of_documents')
+_('number_of_serial_holdings')
+_('number_of_items')
+_('number_of_deleted_items')
+_('number_of_ill_requests')
+_('number_of_checkins')
+_('number_of_checkouts')
+_('number_of_extends')
+_('number_of_requests')
+_('number_of_validate_requests')
+_('number_of_patrons')
+_('number_of_active_patrons')
+
+## Permissions
+_('any_user')
+_('authenticated_user')
+_('document_importer')
