@@ -1,0 +1,524 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# ---------------------------------------------------------------------------
+# Build system
+# ---------------------------------------------------------------------------
+
+[build-system]
+requires = ["uv_build<1.0.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "."
+
+[tool.uv]
+package = true
+
+# ---------------------------------------------------------------------------
+# Project metadata
+# ---------------------------------------------------------------------------
+
+[project]
+name = "biblion"
+version = "0.1.0"
+description = "The elegant solution for heritage, public and school libraries or networks."
+authors = [{name = "Hadeed", email = "hadeed.dev921@gmail.com"}]
+keywords = ["biblion", "invenio", "integrated library system"]
+license = "AGPL-3.0-or-later"
+urls = {homepage = "https://github.com/hadeeddev921/biblion", repository="https://github.com/hadeeddev921/biblion"}
+requires-python = ">=3.14,<3.15"
+
+dependencies = [
+    ## Third party invenio modules used by Biblion
+    "invenio-oaiharvester>=1.0.0a4",
+    "invenio-circulation>=4.0.0",
+    "invenio-search[elasticsearch7]>=3.0.0",
+    # Invenio core modules
+    "invenio-app>=3.0.0",
+    "invenio-base>=2.0.0",
+    "invenio-celery>=2.0.2",
+    "invenio-config>=1.0.3",
+    "invenio-i18n>=3.4.2",
+    "invenio-db[postgresql]>=2.0.0",
+    # Invenio base bundle
+    "invenio-admin>=1.6.0",
+    "invenio-assets>=4.0.0",
+    "invenio-logging[sentry]>=4.0.0",
+    "invenio-mail>=2.0.0",
+    "invenio-rest>=3.0.0",
+    # Invenio auth bundle
+    "invenio-access>=4.0.0",
+    "invenio-accounts>=6.0.0",
+    "invenio-oauth2server>=6.1.0",
+    "invenio-oauthclient>=5.0.0",
+    # Invenio metadata bundle
+    "invenio-indexer>=4.0.0",
+    "invenio-jsonschemas>=2.0.0",
+    "invenio-oaiserver>=4.0.0",
+    "invenio-pidstore>=3.0.0",
+    "invenio-records-rest>=6.0.2",
+    "invenio-records-ui>=2.0.0",
+    "invenio-records>=4.0.0",
+    "invenio-search-ui>=4.0.0",
+    "invenio-records-permissions>=0.13.0",
+    "python-dotenv>=0.13.0",
+    "sentry-sdk",
+    "dojson>=1.4.0",
+    ## RERO specific python modules
+    "rero-invenio-base>=1.3.0",
+    "rero-invenio-files>=1.0.0",
+    "rero-invenio-thumbnails>=2.0.0",
+    "flask-wiki>=4.0.0",
+    ## Biblion specific python modules
+    "PyYAML>=5.3.1",
+    "dateparser>=1.1.1",
+    "isbnlib>=3.9.1",
+    "requests>=2.23.0",
+    "polib",
+    "xmltodict",
+    "ciso8601",
+    ## Third party modules used by Biblion
+    "lazyreader>=1.0.0",
+    "jinja2>2.11.2",
+    "jsonmerge>=1.8.0",
+    "num2words>=0.5.10",
+    "iso639>=0.1.4",
+    "dcxml>=0.1.2",
+    "DeepDiff>=5.5.0",
+    "jsonresolver",
+    "click>=8.3.3",
+    # needed for elasticsearch 7.13.4
+    "urllib3<2.0.0",
+    "dnspython>=2.4.2",
+    "babel>=2.16.0",
+    "levenshtein>=0.26.0",
+    "unidecode>=1.3.8",
+    "poethepoet",
+    "sqlalchemy-celery-beat>=0.8.3",
+    "bootstrap-flask>=2.5.0",
+    "flask-admin>=1.6.1",
+    "invenio-sip2>=0.6.25",
+]
+
+[dependency-groups]
+dev = [
+    ## Default from Invenio
+    "pytest-invenio>=3.0.0",
+    "coveralls>=4.0.1",
+    "Flask-Debugtoolbar>=0.10.1",
+    ## Biblion specific python packages
+    "freezegun>=1.1.0",
+    "pip-audit>=2.8.0",
+    "ruff>=0.12.8",
+    "pytest-ruff>=0.5",
+    "pytest-playwright>=0.8.0",
+    "playwright>=1.30.0"
+]
+
+prod = [
+    "uwsgi>=2.0.30",
+    "uwsgitop>=0.11",
+]
+
+# ---------------------------------------------------------------------------
+# Entry points
+# ---------------------------------------------------------------------------
+
+[project.entry-points."app.console_scripts"]
+biblion = "invenio_app.cli:cli"
+
+[project.entry-points."babel.extractors"]
+json = "biblion.modules.babel_extractors:extract_json"
+
+[project.entry-points."dojson.cli"]
+head = "biblion.dojson.cli:head"
+reverse = "biblion.dojson.cli:reverse"
+
+[project.entry-points."dojson.cli.dump"]
+pjson = "biblion.dojson.cli:pretty_json_dump"
+
+[project.entry-points."dojson.cli.rule"]
+marc21_dnb_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_dnb"
+marc21_kul_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_kul"
+marc21_loc_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_loc"
+marc21_rero_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_rero"
+marc21_slsp_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_slsp"
+marc21_ugent_to_json = "biblion.modules.documents.dojson.contrib.marc21tojson:marc21_ugent"
+unimarc_to_json = "biblion.modules.documents.dojson.contrib.unimarctojson:unimarc"
+
+[project.entry-points."flask.commands"]
+biblion = "biblion.modules.cli.biblion:biblion"
+
+[project.entry-points."invenio_admin.views"]
+selfcheck_users_accounts = "biblion.modules.selfcheck.admin:selfcheck_terminal_adminview"
+
+[project.entry-points."invenio_assets.webpack"]
+biblion_theme = "biblion.theme.webpack:theme"
+
+[project.entry-points."invenio_base.api_apps"]
+invenio_i18n = "invenio_i18n:InvenioI18N"
+biblion = "biblion.modules.ext:BiblionApp"
+
+[project.entry-points."invenio_base.api_blueprints"]
+acq_accounts = "biblion.modules.acquisition.acq_accounts.views:api_blueprint"
+acq_orders = "biblion.modules.acquisition.acq_orders.views:api_blueprint"
+acq_receipts = "biblion.modules.acquisition.acq_receipts.views:api_blueprint"
+circ_policies = "biblion.modules.circ_policies.views:blueprint"
+documents = "biblion.modules.documents.api_views:api_blueprint"
+holdings = "biblion.modules.holdings.api_views:api_blueprint"
+imports = "biblion.modules.imports.views:api_blueprint"
+item_types = "biblion.modules.item_types.views:blueprint"
+items = "biblion.modules.items.views:api_blueprint"
+libraries = "biblion.modules.libraries.api_views:api_blueprint"
+loans = "biblion.modules.loans.api_views:api_blueprint"
+local_entities = "biblion.modules.entities.local_entities.views:api_blueprint"
+migration_data = "biblion.modules.migrations.data.views:api_blueprint"
+migrations = "biblion.modules.migrations.views:api_blueprint"
+monitoring = "biblion.modules.monitoring.views:api_blueprint"
+notifications = "biblion.modules.notifications.views:blueprint"
+patron_types = "biblion.modules.patron_types.views:blueprint"
+patrons = "biblion.modules.patrons.views:api_blueprint"
+permissions = "biblion.modules.views:api_blueprint"
+remote_entities = "biblion.modules.entities.remote_entities.views:api_blueprint"
+stats_cfg = "biblion.modules.stats_cfg.views:api_blueprint"
+users = "biblion.modules.users.api_views:api_blueprint"
+
+[project.entry-points."invenio_base.api_converters"]
+nooppid = "biblion.converters:NoopPIDConverter"
+
+[project.entry-points."invenio_base.apps"]
+biblion = "biblion.modules.ext:BiblionApp"
+
+[project.entry-points."invenio_base.blueprints"]
+circ_policies = "biblion.modules.circ_policies.views:blueprint"
+collections = "biblion.modules.collections.views:blueprint"
+documents = "biblion.modules.documents.views:blueprint"
+entities = "biblion.modules.entities.views:blueprint"
+holdings = "biblion.modules.holdings.views:blueprint"
+ill_requests = "biblion.modules.ill_requests.views:blueprint"
+item_types = "biblion.modules.item_types.views:blueprint"
+notifications = "biblion.modules.notifications.views:blueprint"
+patron_types = "biblion.modules.patron_types.views:blueprint"
+patrons = "biblion.modules.patrons.views:blueprint"
+stats = "biblion.modules.stats.views:blueprint"
+templates = "biblion.modules.templates.views:blueprint"
+theme = "biblion.theme.views:blueprint"
+users = "biblion.modules.users.views:blueprint"
+
+[project.entry-points."invenio_base.finalize_app"]
+biblion = "biblion.modules.ext:finalize_app"
+rero_files = "rero_invenio_files.ext:finalize_app"
+
+[project.entry-points."invenio_celery.tasks"]
+api_harvester = "biblion.modules.api_harvester.tasks"
+api_harvester_memovs = "biblion.modules.api_harvester.memovs.tasks"
+collections = "biblion.modules.collections.tasks"
+documents = "biblion.modules.documents.tasks"
+holdings = "biblion.modules.holdings.tasks"
+indexer_locent = "biblion.modules.entities.local_entities.indexer"
+items = "biblion.modules.items.tasks"
+libraries = "biblion.modules.libraries.tasks"
+loans = "biblion.modules.loans.tasks"
+locations = "biblion.modules.locations.tasks"
+modules = "biblion.modules.tasks"
+notifications = "biblion.modules.notifications.tasks"
+patrons = "biblion.modules.patrons.tasks"
+remote_entities = "biblion.modules.entities.remote_entities.tasks"
+stats = "biblion.modules.stats.tasks"
+
+[project.entry-points."invenio_config.module"]
+biblion = "biblion.config"
+
+[project.entry-points."invenio_db.alembic"]
+biblion = "biblion:alembic"
+
+[project.entry-points."invenio_db.models"]
+acq_accounts = "biblion.modules.acquisition.acq_accounts.models"
+acq_order_lines = "biblion.modules.acquisition.acq_order_lines.models"
+acq_orders = "biblion.modules.acquisition.acq_orders.models"
+acq_receipt_lines = "biblion.modules.acquisition.acq_receipt_lines.models"
+acq_receipts = "biblion.modules.acquisition.acq_receipts.models"
+api_harvester = "biblion.modules.api_harvester.models"
+budgets = "biblion.modules.acquisition.budgets.models"
+circ_policies = "biblion.modules.circ_policies.models"
+collections = "biblion.modules.collections.models"
+documents = "biblion.modules.documents.models"
+holdings = "biblion.modules.holdings.models"
+ill_requests = "biblion.modules.ill_requests.models"
+item_types = "biblion.modules.item_types.models"
+items = "biblion.modules.items.models"
+libraries = "biblion.modules.libraries.models"
+local_entities = "biblion.modules.entities.local_entities.models"
+local_fields = "biblion.modules.local_fields.models"
+locations = "biblion.modules.locations.models"
+notifications = "biblion.modules.notifications.models"
+organisations = "biblion.modules.organisations.models"
+patron_transaction_events = "biblion.modules.patron_transaction_events.models"
+patron_transactions = "biblion.modules.patron_transactions.models"
+patron_types = "biblion.modules.patron_types.models"
+patrons = "biblion.modules.patrons.models"
+remote_entities = "biblion.modules.entities.remote_entities.models"
+selfcheck = "biblion.modules.selfcheck.models"
+stats = "biblion.modules.stats.models"
+stats_cfg = "biblion.modules.stats_cfg.models"
+templates = "biblion.modules.templates.models"
+vendors = "biblion.modules.vendors.models"
+
+[project.entry-points."invenio_i18n.translations"]
+messages = "biblion"
+messages_wiki = "flask_wiki"
+
+[project.entry-points."invenio_jsonschemas.schemas"]
+acq_accounts = "biblion.modules.acquisition.acq_accounts.jsonschemas"
+acq_order_lines = "biblion.modules.acquisition.acq_order_lines.jsonschemas"
+acq_orders = "biblion.modules.acquisition.acq_orders.jsonschemas"
+acq_receipt_lines = "biblion.modules.acquisition.acq_receipt_lines.jsonschemas"
+acq_receipts = "biblion.modules.acquisition.acq_receipts.jsonschemas"
+budgets = "biblion.modules.acquisition.budgets.jsonschemas"
+circ_policies = "biblion.modules.circ_policies.jsonschemas"
+collections = "biblion.modules.collections.jsonschemas"
+common = "biblion.jsonschemas"
+documents = "biblion.modules.documents.jsonschemas"
+files = "biblion.modules.files.jsonschemas"
+holdings = "biblion.modules.holdings.jsonschemas"
+ill_requests = "biblion.modules.ill_requests.jsonschemas"
+item_types = "biblion.modules.item_types.jsonschemas"
+items = "biblion.modules.items.jsonschemas"
+libraries = "biblion.modules.libraries.jsonschemas"
+loans = "biblion.modules.loans.jsonschemas"
+local_entities = "biblion.modules.entities.local_entities.jsonschemas"
+local_fields = "biblion.modules.local_fields.jsonschemas"
+locations = "biblion.modules.locations.jsonschemas"
+notifications = "biblion.modules.notifications.jsonschemas"
+operation_logs = "biblion.modules.operation_logs.jsonschemas"
+organisations = "biblion.modules.organisations.jsonschemas"
+patron_transaction_events = "biblion.modules.patron_transaction_events.jsonschemas"
+patron_transactions = "biblion.modules.patron_transactions.jsonschemas"
+patron_types = "biblion.modules.patron_types.jsonschemas"
+patrons = "biblion.modules.patrons.jsonschemas"
+remote_entities = "biblion.modules.entities.remote_entities.jsonschemas"
+stats = "biblion.modules.stats.jsonschemas"
+stats_cfg = "biblion.modules.stats_cfg.jsonschemas"
+templates = "biblion.modules.templates.jsonschemas"
+users = "biblion.modules.users.jsonschemas"
+vendors = "biblion.modules.vendors.jsonschemas"
+
+[project.entry-points."invenio_oauth2server.scopes"]
+fullname = "biblion.oauth.scopes:fullname"
+birthdate = "biblion.oauth.scopes:birthdate"
+expiration_date = "biblion.oauth.scopes:expiration_date"
+institution = "biblion.oauth.scopes:institution"
+patron_type = "biblion.oauth.scopes:patron_type"
+# deprecated scopes
+patron_types = "biblion.oauth.scopes:patron_types"
+
+[project.entry-points."invenio_pidstore.fetchers"]
+acq_account_id = "biblion.modules.acquisition.acq_accounts.api:acq_account_id_fetcher"
+acq_order_id = "biblion.modules.acquisition.acq_orders.api:acq_order_id_fetcher"
+acq_order_line_id = "biblion.modules.acquisition.acq_order_lines.api:acq_order_line_id_fetcher"
+acq_receipt_id = "biblion.modules.acquisition.acq_receipts.api:acq_receipt_id_fetcher"
+acq_receipt_line_id = "biblion.modules.acquisition.acq_receipt_lines.api:acq_receipt_line_id_fetcher"
+budget_id = "biblion.modules.acquisition.budgets.api:budget_id_fetcher"
+circ_policy_id = "biblion.modules.circ_policies.api:circ_policy_id_fetcher"
+collection_id = "biblion.modules.collections.api:collection_id_fetcher"
+document_id = "biblion.modules.documents.api:document_id_fetcher"
+entity_id = "biblion.modules.entities.fetchers:id_fetcher"
+holding_id = "biblion.modules.holdings.api:holding_id_fetcher"
+ill_request_id = "biblion.modules.ill_requests.api:ill_request_id_fetcher"
+item_id = "biblion.modules.items.api:item_id_fetcher"
+item_type_id = "biblion.modules.item_types.api:item_type_id_fetcher"
+library_id = "biblion.modules.libraries.api:library_id_fetcher"
+local_entity_id = "biblion.modules.entities.local_entities.api:local_entity_id_fetcher"
+local_field_id = "biblion.modules.local_fields.api:local_field_id_fetcher"
+location_id = "biblion.modules.locations.api:location_id_fetcher"
+notification_id = "biblion.modules.notifications.api:notification_id_fetcher"
+operation_log_id = "biblion.modules.operation_logs.api:operation_log_id_fetcher"
+organisation_id = "biblion.modules.organisations.api:organisation_id_fetcher"
+patron_id = "biblion.modules.patrons.api:patron_id_fetcher"
+patron_transaction_event_id = "biblion.modules.patron_transaction_events.api:patron_transaction_event_id_fetcher"
+patron_transaction_id = "biblion.modules.patron_transactions.api:patron_transaction_id_fetcher"
+patron_type_id = "biblion.modules.patron_types.api:patron_type_id_fetcher"
+remote_entity_id = "biblion.modules.entities.remote_entities.api:remote_entity_id_fetcher"
+stat_cfg_id = "biblion.modules.stats_cfg.api:stat_cfg_id_fetcher"
+stat_id = "biblion.modules.stats.api.api:stat_id_fetcher"
+template_id = "biblion.modules.templates.api:template_id_fetcher"
+vendor_id = "biblion.modules.vendors.api:vendor_id_fetcher"
+
+[project.entry-points."invenio_pidstore.minters"]
+acq_account_id = "biblion.modules.acquisition.acq_accounts.api:acq_account_id_minter"
+acq_order_id = "biblion.modules.acquisition.acq_orders.api:acq_order_id_minter"
+acq_order_line_id = "biblion.modules.acquisition.acq_order_lines.api:acq_order_line_id_minter"
+acq_receipt_id = "biblion.modules.acquisition.acq_receipts.api:acq_receipt_id_minter"
+acq_receipt_line_id = "biblion.modules.acquisition.acq_receipt_lines.api:acq_receipt_line_id_minter"
+budget_id = "biblion.modules.acquisition.budgets.api:budget_id_minter"
+circ_policy_id = "biblion.modules.circ_policies.api:circ_policy_id_minter"
+collection_id = "biblion.modules.collections.api:collection_id_minter"
+document_id = "biblion.modules.documents.api:document_id_minter"
+entity_id = "biblion.modules.entities.minters:id_minter"
+holding_id = "biblion.modules.holdings.api:holding_id_minter"
+ill_request_id = "biblion.modules.ill_requests.api:ill_request_id_minter"
+item_id = "biblion.modules.items.api:item_id_minter"
+item_type_id = "biblion.modules.item_types.api:item_type_id_minter"
+library_id = "biblion.modules.libraries.api:library_id_minter"
+local_entity_id = "biblion.modules.entities.local_entities.api:local_entity_id_minter"
+local_field_id = "biblion.modules.local_fields.api:local_field_id_minter"
+location_id = "biblion.modules.locations.api:location_id_minter"
+notification_id = "biblion.modules.notifications.api:notification_id_minter"
+organisation_id = "biblion.modules.organisations.api:organisation_id_minter"
+patron_id = "biblion.modules.patrons.api:patron_id_minter"
+patron_transaction_event_id = "biblion.modules.patron_transaction_events.api:patron_transaction_event_id_minter"
+patron_transaction_id = "biblion.modules.patron_transactions.api:patron_transaction_id_minter"
+patron_type_id = "biblion.modules.patron_types.api:patron_type_id_minter"
+remote_entity_id = "biblion.modules.entities.remote_entities.api:remote_entity_id_minter"
+stat_cfg_id = "biblion.modules.stats_cfg.api:stat_cfg_id_minter"
+stat_id = "biblion.modules.stats.api.api:stat_id_minter"
+template_id = "biblion.modules.templates.api:template_id_minter"
+vendor_id = "biblion.modules.vendors.api:vendor_id_minter"
+
+[project.entry-points."invenio_records.jsonresolver"]
+acq_accounts = "biblion.modules.acquisition.acq_accounts.jsonresolver"
+acq_order_lines = "biblion.modules.acquisition.acq_order_lines.jsonresolver"
+acq_orders = "biblion.modules.acquisition.acq_orders.jsonresolver"
+acq_receipts = "biblion.modules.acquisition.acq_receipts.jsonresolver"
+budgets = "biblion.modules.acquisition.budgets.jsonresolver"
+documents = "biblion.modules.documents.jsonresolver"
+holdings = "biblion.modules.holdings.jsonresolver"
+ill_requests = "biblion.modules.ill_requests.jsonresolver"
+item_types = "biblion.modules.item_types.jsonresolver"
+items = "biblion.modules.items.jsonresolver"
+libraries = "biblion.modules.libraries.jsonresolver"
+loans = "biblion.modules.loans.jsonresolver"
+local_entities = "biblion.modules.entities.local_entities.jsonresolver"
+locations = "biblion.modules.locations.jsonresolver"
+notifications = "biblion.modules.notifications.jsonresolver"
+organisations = "biblion.modules.organisations.jsonresolver"
+patron_transaction_events = "biblion.modules.patron_transaction_events.jsonresolver"
+patron_transactions = "biblion.modules.patron_transactions.jsonresolver"
+patron_types = "biblion.modules.patron_types.jsonresolver"
+patrons = "biblion.modules.patrons.jsonresolver"
+stats_cfg = "biblion.modules.stats_cfg.jsonresolver"
+templates = "biblion.modules.templates.jsonresolver"
+vendors = "biblion.modules.vendors.jsonresolver"
+
+[project.entry-points."invenio_search.mappings"]
+acq_accounts = "biblion.modules.acquisition.acq_accounts.mappings"
+acq_order_lines = "biblion.modules.acquisition.acq_order_lines.mappings"
+acq_orders = "biblion.modules.acquisition.acq_orders.mappings"
+acq_receipt_lines = "biblion.modules.acquisition.acq_receipt_lines.mappings"
+acq_receipts = "biblion.modules.acquisition.acq_receipts.mappings"
+budgets = "biblion.modules.acquisition.budgets.mappings"
+circ_policies = "biblion.modules.circ_policies.mappings"
+collections = "biblion.modules.collections.mappings"
+documents = "biblion.modules.documents.mappings"
+files = "biblion.modules.files.mappings"
+holdings = "biblion.modules.holdings.mappings"
+ill_requests = "biblion.modules.ill_requests.mappings"
+item_types = "biblion.modules.item_types.mappings"
+items = "biblion.modules.items.mappings"
+libraries = "biblion.modules.libraries.mappings"
+loans = "biblion.modules.loans.mappings"
+local_entities = "biblion.modules.entities.local_entities.mappings"
+local_fields = "biblion.modules.local_fields.mappings"
+locations = "biblion.modules.locations.mappings"
+notifications = "biblion.modules.notifications.mappings"
+organisations = "biblion.modules.organisations.mappings"
+patron_transaction_events = "biblion.modules.patron_transaction_events.mappings"
+patron_transactions = "biblion.modules.patron_transactions.mappings"
+patron_types = "biblion.modules.patron_types.mappings"
+patrons = "biblion.modules.patrons.mappings"
+remote_entities = "biblion.modules.entities.remote_entities.mappings"
+stats = "biblion.modules.stats.mappings"
+stats_cfg = "biblion.modules.stats_cfg.mappings"
+templates = "biblion.modules.templates.mappings"
+vendors = "biblion.modules.vendors.mappings"
+
+[project.entry-points."invenio_search.templates"]
+migrations = "biblion.modules.migrations.es_templates:list_search_templates"
+operation_logs = "biblion.modules.operation_logs.es_templates:list_search_templates"
+biblion = "biblion.es_templates:list_search_templates"
+
+# ---------------------------------------------------------------------------
+# Tool configurations
+# ---------------------------------------------------------------------------
+
+[tool.poe.tasks]
+# Scripts
+bootstrap = {cmd = "./scripts/bootstrap", help = "Runs bootstrap"}
+console = {cmd = "invenio shell", help = "Opens invenio shell"}
+server = {cmd = "./scripts/server", help = "Starts the server"}
+setup = {cmd = "./scripts/setup", help = "Runs full setup"}
+setup_e2e = {cmd = "./scripts/setup --e2e", help = "Minimal setup for E2E tests (orgs, libs, locs, item types, patron types, circ policies, users — no documents/items)"}
+update = {cmd = "./scripts/update", help = "Runs update"}
+# Code quality
+format = {cmd = "ruff format biblion tests", help = "Formats all files"}
+lint = {cmd = "ruff check biblion tests", help = "Checks linting"}
+# Tests
+e2e = {cmd = "pytest tests/e2e -m \"e2e and not chromium_only\" --base-url https://localhost:5000 --browser chromium --browser firefox --browser webkit -o \"addopts=--color=yes\"", help = "Runs cross-browser E2E tests (requires a running Biblion instance)"}
+e2e_chromium = {cmd = "pytest tests/e2e -m e2e --base-url https://localhost:5000 --browser chromium -o \"addopts=--color=yes\"", help = "Runs all E2E tests on Chromium including chromium_only tests (requires a running Biblion instance)"}
+e2e_firefox = {cmd = "pytest tests/e2e -m \"e2e and not chromium_only\" --base-url https://localhost:5000 --browser firefox -o \"addopts=--color=yes\"", help = "Runs Playwright E2E tests on Firefox, skipping Chromium-only tests (requires a running Biblion instance)"}
+e2e_webkit = {cmd = "pytest tests/e2e -m \"e2e and not chromium_only\" --base-url https://localhost:5000 --browser webkit -o \"addopts=--color=yes\"", help = "Runs Playwright E2E tests on WebKit, skipping Chromium-only tests (requires a running Biblion instance)"}
+run_tests = {cmd = "./scripts/test", help = "Runs all tests"}
+tests = {cmd = "pytest", help = "pytest"}
+tests_debug = {cmd = "pytest -s -vv --no-cov", help = "pytest -s -vv --no-cov"}
+# Translations
+compile_catalog = {cmd = "pybabel compile -d biblion/translations/", help = "compile message catalogs to MO files"}
+extract_messages = {cmd = "pybabel extract biblion/ -F babel.ini --project --copyright-holder=Hadeed --project=Biblion --msgid-bugs-address=hadeed.dev921@gmail.com -o biblion/translations/messages.pot -c NOTE", help = "extract messages from source files and generate a POT file"}
+init_catalog = {cmd = "pybabel init -i biblion/translations/messages.pot -d biblion/translations/", help = "create new message catalogs from a POT file"}
+update_catalog = {cmd = "pybabel update -i biblion/translations/messages.pot -d biblion/translations", help = "update existing message catalogs from a POT file"}
+
+[tool.pytest.ini_options]
+addopts = "--color=yes --ruff --exclude-warning-annotations --doctest-modules --cov=biblion --cov-report=term-missing --ignore=biblion/config.py --ignore=tests/e2e -m \"not external\""
+testpaths = ["tests", "biblion"]
+markers = [
+    "external: mark a test as dealing with external services.",
+    "e2e: mark a test as a Playwright end-to-end test (requires a running instance).",
+    "chromium_only: mark a test as Chromium-only (Angular PrimeNG form submission incompatible with Playwright Firefox/WebKit).",
+]
+filterwarnings = [
+    "ignore::PendingDeprecationWarning",
+    # marshmallow: 'missing' argument renamed to 'load_default' (upstream fix needed)
+    "ignore::DeprecationWarning:marshmallow",
+    # iso639: uses codecs.open() internally
+    "ignore:.*codecs\\.open.*:DeprecationWarning",
+    # jsonmerge uses jsonschema.RefResolver which was deprecated in jsonschema 4.18
+    "ignore:.*RefResolver.*:DeprecationWarning",
+    # pytest-playwright: false positive when session-scoped browser fixture is used with multiple --browser flags
+    "ignore:When using unittest.TestCase specifying multiple browsers is not supported:UserWarning",
+]
+
+[tool.ruff]
+target-version = "py314"
+extend-exclude = ["config.py"]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = ["A", "C4", "D", "F", "I", "INT", "ISC", "N", "PERF", "PIE", "Q", "RET", "RUF", "SIM", "T20", "UP", "W"]
+ignore = [
+    "A001",    # builtin-variable-shadowing
+    "A002",    # builtin-argument-shadowing
+    "BLE001",  # blind-except: catching `Exception` is deliberate around external services and harvesters
+    "D401",    # non-imperative-mood: docstring wording is left to the author
+    "DTZ",     # flake8-datetimez: naive dates are intentional (MARC dates, circulation dates, display)
+    "F403",    # undefined-local-with-import-star
+    "F841",    # unused-variable
+    "INT001",  # f-string-in-get-text-func-call
+    "N801",    # invalid-class-name
+    "N802",    # invalid-function-name: dojson handlers mirror the MARC field names
+    "N803",    # invalid-argument-name
+    "N806",    # non-lowercase-variable-in-function
+    "N818",    # error-suffix-on-exception-name
+    "PERF401", # manual-list-comprehension
+    "RUF012",  # mutable-class-default: Invenio base classes rely on mutable class attributes
+    "RUF059",  # unused-unpacked-variable
+    "SIM102",  # collapsible-if
+    "SIM115",  # open-file-with-context-handler
+    "T201",    # print
+]
+
+[tool.ruff.lint.per-file-ignores]
+# MARC transliteration fixtures deliberately mix Cyrillic and Latin look-alikes.
+"tests/**" = ["RUF001"]  # ambiguous-unicode-character-string
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

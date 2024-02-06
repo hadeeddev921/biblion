@@ -1,0 +1,24 @@
+[run]
+relative_files = True
+omit =
+    biblion/alembic/*
+    biblion/dojson/cli.py
+    biblion/modules/apiharvester/cli.py
+    biblion/modules/cli/fixtures.py
+    biblion/modules/cli/index.py
+    biblion/modules/cli/biblion.py
+    biblion/modules/cli/users.py
+    biblion/modules/cli/utils.py
+    biblion/modules/collections/cli.py
+    biblion/modules/ebooks/cli.py
+    biblion/modules/holdings/cli.py
+    biblion/modules/ill_requests/cli.py
+    biblion/modules/items/cli.py
+    biblion/modules/loans/cli.py
+    biblion/modules/patrons/cli.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/utils.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/dnb/model.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/kul/model.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/loc/model.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/slsp/model.py
+    biblion/modules/documents/dojson/contrib/marc21tojson/ugent/model.py
