@@ -1,0 +1,735 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Pytest configuration and shared fixtures for Playwright E2E tests.
+
+Run with:
+    uv run pytest tests/e2e -m e2e --base-url https://localhost:5000
+
+Requires a running Biblion instance loaded with the standard small
+fixture data set (``uv run invenio biblion setup -s``).
+"""
+
+import contextlib
+import os
+import ssl
+import time
+import urllib.request
+import weakref
+
+import pytest
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _wait_for_server(base_url):
+    """Poll /api/ping until the server is ready before any test runs."""
+    url = f"{base_url}/api/ping"
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    for _ in range(30):
+        with contextlib.suppress(Exception), urllib.request.urlopen(url, context=ctx, timeout=2) as resp:
+            if b"OK" in resp.read():
+                return
+        time.sleep(2)
+    pytest.fail(f"Server at {base_url} did not become ready within 60 s")
+
+
+# pytest-invenio skips any test whose fixture chain contains "browser" unless
+# E2E=yes. Every pytest-playwright test uses page → browser_context → browser,
+# so we set it here to avoid needing it as an external environment variable.
+os.environ.setdefault("E2E", "yes")
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Store each phase report on the item so fixtures can read the outcome."""
+    report = yield
+    setattr(item, f"_report_{report.when}", report)
+    return report
+
+
+# ── Test credentials (match the small fixture data set) ──────────────────────
+
+PASSWORD = "Pw123456"
+
+LIBRARIANS = {
+    "leonard": {
+        "email": "biblion.demo+leonard@example.com",
+        "first_name": "Leonard",
+        "last_name": "McCoy",
+        "patron_pid": "50",
+    },
+    "spock": {
+        "email": "biblion.demo+spock@example.com",
+        "first_name": "Spock",
+        "last_name": "Grayson",
+        "patron_pid": "51",
+    },
+}
+
+PATRONS = {
+    "james": {
+        "email": "biblion.demo+james@example.com",
+        "first_name": "James",
+        "last_name": "Kirk",
+        "barcode": "e2e-test-1",
+    },
+    "nyota": {
+        "email": "biblion.demo+nyota@example.com",
+        "first_name": "Nyota",
+        "last_name": "Uhura",
+        "barcode": "e2e-test-2",
+    },
+}
+
+# PIDs from the small fixture data set
+LOCATIONS = {"starfleet": 35, "vulcan": 36}
+LIBRARIES = {"starfleet": 22, "vulcan": 23}
+ITEM_TYPES = {"default": 11}
+
+
+# ── Browser configuration ─────────────────────────────────────────────────────
+
+_CONTEXT_ARGS = {"ignore_https_errors": True}
+
+
+_DEFAULT_TIMEOUT_MS = 60000  # Angular loads slower on CI runners
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """Ignore self-signed TLS certificate on localhost."""
+    return {**browser_context_args, **_CONTEXT_ARGS}
+
+
+@pytest.fixture()
+def context(context):
+    """Raise the default Playwright timeout to 60 s for all operations.
+
+    pytest-playwright's default is 30 s which is too short for Angular on CI.
+    The correct way to set a global timeout is via context.set_default_timeout().
+    """
+    context.set_default_timeout(_DEFAULT_TIMEOUT_MS)
+    yield context
+
+
+@pytest.fixture(scope="session")
+def browser(browser_type, browser_type_launch_args):
+    """Override pytest-invenio's Selenium browser fixture with a Playwright browser.
+
+    pytest-invenio registers a session-scoped 'browser' fixture for Selenium
+    WebDriver. Its pytest_generate_tests hook parametrises any test whose fixture
+    chain contains 'browser' (including the page→browser_context→browser chain
+    used by pytest-playwright). By shadowing the fixture here we ensure the
+    resolved browser is a Playwright Browser, so both the page fixture and our
+    custom per-test fixtures work correctly. The [Chrome] parametrisation label
+    from pytest-invenio is harmless.
+    """
+    pw_browser = browser_type.launch(**browser_type_launch_args)
+    yield pw_browser
+    pw_browser.close()
+
+
+# ── Console / network guard ───────────────────────────────────────────────────
+
+#: Console error messages containing one of these substrings are tolerated.
+CONSOLE_ALLOWLIST = (
+    # The development server drops a keep-alive connection over TLS and Chromium
+    # gives up retrying; the resource itself is served fine.
+    "net::ERR_TOO_MANY_RETRIES",
+)
+
+#: Uncaught exception messages containing one of these substrings are tolerated.
+PAGE_ERROR_ALLOWLIST = (
+    # WebKit's wording for a load it abandoned: the files the interface fetches
+    # in parallel when it boots, which the development server drops.
+    "due to access control checks",
+)
+
+#: ``(method, url substring, status)`` non-2xx answers that the application
+#: legitimately returns and that must therefore not fail a test.
+HTTP_ALLOWLIST = (
+    # Checkins that are valid no-ops answer "No circulation action performed".
+    ("POST", "/api/item/checkin", 400),
+    # Renewal is denied when it would not push the due date forward.
+    ("POST", "/api/item/extend_loan", 400),
+)
+
+
+def http_allowed(method, url, status):
+    """Whether a non-2xx response is a documented, legitimate answer."""
+    return any(m == method and part in url and s == status for m, part, s in HTTP_ALLOWLIST)
+
+
+#: The guard of each page, for the helpers that only receive the page.
+_GUARDS = weakref.WeakKeyDictionary()
+
+
+class PageGuard:
+    """Watch a page for console errors, uncaught exceptions and failed responses.
+
+    One is attached to every page fixture. Nothing fails during the test itself:
+    problems are collected and reported by ``assert_clean`` once the test body is
+    over, so a test that navigates through a broken screen fails even when its own
+    assertions pass. It also keeps the interface's requests in flight, for
+    ``wait_for_requests``.
+    """
+
+    def __init__(self, page):
+        """Subscribe to the three browser channels and to the requests and navigations of the given page."""
+        self.problems = []
+        self.in_flight = set()
+        self._replacing_document = False
+        page.on("console", self._on_console)
+        page.on("pageerror", self._on_page_error)
+        page.on("response", self._on_response)
+        page.on("request", self._on_request)
+        page.on("requestfinished", self._on_request_end)
+        page.on("requestfailed", self._on_request_end)
+        page.on("framenavigated", self._on_frame_navigated)
+        _GUARDS[page] = self
+
+    def _on_console(self, message):
+        """Record console.error() calls that are not allowlisted.
+
+        The location is appended because Chromium's network-level messages
+        ("Failed to load resource: …") never name the resource in their text.
+        """
+        if message.type != "error" or any(part in message.text for part in CONSOLE_ALLOWLIST):
+            return
+        origin = message.location.get("url") or ""
+        self.problems.append(f"console error: {message.text}" + (f" ({origin})" if origin else ""))
+
+    def _on_page_error(self, error):
+        """Record exceptions that reached the top level of the page."""
+        if any(part in error.message for part in PAGE_ERROR_ALLOWLIST):
+            return
+        self.problems.append(f"uncaught exception: {error.message}")
+
+    def _on_response(self, response):
+        """Record 4xx/5xx answers to requests issued by the browser."""
+        method = response.request.method
+        if response.status >= 400 and not http_allowed(method, response.url, response.status):
+            self.problems.append(f"HTTP {response.status}: {method} {response.url}")
+
+    def _on_request(self, request):
+        """Keep the requests issued by the interface's code until they end.
+
+        A navigation request of the main frame announces that its document is about to be replaced.
+        """
+        if request.resource_type in ("xhr", "fetch"):
+            self.in_flight.add(request)
+        elif request.is_navigation_request() and request.frame.parent_frame is None:
+            self._replacing_document = True
+
+    def _on_request_end(self, request):
+        """Forget a request once it has finished or failed."""
+        self.in_flight.discard(request)
+
+    def _on_frame_navigated(self, frame):
+        """Forget the requests of the document the main frame has just replaced.
+
+        Chromium does not report the end of the requests it cancels with their document,
+        so they would stay in flight forever. The interface's own routing changes the
+        URL without replacing the document, and its requests are kept.
+        """
+        if frame.parent_frame is None and self._replacing_document:
+            self._replacing_document = False
+            self.in_flight.clear()
+
+    def assert_clean(self):
+        """Fail with the full list of everything the browser reported."""
+        assert not self.problems, "the browser reported errors:\n  - " + "\n  - ".join(self.problems)
+
+
+def _assert_clean_unless_failed(guard, request):
+    """Run the guard assertion, unless the test already failed on its own.
+
+    A failing test usually produces browser errors too; reporting them on top of
+    the real failure would only bury it.
+    """
+    report = getattr(request.node, "_report_call", None)
+    if report is not None and report.passed:
+        guard.assert_clean()
+
+
+@pytest.fixture()
+def page(page, request):
+    """Watch pytest-playwright's default page for console and network errors."""
+    guard = PageGuard(page)
+    yield page
+    _assert_clean_unless_failed(guard, request)
+
+
+def _make_page(pw_browser, base_url, email, request, professional=False):
+    """Yield an isolated context + page logged in as the given user, under surveillance.
+
+    Takes a playwright Browser instance (not pytest-invenio's Selenium browser).
+    The guard is attached before the first navigation so that the initial load of
+    the interface is watched too. The language is set without loading a page, so
+    that no interface is left while still booting. With ``professional``, the page
+    is handed over once the professional interface is ready.
+    """
+    ctx = pw_browser.new_context(base_url=base_url, **_CONTEXT_ARGS)
+    ctx.set_default_timeout(_DEFAULT_TIMEOUT_MS)
+    p = ctx.new_page()
+    guard = PageGuard(p)
+    resp = p.request.post(f"{base_url}/api/login", data={"email": email, "password": PASSWORD})
+    assert resp.ok, f"Login failed for {email!r}: {resp.status} {resp.text()}"
+    p.request.get(f"{base_url}/lang/en")
+    p.goto(f"{base_url}/professional" if professional else base_url, wait_until="domcontentloaded")
+    if professional:
+        wait_for_professional_ui(p)
+    yield p
+    try:
+        _assert_clean_unless_failed(guard, request)
+    finally:
+        ctx.close()
+
+
+# ── Login helpers ─────────────────────────────────────────────────────────────
+
+
+def login(page, email, base_url):
+    """Log in via the REST API and navigate to the English-language UI."""
+    resp = page.request.post(
+        f"{base_url}/api/login",
+        data={"email": email, "password": PASSWORD},
+    )
+    assert resp.ok, f"Login failed for {email!r}: {resp.status} {resp.text()}"
+    page.goto(f"{base_url}/lang/en", wait_until="domcontentloaded")
+
+
+def logout(page, base_url):
+    """Log out and wait for the public page to load."""
+    page.goto(f"{base_url}/signout/", wait_until="domcontentloaded")
+
+
+def wait_for_professional_ui(page):
+    """Wait until the professional interface has booted and loaded its library menu.
+
+    ``admin-root`` is already in the served HTML, so it proves nothing. The library
+    menu only renders once the libraries request has answered: leaving the page
+    before that cancels the request, which WebKit reports as an uncaught exception.
+    """
+    page.locator("#library-menu").wait_for()
+
+
+def wait_for_requests(page, poll_ms=200):
+    """Wait until the interface has no request left in flight.
+
+    Leaving a page cancels its pending requests, and WebKit reports the failure to
+    the interface still running: one it does not handle then surfaces as an uncaught
+    exception. The first pause lets the requests just issued by the page reach the
+    guard.
+    """
+    in_flight = _GUARDS[page].in_flight
+    for _ in range(_DEFAULT_TIMEOUT_MS // poll_ms):
+        page.wait_for_timeout(poll_ms)
+        if not in_flight:
+            return
+    pytest.fail("requests still in flight:\n  - " + "\n  - ".join(request.url for request in in_flight))
+
+
+@pytest.fixture()
+def librarian_page(browser, base_url, request):
+    """Isolated context + page logged in as Leonard at the professional UI."""
+    yield from _make_page(browser, base_url, LIBRARIANS["leonard"]["email"], request, professional=True)
+
+
+@pytest.fixture()
+def spock_page(browser, base_url, request):
+    """Isolated context + page logged in as Spock (Vulcan library)."""
+    yield from _make_page(browser, base_url, LIBRARIANS["spock"]["email"], request, professional=True)
+
+
+@pytest.fixture()
+def patron_page(browser, base_url, request):
+    """Isolated context + page logged in as patron James."""
+    yield from _make_page(browser, base_url, PATRONS["james"]["email"], request)
+
+
+# ── API helpers ───────────────────────────────────────────────────────────────
+
+
+def api_create_document(page, base_url, title_suffix=""):
+    """Create a minimal test document via the REST API and return its PID."""
+    resp = page.request.post(
+        f"{base_url}/api/documents/",
+        data={
+            "type": [{"main_type": "docmaintype_book", "subtype": "docsubtype_other_book"}],
+            "title": [{"type": "bf:Title", "mainTitle": [{"value": f"E2E test document{title_suffix}"}]}],
+            "language": [{"type": "bf:Language", "value": "fre"}],
+            "provisionActivity": [
+                {
+                    "type": "bf:Publication",
+                    "startDate": 2020,
+                    "statement": [
+                        {"type": "bf:Place", "label": [{"value": "Place"}]},
+                        {"type": "bf:Agent", "label": [{"value": "Agent"}]},
+                        {"type": "Date", "label": [{"value": "2020"}]},
+                    ],
+                    "place": [{"country": "xx"}],
+                }
+            ],
+            "issuance": {"main_type": "rdami:1001", "subtype": "materialUnit"},
+            "fiction_statement": "unspecified",
+            "adminMetadata": {"encodingLevel": "Not applicable"},
+        },
+    )
+    assert resp.ok
+    return resp.json()["id"]
+
+
+def api_create_item(
+    page,
+    base_url,
+    document_pid,
+    barcode,
+    location_pid=35,
+    item_type_pid=11,
+):
+    """Create a test item via the REST API and return its PID.
+
+    If an item with the same barcode already exists (from a failed previous run),
+    returns its PID without creating a duplicate.
+    """
+    existing = page.request.get(f"{base_url}/api/items/", params={"q": f'barcode:"{barcode}"'})
+    if hits := existing.json().get("hits", {}).get("hits", []):
+        return hits[0]["metadata"]["pid"]
+
+    resp = page.request.post(
+        f"{base_url}/api/items/",
+        data={
+            "type": "standard",
+            "status": "on_shelf",
+            "barcode": barcode,
+            "call_number": barcode,
+            "document": {"$ref": f"https://bib.rero.ch/api/documents/{document_pid}"},
+            "location": {"$ref": f"https://bib.rero.ch/api/locations/{location_pid}"},
+            "item_type": {"$ref": f"https://bib.rero.ch/api/item_types/{item_type_pid}"},
+        },
+    )
+    assert resp.ok
+    return resp.json()["id"]
+
+
+def api_delete(page, base_url, resource, pid):
+    """Delete a single resource record."""
+    page.request.delete(f"{base_url}/api/{resource}/{pid}")
+
+
+def api_validate_request(page, base_url, item_pid):
+    """Validate a pending item request via REST API (librarian page must be logged in).
+
+    No-op if no PENDING loan exists (already validated in a previous run).
+    """
+    loans_resp = page.request.get(
+        f"{base_url}/api/loans/",
+        params={"q": f"item_pid.value:{item_pid} AND state:PENDING"},
+    )
+    hits = loans_resp.json()["hits"]["hits"]
+    if not hits:
+        return  # already validated or no pending request
+    loan_pid = hits[0]["metadata"]["pid"]
+    lib_pid = LIBRARIANS["leonard"]["patron_pid"]
+    barcode = page.request.get(f"{base_url}/api/items/{item_pid}").json()["metadata"]["barcode"]
+    # Use the item's actual location as transaction location for correct transit calculation
+    item_data = page.request.get(f"{base_url}/api/items/{item_pid}").json()["metadata"]
+    item_location_pid = item_data["location"]["$ref"].split("/")[-1]
+    page.request.post(
+        f"{base_url}/api/item/validate_request",
+        data={
+            "item_barcode": barcode,
+            "pid": loan_pid,
+            "transaction_location_pid": item_location_pid,
+            "transaction_user_pid": lib_pid,
+        },
+    )
+
+
+def api_request_item(page, base_url, item_pid, pickup_location_pid=35):
+    """Create a patron loan request via REST API.
+
+    The logged-in page must be the LIBRARIAN (Leonard) who requests on behalf of patron James.
+    """
+    # Look up patron James's pid
+    patron_resp = page.request.get(
+        f"{base_url}/api/patrons/",
+        params={"q": f'barcode:"{PATRONS["james"]["barcode"]}"'},
+    )
+    patron_pid = patron_resp.json()["hits"]["hits"][0]["metadata"]["pid"]
+
+    resp = page.request.post(
+        f"{base_url}/api/item/request",
+        data={
+            "item_pid": item_pid,
+            "pickup_location_pid": str(pickup_location_pid),
+            "patron_pid": patron_pid,
+            "transaction_library_pid": str(LIBRARIES["starfleet"]),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+    # 403 = already has an active request; skip silently
+    assert resp.ok or resp.status == 403, f"api_request_item failed: {resp.status} {resp.json()}"
+
+
+def api_get_patron_pid(page, base_url, barcode):
+    """Return the patron PID for a given patron barcode."""
+    resp = page.request.get(f"{base_url}/api/patrons/", params={"q": f'barcode:"{barcode}"'})
+    return resp.json()["hits"]["hits"][0]["metadata"]["pid"]
+
+
+def api_request_for_patron(
+    page,
+    base_url,
+    item_pid,
+    patron_barcode,
+    pickup_location_pid,
+    transaction_location_pid=LOCATIONS["starfleet"],
+):
+    """Create an item request for a specific patron via REST API."""
+    patron_pid = api_get_patron_pid(page, base_url, patron_barcode)
+    resp = page.request.post(
+        f"{base_url}/api/item/request",
+        data={
+            "item_pid": item_pid,
+            "pickup_location_pid": str(pickup_location_pid),
+            "patron_pid": patron_pid,
+            "transaction_location_pid": str(transaction_location_pid),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+    assert resp.ok or resp.status == 403, f"api_request_for_patron failed: {resp.status} {resp.json()}"
+
+
+def api_checkout(
+    page,
+    base_url,
+    item_barcode,
+    patron_barcode,
+    transaction_location_pid,
+):
+    """Checkout an item to a patron via REST API."""
+    patron_pid = api_get_patron_pid(page, base_url, patron_barcode)
+    resp = page.request.post(
+        f"{base_url}/api/item/checkout",
+        data={
+            "item_barcode": item_barcode,
+            "patron_pid": patron_pid,
+            "transaction_location_pid": str(transaction_location_pid),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+    assert resp.ok, f"api_checkout failed: {resp.status} {resp.json()}"
+
+
+def api_checkin(
+    page,
+    base_url,
+    item_barcode,
+    transaction_location_pid,
+):
+    """Checkin an item via REST API (also handles receive/house_receive).
+
+    Returns the response JSON. Does not assert on status because some checkin
+    operations are valid no-ops (400 'No circulation action performed') per the
+    Biblion circulation state machine (e.g. CHECKIN_1.1.1, CHECKIN_4.2).
+    """
+    resp = page.request.post(
+        f"{base_url}/api/item/checkin",
+        data={
+            "item_barcode": item_barcode,
+            "transaction_location_pid": str(transaction_location_pid),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+    return resp.json()
+
+
+def api_extend_loan(
+    page,
+    base_url,
+    item_barcode,
+    transaction_location_pid,
+):
+    """Extend the current loan for an item via REST API.
+
+    Returns the response JSON. Does not assert because extension can be legitimately
+    denied when the renewal duration would not push the due date forward (loan just
+    created, renewal_duration = checkout_duration).
+    """
+    resp = page.request.post(
+        f"{base_url}/api/item/extend_loan",
+        data={
+            "item_barcode": item_barcode,
+            "transaction_location_pid": str(transaction_location_pid),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+    return resp.json()
+
+
+def api_cancel_loan(
+    page,
+    base_url,
+    item_barcode,
+    transaction_location_pid,
+):
+    """Cancel the most recent active loan for an item via REST API."""
+    item_resp = page.request.get(f"{base_url}/api/items/", params={"q": f'barcode:"{item_barcode}"'})
+    item_pid = item_resp.json()["hits"]["hits"][0]["metadata"]["pid"]
+    loans_resp = page.request.get(
+        f"{base_url}/api/loans/",
+        params={"q": f"item_pid.value:{item_pid} AND state:({_ACTIVE_LOAN_STATES})"},
+    )
+    hits = loans_resp.json().get("hits", {}).get("hits", [])
+    if not hits:
+        return
+    loan_pid = hits[0]["metadata"]["pid"]
+    page.request.post(
+        f"{base_url}/api/item/cancel_item_request",
+        data={
+            "item_barcode": item_barcode,
+            "pid": loan_pid,
+            "transaction_location_pid": str(transaction_location_pid),
+            "transaction_user_pid": LIBRARIANS["leonard"]["patron_pid"],
+        },
+    )
+
+
+_ACTIVE_LOAN_STATES = (
+    "PENDING OR ITEM_AT_WAREHOUSE OR ITEM_IN_TRANSIT_FOR_PICKUP"
+    " OR ITEM_ON_LOAN OR ITEM_IN_TRANSIT_TO_HOUSE OR ITEM_AT_DESK"
+)
+
+
+_CHECKOUT_STATES = {"ITEM_ON_LOAN", "ITEM_IN_TRANSIT_TO_HOUSE"}
+
+
+def api_cleanup_items_by_barcode(page, base_url, barcode):
+    """Delete any existing items with the given barcode, resolving active loans first.
+
+    ITEM_ON_LOAN / ITEM_IN_TRANSIT_TO_HOUSE require a checkin (not cancel_item_request).
+    All other active states use cancel_item_request.
+    """
+    lib_pid = LIBRARIANS["leonard"]["patron_pid"]
+    resp = page.request.get(f"{base_url}/api/items/", params={"q": f'barcode:"{barcode}"'})
+    for hit in resp.json().get("hits", {}).get("hits", []):
+        item_pid = hit["metadata"]["pid"]
+        loans_resp = page.request.get(
+            f"{base_url}/api/loans/",
+            params={"q": f"item_pid.value:{item_pid} AND state:({_ACTIVE_LOAN_STATES})"},
+        )
+        for loan in loans_resp.json().get("hits", {}).get("hits", []):
+            loan_pid = loan["metadata"]["pid"]
+            if loan["metadata"]["state"] in _CHECKOUT_STATES:
+                # Return the item to its home location via checkin
+                page.request.post(
+                    f"{base_url}/api/item/checkin",
+                    data={
+                        "item_barcode": barcode,
+                        "transaction_location_pid": str(LOCATIONS["starfleet"]),
+                        "transaction_user_pid": lib_pid,
+                    },
+                )
+                # If still in transit after first checkin, receive at home
+                page.request.post(
+                    f"{base_url}/api/item/checkin",
+                    data={
+                        "item_barcode": barcode,
+                        "transaction_location_pid": str(LOCATIONS["starfleet"]),
+                        "transaction_user_pid": lib_pid,
+                    },
+                )
+            else:
+                page.request.post(
+                    f"{base_url}/api/item/cancel_item_request",
+                    data={
+                        "item_barcode": barcode,
+                        "pid": loan_pid,
+                        "transaction_location_pid": str(LOCATIONS["starfleet"]),
+                        "transaction_user_pid": lib_pid,
+                    },
+                )
+        api_delete(page, base_url, "items", item_pid)
+
+
+def wait_for_item_indexed(page, base_url, barcode, timeout_ms=15000):
+    """Poll ES until the item and its holding appear in the search indexes."""
+    for _ in range(timeout_ms // 500):
+        item_resp = page.request.get(f"{base_url}/api/items/", params={"q": f'barcode:"{barcode}"'})
+        if hits := item_resp.json().get("hits", {}).get("hits", []):
+            if doc_pid := hits[0]["metadata"].get("document", {}).get("pid"):
+                holding_resp = page.request.get(
+                    f"{base_url}/api/holdings/",
+                    params={"q": f"document.pid:{doc_pid}"},
+                )
+                if holding_resp.json().get("hits", {}).get("total", 0) > 0:
+                    return
+        page.wait_for_timeout(500)
+    raise TimeoutError(f"Item/holding for barcode {barcode!r} not indexed after {timeout_ms}ms")
+
+
+# ── Navigation / circulation helpers ─────────────────────────────────────────
+
+
+CIRCULATION_PLACEHOLDER = "Scan a patron or item barcode"
+CIRCULATION_ITEM_PLACEHOLDER = "Scan an item barcode to check out/check-in"
+REQUESTS_PLACEHOLDER = "Scan an item barcode to validate a request"
+
+
+def go_to_circulation(page, base_url):
+    """Navigate to the Angular circulation checkout/checkin view, once the current page has settled.
+
+    The view displaying the result of an action keeps loading the item's details
+    after the result itself has appeared.
+    """
+    wait_for_requests(page)
+    page.goto(f"{base_url}/professional/circulation", wait_until="domcontentloaded")
+    page.get_by_placeholder(CIRCULATION_PLACEHOLDER).wait_for()
+
+
+def scan_barcode(page, barcode):
+    """Type a barcode in the circulation search input and press Enter."""
+    inp = page.get_by_placeholder(CIRCULATION_PLACEHOLDER)
+    inp.fill(barcode)
+    inp.press("Enter")
+
+
+def scan_patron_then_item(page, patron_barcode, item_barcode):
+    """Scan patron barcode (checkout start), then item barcode (checkout).
+
+    After scanning the patron, the placeholder changes to the item-only variant.
+    """
+    scan_barcode(page, patron_barcode)
+    page.locator("#patron-last-name").wait_for()
+    # After patron is scanned, the input placeholder changes
+    inp = page.get_by_placeholder(CIRCULATION_ITEM_PLACEHOLDER)
+    inp.fill(item_barcode)
+    inp.press("Enter")
+
+
+def api_get_item_status(page, base_url, barcode):
+    """Return the current status of an item by barcode via REST API."""
+    resp = page.request.get(f"{base_url}/api/items/", params={"q": f'barcode:"{barcode}"'})
+    hits = resp.json().get("hits", {}).get("hits", [])
+    return hits[0]["metadata"]["status"] if hits else ""
+
+
+def api_wait_for_item_status(page, base_url, barcode, expected, timeout_ms=15000):
+    """Poll ES until the item reaches the expected status.
+
+    The UI action may complete before Elasticsearch finishes reindexing,
+    so asserting directly on api_get_item_status can return stale data.
+    This helper retries until the expected status appears or the timeout is
+    exceeded, at which point it raises AssertionError with the last seen value.
+    """
+    for _ in range(timeout_ms // 500):
+        status = api_get_item_status(page, base_url, barcode)
+        if status == expected:
+            return
+        page.wait_for_timeout(500)
+    status = api_get_item_status(page, base_url, barcode)
+    assert status == expected, f"Item {barcode!r} status: expected {expected!r}, got {status!r}"
