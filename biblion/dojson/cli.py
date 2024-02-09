@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Click command-line utilities."""
+
+import json
+
+import click
+from flask import current_app
+from werkzeug.local import LocalProxy
+
+_datastore = LocalProxy(lambda: current_app.extensions["security"].datastore)
+
+
+@click.command("reverse")
+def reverse():
+    """Reverse the order of the data."""
+
+    def processor(iterator):
+        items = list(iterator)
+        items.reverse()
+        return items
+
+    return processor
+
+
+@click.command("head")
+@click.argument(
+    "max",
+    type=click.INT,
+)
+def head(max):
+    """Take only the first max items."""
+
+    def processor(iterator):
+        for n, item in enumerate(iterator):
+            if n >= max:
+                return
+            yield item
+
+    return processor
+
+
+def pretty_json_dump(iterator):
+    """Dump JSON from iterator."""
+    return json.dumps(list(iterator), indent=2)
