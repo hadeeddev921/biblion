@@ -1,0 +1,25 @@
+{
+  "currency": {
+    "title": "Currency",
+    "type": "string",
+    "enum": [
+      "CHF",
+      "CAD",
+      "EUR",
+      "GBP",
+      "USD",
+      "AUD"
+    ],
+    "default": "CHF",
+    "pattern": "^[A-Z]{3}$",
+    "widget": {
+      "formlyConfig": {
+        "type": "select",
+        "props": {
+          "itemCssClass": "ui:md:w-2/12",
+          "sort": true
+        }
+      }
+    }
+  }
+}
