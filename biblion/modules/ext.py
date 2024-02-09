@@ -1,0 +1,396 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Biblion invenio module declaration."""
+
+import logging
+
+import jinja2
+from elasticsearch_dsl import connections
+from flask import Blueprint, request
+from flask_bootstrap import Bootstrap4
+from flask_login import current_user
+from flask_login.signals import user_loaded_from_cookie, user_logged_in, user_logged_out
+from flask_principal import RoleNeed, identity_loaded
+from flask_wiki import Wiki
+from invenio_base.signals import app_loaded
+from invenio_base.utils import obj_or_import_string
+from invenio_circulation.signals import loan_state_changed
+from invenio_db import db
+from invenio_indexer.signals import before_record_index
+from invenio_records.signals import (
+    after_record_insert,
+    after_record_update,
+    before_record_update,
+)
+from invenio_records_rest.errors import JSONSchemaValidationError, RecordConflictRESTError
+from invenio_search import current_search_client
+from jsonschema.exceptions import ValidationError
+from redis import Redis
+from sqlalchemy.orm.exc import StaleDataError
+
+from biblion.filter import (
+    address_block,
+    angular_assets,
+    empty_data,
+    format_date_filter,
+    get_record_by_ref,
+    jsondumps,
+    message_filter,
+    text_to_id,
+    to_pretty_json,
+    translate,
+)
+from biblion.modules.acquisition.acq_accounts.listener import enrich_acq_account_data
+from biblion.modules.acquisition.acq_order_lines.listener import (
+    enrich_acq_order_line_data,
+)
+from biblion.modules.acquisition.acq_orders.listener import enrich_acq_order_data
+from biblion.modules.acquisition.acq_receipt_lines.listener import (
+    enrich_acq_receipt_line_data,
+)
+from biblion.modules.acquisition.acq_receipts.listener import enrich_acq_receipt_data
+from biblion.modules.acquisition.budgets.listener import budget_is_active_changed
+from biblion.modules.collections.listener import enrich_collection_data
+from biblion.modules.holdings.listener import (
+    enrich_holding_data,
+    update_items_locations_and_types,
+)
+from biblion.modules.ill_requests.listener import enrich_ill_request_data
+from biblion.modules.imports.views import (
+    ImportsListResource,
+    ImportsResource,
+    ResultNotFoundOnTheRemoteServer,
+)
+from biblion.modules.item_types.listener import negative_availability_changes
+from biblion.modules.items.listener import enrich_item_data
+from biblion.modules.items.views.filters import issue_client_reference
+from biblion.modules.loans.listener import (
+    enrich_loan_data,
+    listener_loan_state_changed,
+)
+from biblion.modules.normalizer_stop_words import NormalizerStopWords
+from biblion.modules.notifications.listener import enrich_notification_data
+from biblion.modules.patron_transaction_events.listener import (
+    enrich_patron_transaction_event_data,
+)
+from biblion.modules.patron_transactions.listener import enrich_patron_transaction_data
+from biblion.modules.patrons.api import current_librarian, current_patrons
+from biblion.modules.patrons.listener import (
+    create_subscription_patron_transaction,
+    enrich_patron_data,
+)
+from biblion.modules.permissions import LibraryNeed, OrganisationNeed, OwnerNeed
+from biblion.modules.sru.views import SRUDocumentsSearch
+from biblion.modules.templates.listener import prepare_template_data
+from biblion.modules.users.listener import (
+    user_register_forms,
+    user_reset_password_forms,
+    user_reset_password_view,
+)
+from biblion.modules.users.views import UsersCreateResource, UsersResource
+from biblion.modules.utils import remove_user_name, set_user_name
+from biblion.theme.menus import init_menu_lang, init_menu_profile, init_menu_tools
+from biblion.version import __version__
+
+from .receivers import set_boosting_query_fields
+
+
+@identity_loaded.connect
+def on_identity_loaded(sender, identity):
+    """Add ``Needs`` to manage Biblion permissions.
+
+    Add custom Biblion ``Needs`` that will be used to manage policies on
+    application resources.
+    Since flask-security-invenio 4.x populates ``RoleNeed`` using
+    ``role.id`` (integer), we also add ``RoleNeed(role.name)`` so that
+    name-based permission checks keep working.
+
+    @param sender: the sender application.
+    @param identity: the identity to enrich.
+    """
+    for role in getattr(current_user, "roles", []):
+        identity.provides.add(RoleNeed(role.name))
+
+    if current_librarian:
+        identity.provides.update(
+            [
+                OwnerNeed(current_librarian.pid),
+                OrganisationNeed(current_librarian.organisation_pid),
+            ]
+        )
+        # for a `full_permission` user, the manageable libraries are all
+        # libraries from the organisation ; otherwise, this is the libraries
+        # referenced into the ``Patron`` profile.
+        library_pids = current_librarian.library_pids
+        if current_librarian.has_full_permissions:
+            library_pids = current_librarian.organisation.get_libraries_pids()
+        for library_pid in library_pids:
+            identity.provides.add(LibraryNeed(library_pid))
+    # patrons
+    elif current_patrons:
+        for patron in current_patrons:
+            identity.provides.update([OwnerNeed(patron.pid), OrganisationNeed(patron.organisation_pid)])
+
+
+@app_loaded.connect
+def load_actions(sender, app):
+    """Register actions use to control permissions on the applications.
+
+    Why doing this here and not into pyproject.toml ::
+        Official `invenio-access` documentation describe how to automatically
+        register actions using the  `invenio-access.actions` entrypoint.
+        see : https://invenio-access.readthedocs.io/en/latest/
+              usage.html#registering-actions
+
+        But, using this approach all actions will also be loaded for any CLI
+        application. As this task is time-consuming (100 actions ~= 15 seconds)
+        we choose to load these actions only when the application is fully
+        loaded (so we ensure than invenio-access module is available).
+
+    :param sender: the application factory function.
+    :param app: the Flask application instance.
+    """
+    # We can't use the `current_access` proxy from `invenio-access` because
+    # we need the application context to use it. At this time, the context
+    # isn't define ; get the invenio-access extension directly from app.
+    access_ext = app.extensions["invenio-access"]
+    for action in app.config.get("BIBLION_PERMISSIONS_ACTIONS", []):
+        access_ext.register_action(obj_or_import_string(action))
+
+    # add jsonschema resolution from local:// and bib.rero.ch
+    data = app.extensions["invenio-jsonschemas"].refresolver_store()
+    cfg = app.config
+    schema_url = f"{cfg['JSONSCHEMAS_URL_SCHEME']}://{cfg['JSONSCHEMAS_HOST']}{cfg['JSONSCHEMAS_ENDPOINT']}/"
+
+    app.extensions["biblion"].jsonschema_store = dict(
+        **data, **{k.replace("local://", schema_url): v for k, v in data.items()}
+    )
+
+
+class BiblionApp:
+    """biblion extension."""
+
+    def __init__(self, app=None):
+        """Biblion App module."""
+        # jsonschema store
+        # SEE: RECORDS_REFRESOLVER_STORE for more details
+        self.jsonschema_store = {}
+        if app:
+            self.init_app(app)
+            # force to load ils template before others
+            # it is required for Flask-Security see:
+            # https://pythonhosted.org/Flask-Security/customizing.html#emails
+            ils_loader = jinja2.ChoiceLoader([jinja2.PackageLoader("biblion", "theme/templates"), app.jinja_loader])
+            app.jinja_loader = ils_loader
+
+            # register filters
+            app.add_template_filter(get_record_by_ref)
+            app.add_template_filter(format_date_filter, name="format_date")
+            app.add_template_global(angular_assets)
+            app.add_template_filter(to_pretty_json, name="tojson_pretty")
+            app.add_template_filter(text_to_id)
+            app.add_template_filter(jsondumps)
+            app.add_template_filter(empty_data)
+            app.add_template_filter(address_block)
+            app.add_template_filter(message_filter, name="message")
+            app.add_template_filter(issue_client_reference)
+            app.add_template_filter(translate)
+            app.jinja_env.add_extension("jinja2.ext.do")
+            app.jinja_env.globals["version"] = __version__
+            self.register_signals(app)
+
+    def init_app(self, app):
+        """Flask application initialization."""
+        Bootstrap4(app)
+        # Only register the wiki on the UI app to avoid ``BuildError`` when trying to reach it from the API.
+        if app.static_folder is not None:
+            Wiki(app)
+        NormalizerStopWords(app)
+        self.init_config(app)
+        app.extensions["biblion"] = self
+        instances = {}
+        for name, config_key in app.config.get("BIBLION_MONITORING_REDIS_INSTANCES", {}).items():
+            url = app.config.get(config_key)
+            if url and url.startswith(("redis://", "rediss://", "unix://")):
+                instances[name] = Redis.from_url(url)
+        app.extensions["biblion_redis_instances"] = instances
+        if "import_cache" in instances:
+            app.extensions["biblion_import_cache"] = instances["import_cache"]
+        else:
+            app.extensions["biblion_import_cache"] = Redis.from_url(
+                app.config.get("BIBLION_IMPORT_CACHE", "redis://localhost:6379/5")
+            )
+        BiblionApp.register_import_api_blueprint(app)
+        BiblionApp.register_users_api_blueprint(app)
+        BiblionApp.register_sru_api_blueprint(app)
+        if db_log := app.config.get("BIBLION_DB_LOGGING"):
+            logging.getLogger("sqlalchemy.engine").setLevel(db_log)
+        if search_log := app.config.get("BIBLION_SEARCH_LOGGING"):
+            search_trace_logger = logging.getLogger("elasticsearch.trace")
+            search_trace_logger.setLevel(search_log)
+            handler = logging.StreamHandler()
+            search_trace_logger.addHandler(handler)
+        app_loaded.connect(set_boosting_query_fields)
+        connections.add_connection("default", current_search_client)
+
+        # TODO: Temporary workaround for concurrent DELETE requests (e.g. double-click).
+        # StaleDataError is raised by SQLAlchemy optimistic locking (version_id_col on
+        # RecordMetadata) when two requests read the same revision and both try to commit.
+        # invenio-records-rest 6.0.2 catches it in its put() handler only;
+        # so a concurrent delete still ends up as a 500.
+        # Remove this handler once delete() catches StaleDataError upstream.
+        # Track upstream: https://github.com/inveniosoftware/invenio-records-rest
+        @app.errorhandler(StaleDataError)
+        def handle_concurrent_update(e):
+            """Return 409 when two concurrent requests update the same record."""
+            db.session.rollback()
+            return RecordConflictRESTError().get_response()
+
+        # Acquisition item responses can't be safely browser-cached: their ETag/Last-Modified track only the record's
+        # own `revision_id`/`updated`, but the response also depends on *related* records. Serialized fields computed
+        # at dump time (an order's `account_statement`/`status`, a receipt's totals, an account's balances) go stale
+        # without the ETag changing, so a conditional GET returns 304 with an outdated body (e.g. a provisional total
+        # stuck at 0, greying out the "Place order" button). The stale ETag also breaks editing: the editor reuses it
+        # as the `If-Match` precondition on save, so a line loaded from cache fails to save once its revision moved.
+        # Send `Cache-Control: no-store` so the browser always refetches a fresh body and ETag.
+        @app.after_request
+        def prevent_stale_computed_record_cache(response):
+            """Disable browser caching for acquisition records with related data."""
+            if request.endpoint in {
+                "invenio_records_rest.acor_item",  # acquisition orders
+                "invenio_records_rest.acol_item",  # acquisition order lines
+                "invenio_records_rest.acre_item",  # acquisition receipts
+                "invenio_records_rest.acrl_item",  # acquisition receipt lines
+                "invenio_records_rest.acac_item",  # acquisition accounts
+            }:
+                response.headers["Cache-Control"] = "no-store"
+            return response
+
+    @staticmethod
+    def register_import_api_blueprint(app):
+        """Imports blueprints initialization."""
+
+        def handle_bad_request(e):
+            return "not found", 404
+
+        blueprint = Blueprint("api_imports", __name__)
+        endpoints = app.config.get("BIBLION_IMPORT_REST_ENDPOINTS", {})
+        for key, config in endpoints.items():
+            # search view
+            search_view_name = f"import_{key}"
+            search_path = f"/import_{key}/"
+            search_view = ImportsListResource.as_view(
+                search_view_name,
+                import_class=config.get("import_class"),
+                import_size=config.get("import_size"),
+            )
+            blueprint.add_url_rule(search_path, view_func=search_view)
+
+            # record view
+            record_view_name = f"import_{key}_record"
+            record_path = f"/import_{key}/<id>"
+            record_view = ImportsResource.as_view(record_view_name, import_class=config.get("import_class"))
+            blueprint.add_url_rule(record_path, view_func=record_view)
+
+        blueprint.register_error_handler(ResultNotFoundOnTheRemoteServer, handle_bad_request)
+        app.register_blueprint(blueprint)
+
+    @staticmethod
+    def register_users_api_blueprint(app):
+        """User blueprints initialization."""
+        blueprint = Blueprint("api_users", __name__)
+
+        @blueprint.errorhandler(ValidationError)
+        def validation_error(error):
+            """Catch validation errors."""
+            return JSONSchemaValidationError(error=error).get_response()
+
+        blueprint.add_url_rule("/users/<id>", view_func=UsersResource.as_view("users_item"))
+        blueprint.add_url_rule("/users/", view_func=UsersCreateResource.as_view("users_list"))
+        app.register_blueprint(blueprint)
+
+    @staticmethod
+    def register_sru_api_blueprint(app):
+        """SRU blueprints initialization."""
+        blueprint = Blueprint("api_sru", __name__)
+        sru_documents_search = SRUDocumentsSearch.as_view("documents")
+        blueprint.add_url_rule("/sru/documents", view_func=sru_documents_search)
+        app.register_blueprint(blueprint)
+
+    def init_config(self, app):
+        """Initialize configuration."""
+        # Use theme's base template if theme is installed
+        for k in dir(app.config):
+            if k.startswith("BIBLION_"):
+                app.config.setdefault(k, getattr(app.config, k))
+        # add keep alive support for angular application
+        # NOTE: this will not work for werkzeug> 2.1.2
+        # https://werkzeug.palletsprojects.com/en/2.2.x/changes/#version-2-1-2
+        if app.config.get("DEBUG"):
+            from werkzeug.serving import WSGIRequestHandler
+
+            WSGIRequestHandler.protocol_version = "HTTP/1.1"
+        # Correct MEF url in BIBLION_MEF_CONFIG from config.py
+        mef_ref_base_url = app.config.get("BIBLION_MEF_REF_BASE_URL")
+        for mef_entity_type in app.config.get("BIBLION_MEF_CONFIG", {}):
+            base_url = app.config["BIBLION_MEF_CONFIG"][mef_entity_type]["base_url"].replace(
+                "mef.rero.ch", mef_ref_base_url
+            )
+            app.config["BIBLION_MEF_CONFIG"][mef_entity_type]["base_url"] = base_url
+
+    def register_signals(self, app):
+        """Register signals."""
+        # TODO: use before_record_index.dynamic_connect() if it works
+        # example:
+        # before_record_index.dynamic_connect(
+        #    enrich_patron_data, sender=app, index='patrons-patron-v0.0.1')
+        before_record_index.connect(enrich_acq_account_data, sender=app)
+        before_record_index.connect(enrich_acq_order_data, sender=app)
+        before_record_index.connect(enrich_acq_receipt_data, sender=app)
+        before_record_index.connect(enrich_acq_receipt_line_data, sender=app)
+        before_record_index.connect(enrich_acq_order_line_data, sender=app)
+        before_record_index.connect(enrich_collection_data, sender=app)
+        before_record_index.connect(enrich_loan_data, sender=app)
+        before_record_index.connect(enrich_item_data, sender=app)
+        before_record_index.connect(enrich_patron_data, sender=app)
+        before_record_index.connect(enrich_holding_data, sender=app)
+        before_record_index.connect(enrich_notification_data, sender=app)
+        before_record_index.connect(enrich_patron_transaction_event_data, sender=app)
+        before_record_index.connect(enrich_patron_transaction_data, sender=app)
+        before_record_index.connect(enrich_ill_request_data, sender=app)
+        before_record_index.connect(prepare_template_data, sender=app)
+
+        after_record_insert.connect(create_subscription_patron_transaction)
+        after_record_update.connect(create_subscription_patron_transaction)
+        after_record_update.connect(update_items_locations_and_types)
+
+        before_record_update.connect(budget_is_active_changed)
+        before_record_update.connect(negative_availability_changes)
+
+        loan_state_changed.connect(listener_loan_state_changed, weak=False)
+
+        # store the username in the session
+        user_logged_in.connect(set_user_name)
+        user_logged_out.connect(remove_user_name)
+        user_loaded_from_cookie.connect(set_user_name)
+
+        # invenio-base signal: after application loaded
+        app_loaded.connect(user_register_forms, weak=False)
+        app_loaded.connect(user_reset_password_forms, weak=False)
+        app_loaded.connect(user_reset_password_view, weak=False)
+
+
+def finalize_app(app):
+    """Finalize app."""
+    init_menu_tools(app)
+    init_menu_lang(app)
+    init_menu_profile(app)
+    # Keep RERO_INVENIO_THUMBNAILS_URL in sync with BIBLION_URL after all
+    # config sources (invenio.cfg, environment) have been applied.
+    app.config["RERO_INVENIO_THUMBNAILS_URL"] = app.config["BIBLION_URL"]
+
+
+# def api_finalize_app(app):
+#     """Finalize app for api."""
+#     pass
