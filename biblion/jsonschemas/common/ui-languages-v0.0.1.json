@@ -1,0 +1,39 @@
+{
+  "language": {
+    "title": "Language",
+    "type": "string",
+    "enum": [
+      "de",
+      "en",
+      "fr",
+      "it"
+    ],
+    "widget": {
+      "formlyConfig": {
+        "type": "select",
+        "props": {
+          "sort": true,
+          "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+          "options": [
+            {
+              "label": "lang_fre",
+              "value": "fr"
+            },
+            {
+              "label": "lang_eng",
+              "value": "en"
+            },
+            {
+              "label": "lang_ger",
+              "value": "de"
+            },
+            {
+              "label": "lang_ita",
+              "value": "it"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
