@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Organisation",
+  "description": "Usually a network of several libraries sharing data for patrons, items, etc.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "name"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/organisations/organisation-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Organisation ID",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Name of the organisation.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "props": {
+          "addonRight": [
+            "day(s)"
+          ]
+        }
+      }
+    }
+  }
+}
