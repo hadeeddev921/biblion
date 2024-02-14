@@ -1,0 +1,5344 @@
+{
+  "org1": {
+    "$schema": "https://bib.rero.ch/schemas/organisations/organisation-v0.0.1.json",
+    "pid": "org1",
+    "name": "The district of Martigny Libraries",
+    "address": "Ave de la gare, Martigny CH-1920",
+    "code": "org1",
+    "default_currency": "CHF",
+    "current_budget_pid": "budg1",
+    "online_harvested_source": [
+      "ebibliomedia"
+    ]
+  },
+  "org2": {
+    "$schema": "https://bib.rero.ch/schemas/organisations/organisation-v0.0.1.json",
+    "pid": "org2",
+    "name": "The district of Sion Libraries",
+    "address": "Ave de la gare, Sion CH-1950",
+    "code": "org2",
+    "default_currency": "EUR",
+    "current_budget_pid": "budg2",
+    "online_harvested_source": [
+      "mv-cantook"
+    ],
+    "homepage": {
+      "slogan": [
+        {
+          "language": "en",
+          "value": "Welcome to the Sion libraries"
+        }
+      ],
+      "placeholder": [
+        {
+          "language": "en",
+          "value": "Search the Sion libraries"
+        }
+      ],
+      "blocks": {
+        "left": [
+          {
+            "language": "en",
+            "value": "<a href=\"/global\">Global catalogue</a>"
+          }
+        ]
+      }
+    }
+  },
+  "lib1": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Martigny 1920",
+    "code": "MARTIGNY",
+    "email": "biblion.demo+martigny@example.com",
+    "name": "Library of Martigny-ville",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "pid": "lib1",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl",
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        }
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samedi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 2,
+          "period": "monthly"
+        },
+        "start_date": "2019-01-01",
+        "title": "1er du mois, 1 mois sur 2"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+martigny+due_soon@gmail.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+martigny+overdue@gmail.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+martigny+recall@gmail.com"
+      },
+      {
+        "type": "availability",
+        "email": "biblion.demo+martigny+availability@gmail.com",
+        "delay": 0
+      },
+      {
+        "type": "at_desk",
+        "email": "biblion.demo+martigny+atdesk@gmail.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+martigny+request@gmail.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+martigny+transit@gmail.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+martigny+booking@gmail.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+martigny+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "martigny shipping dept",
+        "email": "biblion.demo+martignyshipping@example.com",
+        "phone": "+447763324590",
+        "address": {
+          "street": "Ave de la gare 12",
+          "city": "Martigny",
+          "zip_code": "1920",
+          "country": "sz"
+        },
+        "extra": "VAT number: 123456-78-90"
+      },
+      "billing_informations": {
+        "name": "martigny billing dept",
+        "email": "biblion.demo+martignyshipping@example.com",
+        "address": {
+          "street": "Place de l'\u00e9querre 12",
+          "city": "Aristo",
+          "zip_code": "1234",
+          "country": "be"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Cover, Harry",
+        "email": "biblion.demo+serial+shipping@gmail.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/2",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Derata, Daisy",
+        "email": "biblion.demo+serial+billing@gmail.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/10",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      }
+    },
+    "online_harvested_source": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://test.ebibliomedia.ch"
+      }
+    ],
+    "rollover_settings": {
+      "account_transfer": "rollover_allocated_amount"
+    }
+  },
+  "lib2": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Saxon 1907",
+    "code": "SAXON",
+    "email": "biblion.demo+saxon@example.com",
+    "name": "Library of Saxon",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "pid": "lib2",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl"
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samdi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+saxon@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+saxon+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Saxon shipping dept",
+        "email": "biblion.demo+acqshipping@example.com",
+        "address": {
+          "street": "Ave de la gare 10",
+          "city": "Saxon",
+          "zip_code": "1907",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  "lib3": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Fully 1926",
+    "code": "FULLY",
+    "email": "biblion.demo+fully@example.com",
+    "name": "Library of Fully",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "pid": "lib3",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl"
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samdi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+fully@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+fully+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  "lib4": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Sion 1950",
+    "code": "SION",
+    "email": "biblion.demo+sion@example.com",
+    "name": "Library of Sion",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "pid": "lib4",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl"
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samdi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+sion@example.com",
+        "delay": 5
+      },
+      {
+        "type": "at_desk",
+        "email": "biblion.demo+sion+atdesk@gmail.com"
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+sion@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+sion+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    },
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "sion shipping dept",
+        "email": "biblion.demo+sionshipping@example.com",
+        "phone": "+447763324594",
+        "address": {
+          "street": "Av. de la gare 134",
+          "city": "Sion",
+          "zip_code": "1950",
+          "country": "sz"
+        },
+        "extra": "VAT number: 123456-78-90"
+      },
+      "billing_informations": {
+        "name": "sion billing dept",
+        "email": "biblion.demo+sionshipping@example.com",
+        "address": {
+          "street": "Place de la planta 12",
+          "city": "Sion",
+          "zip_code": "1950",
+          "country": "sz"
+        }
+      }
+    }
+  },
+  "lib5": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Centre culturel",
+    "code": "APROZ",
+    "email": "biblion.demo+aproz@example.com",
+    "name": "Biblioth\u00e8que d'Aproz",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "pid": "lib5",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl"
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samdi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aproz@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+aproz+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  "lib6": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Saillon 1913",
+    "code": "SAILLON",
+    "email": "biblion.demo+saillon@example.com",
+    "name": "Library of Saillon",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "pid": "lib6",
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "end_date": "2019-01-06",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "title": "Vacances de No\u00ebl"
+      },
+      {
+        "is_open": true,
+        "start_date": "2018-12-15",
+        "times": [
+          {
+            "end_time": "16:00",
+            "start_time": "10:00"
+          }
+        ],
+        "title": "Samdi du livre"
+      },
+      {
+        "is_open": false,
+        "repeat": {
+          "interval": 1,
+          "period": "yearly"
+        },
+        "start_date": "2019-08-01",
+        "title": "1er ao\u00fbt"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+saillon@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+saillon+auto_extend@gmail.com"
+      }
+    ],
+    "communication_language": "fre",
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  "lib7": {
+    "$schema": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json",
+    "address": "Ave de la gare, Martigny 1920",
+    "code": "MARTIGNYBOURG",
+    "email": "biblion.demo+martignybourg@example.com",
+    "name": "Library of Martigny-bourg",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "pid": "lib7",
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "availability",
+        "email": "biblion.demo+martignybourg@example.com",
+        "delay": 0
+      },
+      {
+        "type": "at_desk",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+martignybourg@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+martignybourg@example.com"
+      }
+    ],
+    "communication_language": "fre",
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  "loc1": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "MARTIGNY-PUBLIC",
+    "name": "Martigny Library Public Space",
+    "pid": "loc1",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "is_pickup": true,
+    "pickup_name": "MARTIGNY-PUBLIC: Public Space",
+    "is_ill_pickup": true,
+    "ill_pickup_name": "MARTIGNY-PUBLIC: ILL Public Space",
+    "allow_request": true,
+    "public_note": [
+      {
+        "language": "en",
+        "label": "Consultation by appointment only"
+      }
+    ]
+  },
+  "loc2": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "MARTIGNY-RESTRICTED",
+    "name": "Martigny Library Restricted Space",
+    "pid": "loc2",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "allow_request": true
+  },
+  "loc3": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SAXON-PUBLIC",
+    "name": "Saxon Library Public Space",
+    "pid": "loc3",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib2"
+    },
+    "is_pickup": true,
+    "pickup_name": "SAXON-PUBLIC: Public Space",
+    "is_ill_pickup": true,
+    "ill_pickup_name": "SAXON-PUBLIC: ILL Public Space",
+    "allow_request": true
+  },
+  "loc4": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SAXON-RESTRICTED",
+    "name": "Saxon Library Restricted Space",
+    "pid": "loc4",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib2"
+    },
+    "allow_request": true
+  },
+  "loc5": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "FULLY-PUBLIC",
+    "name": "Fully Library Public Space",
+    "pid": "loc5",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib3"
+    },
+    "is_pickup": true,
+    "pickup_name": "FULLY-PUBLIC: Public Space",
+    "is_ill_pickup": true,
+    "ill_pickup_name": "FULLY-PUBLIC: ILL Public Space",
+    "allow_request": true
+  },
+  "loc6": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "FULLY-RESTRICTED",
+    "name": "Fully Library Restricted Space",
+    "pid": "loc6",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib3"
+    },
+    "allow_request": true
+  },
+  "loc7": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SION-PUBLIC",
+    "name": "Sion Library Public Space",
+    "pid": "loc7",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib4"
+    },
+    "is_pickup": true,
+    "pickup_name": "SION-PUBLIC: Public Space",
+    "allow_request": true
+  },
+  "loc8": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SION-RESTRICTED",
+    "name": "Sion Library Restricted Space",
+    "pid": "loc8",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib4"
+    },
+    "allow_request": true
+  },
+  "loc9": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "MARTIGNY-ONLINE",
+    "name": "Martigny Library Online Space",
+    "pid": "loc9",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "is_online": true,
+    "allow_request": true
+  },
+  "loc10": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SAXON-ONLINE",
+    "name": "Saxon Library Online Space",
+    "pid": "loc10",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib2"
+    },
+    "is_online": true,
+    "allow_request": true
+  },
+  "loc11": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "FULLY-ONLINE",
+    "name": "Fully Library Online Space",
+    "pid": "loc11",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib3"
+    },
+    "is_online": true,
+    "allow_request": true
+  },
+  "loc12": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SION-ONLINE",
+    "name": "Sion Library Online Space",
+    "pid": "loc12",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib4"
+    },
+    "is_online": true,
+    "allow_request": true
+  },
+  "loc13": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "APROZ-ONLINE",
+    "name": "Aproz Library Online Space",
+    "pid": "loc13",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib5"
+    },
+    "is_online": true,
+    "allow_request": true
+  },
+  "loc14": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "SAILLON-PUBLIC",
+    "name": "Saillon Library Public Space",
+    "pid": "loc14",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib6"
+    },
+    "is_pickup": true,
+    "pickup_name": "SAILLON-PUBLIC: Public Space",
+    "is_ill_pickup": true,
+    "ill_pickup_name": "SAILLON-PUBLIC: ILL Public Space",
+    "allow_request": true
+  },
+  "loc15": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "MARTIGNY-BOURG-PUBLIC",
+    "name": "Martigny Bourg Library Public Space",
+    "pid": "loc15",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib7"
+    },
+    "is_pickup": false,
+    "allow_request": true
+  },
+  "loc16": {
+    "$schema": "https://bib.rero.ch/schemas/locations/location-v0.0.1.json",
+    "code": "MARTIGNY-BOURG-PUBLIC",
+    "name": "Martigny Bourg Library Restricted Space",
+    "pid": "loc16",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib7"
+    },
+    "is_pickup": false,
+    "allow_request": true
+  },
+  "itty1": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "standard",
+    "pid": "itty1",
+    "description": "Standard checkout.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "type": "standard"
+  },
+  "itty2": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "on-site",
+    "pid": "itty2",
+    "description": "On-site consultation.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "circulation_information": [
+      {
+        "language": "en",
+        "label": "On-site consultation"
+      },
+      {
+        "language": "fr",
+        "label": "Consultation sur place"
+      }
+    ],
+    "type": "standard"
+  },
+  "itty3": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "specific",
+    "pid": "itty3",
+    "description": "Specific rules.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "type": "standard"
+  },
+  "itty4": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "regular",
+    "pid": "itty4",
+    "description": "Regular checkout.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "type": "standard"
+  },
+  "itty5": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "internal",
+    "pid": "itty5",
+    "description": "Internal consultation.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "type": "standard"
+  },
+  "itty6": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "particular",
+    "pid": "itty6",
+    "description": "Particular rules.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "type": "standard"
+  },
+  "itty7": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "Online",
+    "pid": "itty7",
+    "type": "online",
+    "negative_availability": false,
+    "description": "Ebooks dedicated category.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    }
+  },
+  "itty8": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "Online",
+    "pid": "itty8",
+    "type": "online",
+    "description": "Ebooks dedicated category.",
+    "negative_availability": false,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    }
+  },
+  "itty9": {
+    "$schema": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json",
+    "name": "Missing",
+    "pid": "itty9",
+    "description": "Missing documents.",
+    "negative_availability": true,
+    "displayed_status": [
+      {
+        "language": "fr",
+        "label": "Manquant"
+      },
+      {
+        "language": "en",
+        "label": "Missing"
+      }
+    ],
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "type": "standard"
+  },
+  "ptty1": {
+    "$schema": "https://bib.rero.ch/schemas/patron_types/patron_type-v0.0.1.json",
+    "pid": "ptty1",
+    "name": "children",
+    "code": "patron-code",
+    "description": "children patrons",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  "ptty2": {
+    "$schema": "https://bib.rero.ch/schemas/patron_types/patron_type-v0.0.1.json",
+    "pid": "ptty2",
+    "name": "adults",
+    "description": "adult patrons",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  "ptty3": {
+    "$schema": "https://bib.rero.ch/schemas/patron_types/patron_type-v0.0.1.json",
+    "pid": "ptty3",
+    "name": "youngsters",
+    "description": "youngsters patrons",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "subscription_amount": 25,
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  "ptty4": {
+    "$schema": "https://bib.rero.ch/schemas/patron_types/patron_type-v0.0.1.json",
+    "pid": "ptty4",
+    "name": "grown",
+    "description": "grown patrons",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "subscription_amount": 15,
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  "cipo1": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo1",
+    "name": "Default",
+    "description": "Default circulation policy.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "checkout_duration": 30,
+    "reminders": [
+      {
+        "type": "due_soon",
+        "days_delay": 5,
+        "communication_channel": "patron_setting",
+        "template": "email/due_soon"
+      },
+      {
+        "type": "overdue",
+        "days_delay": 5,
+        "fee_amount": 2,
+        "communication_channel": "patron_setting",
+        "template": "email/overdue"
+      }
+    ],
+    "allow_requests": true,
+    "pickup_hold_duration": 10,
+    "number_renewals": 3,
+    "renewal_duration": 30,
+    "automatic_renewal": true,
+    "policy_library_level": false,
+    "is_default": true
+  },
+  "cipo2": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo2",
+    "name": "short",
+    "description": "short circulation policy",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "checkout_duration": 15,
+    "allow_requests": true,
+    "pickup_hold_duration": 10,
+    "reminders": [
+      {
+        "type": "due_soon",
+        "days_delay": 5,
+        "communication_channel": "patron_setting",
+        "template": "email/due_soon"
+      },
+      {
+        "type": "overdue",
+        "days_delay": 5,
+        "fee_amount": 2,
+        "communication_channel": "patron_setting",
+        "template": "email/overdue"
+      },
+      {
+        "type": "overdue",
+        "days_delay": 12,
+        "fee_amount": 2,
+        "communication_channel": "mail",
+        "template": "email/overdue"
+      }
+    ],
+    "number_renewals": 1,
+    "renewal_duration": 15,
+    "automatic_renewal": true,
+    "is_default": false,
+    "policy_library_level": false,
+    "settings": [
+      {
+        "patron_type": {
+          "$ref": "https://bib.rero.ch/api/patron_types/ptty1"
+        },
+        "item_type": {
+          "$ref": "https://bib.rero.ch/api/item_types/itty1"
+        }
+      },
+      {
+        "patron_type": {
+          "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+        },
+        "item_type": {
+          "$ref": "https://bib.rero.ch/api/item_types/itty3"
+        }
+      }
+    ]
+  },
+  "cipo3": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo3",
+    "name": "temporary - Martigny-ville library level",
+    "description": "temporary circulation policy for Martigny-ville library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "checkout_duration": 7,
+    "allow_requests": true,
+    "pickup_hold_duration": 10,
+    "reminders": [
+      {
+        "type": "due_soon",
+        "days_delay": 5,
+        "communication_channel": "patron_setting",
+        "template": "email/due_soon"
+      },
+      {
+        "type": "overdue",
+        "days_delay": 5,
+        "fee_amount": 2,
+        "communication_channel": "patron_setting",
+        "template": "email/overdue"
+      }
+    ],
+    "number_renewals": 1,
+    "renewal_duration": 7,
+    "is_default": false,
+    "policy_library_level": true,
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "settings": [
+      {
+        "patron_type": {
+          "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+        },
+        "item_type": {
+          "$ref": "https://bib.rero.ch/api/item_types/itty2"
+        }
+      }
+    ]
+  },
+  "cipo4": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo4",
+    "name": "Default",
+    "description": "Default circulation policy.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "checkout_duration": 30,
+    "reminders": [
+      {
+        "type": "due_soon",
+        "days_delay": 5,
+        "communication_channel": "patron_setting",
+        "template": "email/due_soon"
+      },
+      {
+        "type": "overdue",
+        "days_delay": 5,
+        "fee_amount": 2,
+        "communication_channel": "patron_setting",
+        "template": "email/overdue"
+      }
+    ],
+    "allow_requests": true,
+    "pickup_hold_duration": 10,
+    "number_renewals": 3,
+    "renewal_duration": 30,
+    "policy_library_level": false,
+    "is_default": true
+  },
+  "cipo5": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo5",
+    "name": "Ebooks no circulation",
+    "description": "Ebooks no circulation.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "allow_requests": false,
+    "policy_library_level": false,
+    "is_default": false
+  },
+  "cipo6": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo6",
+    "name": "Ebooks no circulation",
+    "description": "Ebooks no circulation.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "allow_requests": false,
+    "policy_library_level": false,
+    "is_default": false
+  },
+  "cipo7": {
+    "$schema": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json",
+    "pid": "cipo7",
+    "name": "Less than one day",
+    "description": "Less than one day.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "checkout_duration": 0,
+    "allow_requests": false,
+    "policy_library_level": false,
+    "is_default": false,
+    "settings": [
+      {
+        "patron_type": {
+          "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+        },
+        "item_type": {
+          "$ref": "https://bib.rero.ch/api/item_types/itty1"
+        }
+      }
+    ]
+  },
+  "ent_pers": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "gnd": {
+      "$schema": "https://mef.test.rero.ch/schemas/gnd/gnd-contribution-v0.0.1.json",
+      "bf:Agent": "bf:Person",
+      "biographical_information": [
+        "Diss. philosophische Fakulta\u0308t"
+      ],
+      "date_of_birth": "1885",
+      "identifier": "http://d-nb.info/gnd/13343771X",
+      "md5": "5dad1e77d5a47d39e87bb0ec37aaf51e",
+      "pid": "13343771X",
+      "authorized_access_point": "Loy, Georg, 1885",
+      "preferred_name": "Loy, Georg",
+      "variant_name": [
+        "Loy, George, di Madeiros"
+      ]
+    },
+    "idref": {
+      "$schema": "https://mef.test.rero.ch/schemas/idref/idref-contribution-v0.0.1.json",
+      "bf:Agent": "bf:Person",
+      "country_associated": "gw",
+      "date_of_birth": "1885-05-14",
+      "date_of_death": "19..",
+      "identifier": "http://www.idref.fr/223977268",
+      "language": [
+        "ger"
+      ],
+      "md5": "3dd3788c64af4200676a35a5ea35b180",
+      "pid": "223977268",
+      "authorized_access_point": "Loy, Georg, 1885-19..",
+      "preferred_name": "Loy, Georg"
+    },
+    "rero": {
+      "$schema": "https://mef.test.rero.ch/schemas/rero/rero-contribution-v0.0.1.json",
+      "bf:Agent": "bf:Person",
+      "country_associated": "gw",
+      "date_of_birth": "1885-05-14",
+      "date_of_death": "19..",
+      "identifier": "http://data.rero.ch/02-A017671081",
+      "language": [
+        "ger"
+      ],
+      "md5": "3dd3788c64af4200676a35a5ea35b181",
+      "pid": "A017671081",
+      "authorized_access_point": "Loy, Georg, 1885-19..",
+      "preferred_name": "Loy, Georg"
+    },
+    "pid": "ent_pers",
+    "type": "bf:Person",
+    "sources": [
+      "gnd",
+      "idref",
+      "rero"
+    ],
+    "viaf_pid": "70119347"
+  },
+  "ent_pers2": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "pid": "ent_pers2",
+    "rero": {
+      "$schema": "https://mef.rero.ch/schemas/agents_rero/rero-agent-v0.0.1.json",
+      "authorized_access_point": "Athenagoras (patriarche oecum\u00e9nique ; 1)",
+      "bf:Agent": "bf:Person",
+      "identifier": "http://data.rero.ch/02-A009963344",
+      "numeration": "1)",
+      "pid": "A009963344",
+      "preferred_name": "Athenagoras (patriarche oecum\u00e9nique ; 1)",
+      "qualifier": "(patriarche oecum\u00e9nique",
+      "variant_access_point": [
+        "Spyrou, Aristokles"
+      ],
+      "variant_name": [
+        "Spyrou, Aristokles"
+      ]
+    },
+    "sources": [
+      "rero"
+    ],
+    "type": "bf:Person"
+  },
+  "ent_org": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "gnd": {
+      "$schema": "https://mef.rero.ch/schemas/gnd/gnd-contribution-v0.0.1.json",
+      "bf:Agent": "bf:Organisation",
+      "conference": true,
+      "country_associated": "rm",
+      "identifier": "http://d-nb.info/gnd/1161956409",
+      "md5": "215b8b7fc6fd58fdb149258f5e385bf3",
+      "pid": "1161956409",
+      "preferred_name": "Convegno internazionale di italianistica Craiova",
+      "authorized_access_point": "Convegno internazionale di italianistica Craiova",
+      "variant_access_point": [
+        "VIII Convegno internazionale di italianistica dell'Universita\u0300 di Craiova, 16-17 settembre 2016"
+      ]
+    },
+    "rero": {
+      "$schema": "https://mef.test.rero.ch/schemas/rero/rero-contribution-v0.0.1.json",
+      "bf:Agent": "bf:Organisation",
+      "conference": true,
+      "identifier": "http://data.rero.ch/02-A027711299",
+      "md5": "4e68fe5569c8ab038b8069e883ebae2b",
+      "pid": "A027711299",
+      "preferred_name": "Convegno internazionale di Italianistica",
+      "authorized_access_point": "Convegno internazionale di Italianistica"
+    },
+    "pid": "ent_org",
+    "type": "bf:Organisation",
+    "sources": [
+      "rero",
+      "gnd"
+    ],
+    "viaf_pid": "3117153063217219320007"
+  },
+  "ent_topic": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "idref": {
+      "$schema": "https://mef.rero.ch/schemas/concepts_idref/idref-concept-v0.0.1.json",
+      "authorized_access_point": "Swing (jazz)",
+      "bnf_type": "genre/forme Rameau",
+      "broader": [
+        {
+          "authorized_access_point": "Jazz"
+        }
+      ],
+      "classification": [
+        {
+          "classificationPortion": "780",
+          "name": "Musique",
+          "type": "bf:ClassificationDdc"
+        }
+      ],
+      "closeMatch": [
+        {
+          "authorized_access_point": "Swing (Music)",
+          "identifiedBy": {
+            "source": "LCSH",
+            "type": "uri",
+            "value": "http://id.loc.gov/authorities/subjects/sh90002707"
+          },
+          "source": "LCSH"
+        },
+        {
+          "authorized_access_point": "Swing (Musique)",
+          "source": "RVMLaval"
+        }
+      ],
+      "identifiedBy": [
+        {
+          "source": "IdRef",
+          "type": "uri",
+          "value": "http://www.idref.fr/030752787"
+        },
+        {
+          "source": "BNF",
+          "type": "uri",
+          "value": "http://catalogue.bnf.fr/ark:/12148/cb12210583w"
+        }
+      ],
+      "md5": "522d2821a0939bf38725c3d08a093ee5",
+      "note": [
+        {
+          "label": [
+            "Grand Larousse universel",
+            "Encycl. universalis - http://www.universalis-edu.com (2010-09-02)",
+            "Dict. du jazz / P. Carles, A. Clergeat, J.-L. Comolli, 1994",
+            "Encycl. illustr\u00e9e de toutes les musiques / P. Du Noyer, 2004",
+            "Oxford music online - http://www.grovemusic.com (2007-07-05)",
+            "Jazz styles - http://www.jazz-styles.com (2007-07-05)"
+          ],
+          "noteType": "dataSource"
+        },
+        {
+          "label": [
+            "Style de jazz jou\u00e9 dans les ann\u00e9es 1930 et 1940, appel\u00e9 \"mainstream\" (courant pricipal) dans ses prolongements plus r\u00e9cents"
+          ],
+          "noteType": "general"
+        }
+      ],
+      "pid": "030752787",
+      "related": [
+        {
+          "authorized_access_point": "Zazous"
+        },
+        {
+          "authorized_access_point": "Western swing"
+        }
+      ],
+      "variant_access_point": [
+        "Jazz classique",
+        "Mainstream (jazz)",
+        "Middle jazz",
+        "Modern mainstream (jazz)"
+      ]
+    },
+    "pid": "14613205",
+    "type": "bf:Topic",
+    "sources": [
+      "idref"
+    ]
+  },
+  "ent_topic2": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "pid": "ent_topic2",
+    "rero": {
+      "$schema": "https://mef.rero.ch/schemas/concepts_rero/rero-concept-v0.0.1.json",
+      "authorized_access_point": "Bases de donn\u00e9es d\u00e9ductives",
+      "broader": [
+        {
+          "authorized_access_point": "Bases de donn\u00e9es"
+        }
+      ],
+      "identifiedBy": [
+        {
+          "source": "RERO",
+          "type": "bf:Local",
+          "value": "A021039750"
+        },
+        {
+          "source": "BNF",
+          "type": "bf:Local",
+          "value": "FRBNF122513889"
+        },
+        {
+          "type": "uri",
+          "value": "http://catalogue.bnf.fr/ark:/12148/cb122513884"
+        }
+      ],
+      "note": [
+        {
+          "label": [
+            "Deductive data bases"
+          ],
+          "noteType": "general"
+        }
+      ],
+      "pid": "A021039750"
+    },
+    "sources": [
+      "rero"
+    ]
+  },
+  "ent_topic_temporal": {
+    "$schema": "https://mef.rero.ch/schemas/concepts_mef/mef-concept-v0.0.1.json",
+    "idref": {
+      "$schema": "https://mef.rero.ch/schemas/concepts_idref/idref-concept-v0.0.1.json",
+      "authorized_access_point": "1945-....",
+      "bnf_type": "sujet Rameau",
+      "broader": [
+        {
+          "authorized_access_point": "1800-...."
+        }
+      ],
+      "classification": [
+        {
+          "classificationPortion": "900",
+          "name": "Histoire",
+          "type": "bf:ClassificationDdc"
+        }
+      ],
+      "identifiedBy": [
+        {
+          "source": "IDREF",
+          "type": "uri",
+          "value": "http://www.idref.fr/033472890"
+        },
+        {
+          "source": "BNF",
+          "type": "uri",
+          "value": "http://catalogue.bnf.fr/ark:/12148/cb12433520g"
+        }
+      ],
+      "md5": "834a06398eb0d971e6df7a0095deeaef",
+      "narrower": [
+        {
+          "authorized_access_point": "1945-1990"
+        },
+        {
+          "authorized_access_point": "1970-...."
+        }
+      ],
+      "note": [
+        {
+          "label": [
+            "Dict. encyclop\u00e9dique d'histoire / M. Mourre, 1996"
+          ],
+          "noteType": "dataSource"
+        },
+        {
+          "label": [
+            "Laval RVM (en ligne), 2012-10-16"
+          ],
+          "noteType": "dataNotFound"
+        },
+        {
+          "label": [
+            "2 septembre 1945 : fin de la Seconde guerre mondiale",
+            "S'emploie uniquement en subdivision chronologique [sans subd. g\u00e9ogr.] \u00e0 tous sujets noms communs et noms propres, \u00e0 l'exception des personnes et des sujets pour lesquels il existe un d\u00e9coupage chronologique sp\u00e9cifique, par ex. : Paris (France) -- 1944-"
+          ],
+          "noteType": "general"
+        }
+      ],
+      "pid": "033472890",
+      "related": [
+        {
+          "authorized_access_point": "20e si\u00e8cle"
+        },
+        {
+          "authorized_access_point": "Histoire universelle - 1945-...."
+        }
+      ],
+      "relation_pid": {
+        "type": "redirect_from",
+        "value": "033467404"
+      },
+      "type": "bf:Temporal",
+      "variant_access_point": [
+        "1945-.... (subdivision)"
+      ]
+    },
+    "pid": "16705461",
+    "sources": [
+      "idref"
+    ],
+    "type": "bf:Temporal"
+  },
+  "ent_place": {
+    "$schema": "https://mef.rero.ch/schemas/places_mef/mef-place-v0.0.1.json",
+    "idref": {
+      "$schema": "https://mef.rero.ch/schemas/places_idref/idref-place-v0.0.1.json",
+      "authorized_access_point": "Suisse",
+      "bnf_type": "sujet Rameau",
+      "broader": [
+        {
+          "authorized_access_point": "Europe centrale"
+        }
+      ],
+      "identifiedBy": [
+        {
+          "source": "IDREF",
+          "type": "uri",
+          "value": "http://www.idref.fr/027249654"
+        },
+        {
+          "source": "BNF",
+          "type": "uri",
+          "value": "http://catalogue.bnf.fr/ark:/12148/cb15241146v"
+        },
+        {
+          "source": "BNF",
+          "type": "uri",
+          "value": "http://catalogue.bnf.fr/ark:/12148/cb11933332n"
+        }
+      ],
+      "md5": "87df11402bcbdfd147ee23a612e5ed69",
+      "note": [
+        {
+          "label": [
+            "IFLA, Names of states, 1981. GLU, 1991",
+            "Laval RVM, 1997-02"
+          ],
+          "noteType": "dataSource"
+        },
+        {
+          "label": [
+            "Voir aussi la subdivision Et la Suisse aux personnes et collectivit\u00e9s"
+          ],
+          "noteType": "seeReference"
+        }
+      ],
+      "pid": "027249654",
+      "type": "bf:Place",
+      "variant_access_point": [
+        "Conf\u00e9d\u00e9ration helv\u00e9tique",
+        "Confederazione svizzera",
+        "Helvetia",
+        "Helv\u00e9tie",
+        "Schweiz",
+        "Schweizerische Eidgenossenschaft",
+        "Svizra",
+        "Svizzera"
+      ]
+    },
+    "pid": "16788252",
+    "sources": [
+      "idref"
+    ],
+    "type": "bf:Place"
+  },
+  "ent_pers_all": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "type": "bf:Person",
+    "gnd": {
+      "$schema": "https://mef.rero.ch/schemas/agents_gnd/gnd-agent-v0.0.1.json",
+      "authorized_access_point": "Nebehay, Christian Michael, 1909-2003",
+      "bf:Agent": "bf:Person",
+      "country_associated": "au",
+      "date_of_birth": "11.05.1909",
+      "date_of_death": "25.11.2003",
+      "gender": "male",
+      "identifier": "http://d-nb.info/gnd/119294907",
+      "md5": "4b1f7780953b7d26e801bb63959c040a",
+      "parallel_access_point": [
+        "Nebehay, Christian Michael, 1909-2003"
+      ],
+      "pid": "119294907",
+      "preferred_name": "Nebehay, Christian Michael",
+      "variant_access_point": [
+        "Nebehay, Christian M., 1909-2003"
+      ],
+      "variant_name": [
+        "Nebehay, Christian M."
+      ]
+    },
+    "idref": {
+      "$schema": "https://mef.rero.ch/schemas/agents_idref/idref-agent-v0.0.1.json",
+      "authorized_access_point": "Nebehay, Christian Michael",
+      "bf:Agent": "bf:Person",
+      "biographical_information": [
+        "Antiquaire et critique d'art d'origine allemande"
+      ],
+      "country_associated": "au",
+      "date_of_birth": "1909-05-11",
+      "date_of_death": "2003-11-25",
+      "identifier": "http://www.idref.fr/029314100",
+      "language": [
+        "ger"
+      ],
+      "md5": "dc937fa47f66b23ee2451abfb8716174",
+      "pid": "029314100",
+      "preferred_name": "Nebehay, Christian Michael"
+    },
+    "pid": "ent_pers_all",
+    "rero": {
+      "$schema": "https://mef.rero.ch/schemas/agents_rero/rero-agent-v0.0.1.json",
+      "authorized_access_point": "Nebehay, Christian Michael",
+      "bf:Agent": "bf:Person",
+      "identifier": "http://data.rero.ch/02-A003633163",
+      "md5": "2f217265e5fa5fc2a361e46fd3a07f8f",
+      "pid": "A003633163",
+      "preferred_name": "Nebehay, Christian Michael"
+    },
+    "sources": [
+      "rero",
+      "gnd",
+      "idref"
+    ],
+    "viaf_pid": "108158722"
+  },
+  "ent_pers_rero": {
+    "$schema": "https://bib.rero.ch/schemas/remote_entities/remote_entity-v0.0.1.json",
+    "type": "bf:Person",
+    "pid": "ent_pers_rero",
+    "rero": {
+      "$schema": "https://mef.rero.ch/schemas/agents_rero/rero-agent-v0.0.1.json",
+      "authorized_access_point": "Nebehay, Christian Michael",
+      "bf:Agent": "bf:Person",
+      "identifier": "http://data.rero.ch/02-A003633163",
+      "md5": "2f217265e5fa5fc2a361e46fd3a07f8f",
+      "pid": "A003633163",
+      "preferred_name": "Nebehay, Christian Michael"
+    },
+    "sources": [
+      "rero"
+    ],
+    "viaf_pid": "108158722"
+  },
+  "locent_pers": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "pid": "locent_pers",
+    "name": "Loy, Georg",
+    "date_of_birth": "1881",
+    "date_of_death": "1968",
+    "type": "bf:Person"
+  },
+  "locent_pers2": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "pid": "locent_pers2",
+    "name": "William",
+    "date_of_birth": "1650",
+    "date_of_death": "1702",
+    "numeration": "III",
+    "qualifier": "King of England",
+    "type": "bf:Person"
+  },
+  "locent_org": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "pid": "locent_org",
+    "name": "Convegno internazionale di Italianistica",
+    "conference": false,
+    "type": "bf:Organisation"
+  },
+  "locent_org2": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "pid": "locent_org2",
+    "name": "Catholic Church",
+    "subordinate_units": [
+      "Concilium Plenarium Americae Latinae"
+    ],
+    "conference_numbering": "5th",
+    "conference_date": "1899",
+    "conference_place": "Rome, Italy",
+    "conference": false,
+    "type": "bf:Organisation"
+  },
+  "locent_work": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "pid": "locent_work",
+    "title": "Preludes",
+    "creator": "Chopin, Fre\u0301de\u0301ric (1810-1849)",
+    "type": "bf:Work"
+  },
+  "locent_genreForm": {
+    "$schema": "https://bib.rero.ch/schemas/local_entities/local_entity-v0.0.1.json",
+    "name": "Personal correspondence",
+    "source_catalog": "lcgft",
+    "genreForm": true,
+    "type": "bf:Topic",
+    "pid": "locent_genreForm"
+  },
+  "doc1": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc1",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "note": [
+      {
+        "noteType": "general",
+        "label": "La pr\u00e9face porte la date : 1889"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "La reine Berthe et sa fille"
+          },
+          {
+            "value": "titre en chinois",
+            "language": "chi-hani"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "une page du dixi\u00e8me si\u00e8cle offerte aux jeunes"
+          }
+        ],
+        "part": [
+          {
+            "partNumber": [
+              {
+                "value": "part number"
+              },
+              {
+                "value": "Part Number",
+                "language": "chi-hani"
+              }
+            ],
+            "partName": [
+              {
+                "value": "part number"
+              },
+              {
+                "value": "Part Number",
+                "language": "chi-hani"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "bf:ParallelTitle",
+        "mainTitle": [
+          {
+            "value": "La regina Bertha e sua figlia"
+          },
+          {
+            "value": "Titolo cinese",
+            "language": "chi-hani"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "una pagina del X secolo offerta ai giovani"
+          },
+          {
+            "value": "sottotitolo in cinese",
+            "language": "chi-hani"
+          }
+        ]
+      },
+      {
+        "type": "bf:VariantTitle",
+        "mainTitle": [
+          {
+            "value": "Berthe et sa fille"
+          }
+        ]
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "Zeng Lingliang zhu bian"
+        },
+        {
+          "value": "\u66fe\u4ee4\u826f\u4e3b\u7f16",
+          "language": "chi-hani"
+        }
+      ]
+    ],
+    "extent": "190 p.",
+    "seriesStatement": [
+      {
+        "seriesTitle": [
+          {
+            "value": "Biblioth\u00e8que de la jeune fille"
+          }
+        ],
+        "seriesEnumeration": [
+          {
+            "value": "1"
+          }
+        ]
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Nebehay, Christian Michael",
+          "type": "bf:Person",
+          "identifiedBy": {
+            "type": "RERO",
+            "value": "A003633163"
+          }
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "thriller",
+          "subdivisions": [
+            {
+              "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "gore"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "suspense"
+        }
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Nebehay, Christian Michael",
+          "type": "bf:Person",
+          "identifiedBy": {
+            "type": "RERO",
+            "value": "A003633163"
+          }
+        }
+      },
+      {
+        "entity": {
+          "authorized_access_point": "1945-....",
+          "type": "bf:Temporal",
+          "identifiedBy": {
+            "type": "IdRef",
+            "value": "033472890"
+          }
+        }
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Suisse",
+          "type": "bf:Place",
+          "identifiedBy": {
+            "type": "IdRef",
+            "value": "027249654"
+          }
+        }
+      }
+    ],
+    "dimensions": [
+      "18 cm"
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      }
+    ],
+    "copyrightDate": [
+      "\u00a9 1971"
+    ],
+    "editionStatement": [
+      {
+        "editionDesignation": [
+          {
+            "value": "Di 3 ban"
+          },
+          {
+            "value": "\u7b2c3\u7248",
+            "language": "chi-hani"
+          }
+        ],
+        "responsibility": [
+          {
+            "value": "Zeng Lingliang zhu bian"
+          },
+          {
+            "value": "\u66fe\u4ee4\u826f\u4e3b\u7f16",
+            "language": "chi-hani"
+          }
+        ]
+      },
+      {
+        "editionDesignation": [
+          {
+            "value": "Edition"
+          }
+        ],
+        "responsibility": [
+          {
+            "value": "Responsibility"
+          }
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "Lausanne"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "H. Mignot"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "1971"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1971
+      }
+    ],
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "RERO",
+        "value": "R008745599"
+      },
+      {
+        "type": "bf:Isbn",
+        "status": "invalid or cancelled",
+        "value": "9782844267788"
+      },
+      {
+        "type": "bf:Local",
+        "source": "BNF",
+        "value": "FRBNF452959040000002"
+      },
+      {
+        "type": "uri",
+        "value": "http://catalogue.bnf.fr/ark:/12148/cb45295904f"
+      }
+    ],
+    "harvested": false,
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc2": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc2",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "ara"
+      }
+    ],
+    "harvested": false,
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "RERO",
+        "value": "R007153123"
+      },
+      {
+        "type": "bf:Isbn",
+        "qualifier": "broch\u00e9",
+        "value": "9786039012641"
+      },
+      {
+        "type": "bf:Local",
+        "source": "BNF",
+        "value": "FRBNF452959140000002"
+      },
+      {
+        "type": "uri",
+        "value": "http://catalogue.bnf.fr/ark:/12148/cb45295914f"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/agents/rero/A017671081"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "al-Waj\u012bz f\u012b ni\u1e93\u0101m khidmat al-afr\u0101d al-s\u02bf\u016bd\u012b"
+          }
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "al-Riy\u0101\u1e0d"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Maktabat al-qan\u016bn wa al-iqti\u1e63\u0101d"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2011"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2011
+      }
+    ],
+    "extent": "560 p.",
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc3": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc3",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": false,
+    "note": [
+      {
+        "noteType": "general",
+        "label": "La vie est belle"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "La reine Berthe et son fils"
+          }
+        ]
+      }
+    ],
+    "extent": "191 p.",
+    "seriesStatement": [
+      {
+        "seriesTitle": [
+          {
+            "value": "Biblioth\u00e8que de la jeune fille"
+          }
+        ],
+        "seriesEnumeration": [
+          {
+            "value": "1"
+          }
+        ]
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "type": "bf:Person",
+          "authorized_access_point": "Vincent, Edward (fuller), 1954-2222, physicist"
+        },
+        "role": [
+          "aut"
+        ]
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Vincent, Edward (fuller), 1954-2222, physicist",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Convegno internazionale di italianistica Craiova",
+          "type": "bf:Organisation",
+          "identifiedBy": {
+            "value": "1161956409",
+            "type": "GND"
+          }
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "dimensions": [
+      "18 cm"
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "Lausanne"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "H. Mignot"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "1971"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1971
+      }
+    ],
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "RERO",
+        "value": "1047080"
+      },
+      {
+        "type": "bf:Isbn",
+        "value": "9786039012642"
+      },
+      {
+        "type": "bf:Local",
+        "source": "BNF",
+        "value": "FRBNF452959240000002"
+      },
+      {
+        "type": "uri",
+        "value": "http://catalogue.bnf.fr/ark:/12148/cb45295924f"
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc4": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc4",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "language": [
+      {
+        "value": "chi",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "R008388656",
+        "type": "bf:Local",
+        "source": "RERO"
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "Liang Xi yuan zhu zhu bian, Wang Xianshu fu zhu bian"
+        },
+        {
+          "value": "\u6881\u897f\u539f\u8457\u4e3b\u7f16, \u738b\u732e\u67a2\u526f\u4e3b\u7f16",
+          "language": "chi-hani"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Guo ji fa"
+          },
+          {
+            "value": "\u56fd\u9645\u6cd5",
+            "language": "chi-hani"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "subtitle (Latin)"
+          },
+          {
+            "value": "subtitle (Chinese)",
+            "language": "chi-hani"
+          }
+        ],
+        "part": [
+          {
+            "partNumber": [
+              {
+                "value": "Part Number (Latin)"
+              },
+              {
+                "value": "Part Number (Chinese)",
+                "language": "chi-hani"
+              }
+            ],
+            "partName": [
+              {
+                "value": "Part Name (Latin)"
+              },
+              {
+                "value": "Part Name (Chinese)",
+                "language": "chi-hani"
+              }
+            ]
+          }
+        ],
+        "type": "bf:Title"
+      },
+      {
+        "type": "bf:ParallelTitle",
+        "mainTitle": [
+          {
+            "value": "International law (Latin)"
+          },
+          {
+            "value": "International law (Chinese)",
+            "language": "chi-hani"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "Parallel Subtitle (Latin)"
+          },
+          {
+            "value": "Parallel Subtitle (Chinese)",
+            "language": "chi-hani"
+          }
+        ],
+        "part": [
+          {
+            "partNumber": [
+              {
+                "value": "Parallel Part Number (Latin)"
+              },
+              {
+                "value": "Parallel Part Number (Chinese)",
+                "language": "chi-hani"
+              }
+            ],
+            "partName": [
+              {
+                "value": "Parallel Part Name (Latin)"
+              },
+              {
+                "value": "Parallel Part Name (Chinese)",
+                "language": "chi-hani"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "bf:ParallelTitle",
+        "mainTitle": [
+          {
+            "value": "Parallel Title 2 (Latin)"
+          },
+          {
+            "value": "Parallel Title 2 (Chinese)",
+            "language": "chi-hani"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "Parallel Subtitle 2 (Latin)"
+          },
+          {
+            "value": "Parallel Subtitle 2 (Chinese)",
+            "language": "chi-hani"
+          }
+        ]
+      },
+      {
+        "type": "bf:VariantTitle",
+        "mainTitle": [
+          {
+            "value": "Guojifa"
+          }
+        ]
+      }
+    ],
+    "editionStatement": [
+      {
+        "editionDesignation": [
+          {
+            "value": "Di 3 ban"
+          },
+          {
+            "value": "\u7b2c3\u7248",
+            "language": "chi-hani"
+          }
+        ],
+        "responsibility": [
+          {
+            "value": "Zeng Lingliang zhu bian"
+          },
+          {
+            "value": "\u66fe\u4ee4\u826f\u4e3b\u7f16",
+            "language": "chi-hani"
+          }
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Wuhan"
+              },
+              {
+                "value": "\u6b66\u6c49",
+                "language": "chi-hani"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Wuhan da xue chu ban she"
+              },
+              {
+                "value": "\u6b66\u6c49\u5927\u5b66\u51fa\u7248\u793e",
+                "language": "chi-hani"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "2015"
+              },
+              {
+                "value": "2015",
+                "language": "chi-hani"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2015,
+        "place": [
+          {
+            "country": "cc"
+          }
+        ]
+      }
+    ],
+    "extent": "444 p.",
+    "seriesStatement": [
+      {
+        "seriesTitle": [
+          {
+            "value": "Chuang xin si wei fa xue jiao cai"
+          }
+        ]
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "type": "bf:Person",
+          "authorized_access_point": "Liang, Xi, 1924-"
+        },
+        "role": [
+          "aut"
+        ]
+      },
+      {
+        "entity": {
+          "type": "bf:Person",
+          "authorized_access_point": "Zeng, Lingliang"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc5": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc5",
+    "type": [
+      {
+        "main_type": "docmaintype_serial"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1003",
+      "subtype": "monographicSeries"
+    },
+    "language": [
+      {
+        "value": "spa",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "R003254527",
+        "type": "bf:Local",
+        "source": "RERO"
+      },
+      {
+        "type": "bf:Issn",
+        "source": "BNF",
+        "value": "0768-2026"
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "Instituto de Estudios Africanos"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Manuales del Africa espa\u00f1ola"
+          }
+        ],
+        "type": "bf:Title"
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Madrid"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Consejo Superior de Investigacio\u00f1es Cientificas"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "1950-"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1950,
+        "place": [
+          {
+            "country": "xx"
+          }
+        ]
+      }
+    ],
+    "dimensions": [
+      "26 cm"
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "type": "bf:Organisation",
+          "authorized_access_point": "Instituto de Estudios Africanos (Madrid)"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc6": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc6",
+    "type": [
+      {
+        "main_type": "docmaintype_serial"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1003",
+      "subtype": "periodical"
+    },
+    "language": [
+      {
+        "value": "spa",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "R003254528",
+        "type": "bf:Local",
+        "source": "RERO"
+      },
+      {
+        "type": "bf:Issn",
+        "source": "BNF",
+        "value": "0768-2027"
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "Instituto de Estudios Africanos"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Nota bene"
+          }
+        ],
+        "type": "bf:Title"
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Madrid"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Consejo Superior de Investigacio\u00f1es Cientificas"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "1950-"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1950,
+        "place": [
+          {
+            "country": "xx"
+          }
+        ]
+      }
+    ],
+    "dimensions": [
+      "26 cm"
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "type": "bf:Organisation",
+          "authorized_access_point": "Instituto de Estudios Africanos (Madrid)"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc7": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc7",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1002",
+      "subtype": "set"
+    },
+    "language": [
+      {
+        "value": "ger",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "1756273",
+        "type": "bf:Local",
+        "source": "RERO"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/agents/idref/029314100"
+        },
+        "role": [
+          "ctb"
+        ]
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "Honor\u00e9 Daumier"
+        }
+      ],
+      [
+        {
+          "value": "Bilddialoge von Charles Philipon"
+        }
+      ],
+      [
+        {
+          "value": "\u00fcbertr. von Christian M. Nebehay"
+        }
+      ],
+      [
+        {
+          "value": "mit einem Anhang von Margot Berthold und Thomas W. Gaehtgens"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Caricaturiana"
+          }
+        ],
+        "type": "bf:Title"
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Dortmund"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Harenberg Kommunikation"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "1979"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1979,
+        "place": [
+          {
+            "country": "gw"
+          }
+        ]
+      }
+    ],
+    "extent": "220 p.",
+    "note": [
+      {
+        "noteType": "otherPhysicalDetails",
+        "label": "en maj. partie des ill."
+      }
+    ],
+    "illustrativeContent": [
+      "illustrations"
+    ],
+    "dimensions": [
+      "18 cm"
+    ],
+    "seriesStatement": [
+      {
+        "seriesTitle": [
+          {
+            "value": "Die bibliophilen Taschenb\u00fccher"
+          }
+        ]
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "doc8": {
+    "pid": "doc8",
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    },
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "type": [
+      {
+        "main_type": "docmaintype_audio",
+        "subtype": "docsubtype_music"
+      },
+      {
+        "main_type": "docmaintype_audio",
+        "subtype": "docsubtype_sound"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      },
+      {
+        "type": "bf:Language",
+        "value": "ita"
+      }
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Immigration"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "quelle int\u00e9gration ? Quels droits politiques ?"
+          }
+        ],
+        "type": "bf:Title"
+      },
+      {
+        "mainTitle": [
+          {
+            "value": "Immigrazione"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "quale integrazione? Quali diritti politichi?"
+          }
+        ],
+        "type": "bf:ParallelTitle"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Yourcenar, Marguerite XXII, autrice, 1921-1987",
+          "type": "bf:Person"
+        },
+        "role": [
+          "abr"
+        ]
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Universit\u00e9 de Gen\u00e8ve. Facult\u00e9 des sciences",
+          "type": "bf:Organisation"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "identifiedBy": [
+      {
+        "type": "bf:Doi",
+        "value": "10.1530/eje-20-0380e"
+      },
+      {
+        "type": "bf:Isbn",
+        "value": "9782755507171"
+      },
+      {
+        "type": "bf:Issn",
+        "value": "0254-6523"
+      },
+      {
+        "source": "RERO",
+        "type": "bf:Local",
+        "value": "R008128420"
+      }
+    ],
+    "editionStatement": [
+      {
+        "editionDesignation": [
+          {
+            "value": "R\u00e9vis\u00e9, corrig\u00e9 et augment\u00e9"
+          }
+        ],
+        "responsibility": [
+          {
+            "value": "par Emile Chatelain"
+          }
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "startDate": 1866,
+        "endDate": 1944,
+        "place": [
+          {
+            "country": "be"
+          }
+        ],
+        "statement": [
+          {
+            "label": [
+              {
+                "value": "Neuch\u00e2tel, La Chaux-de-Fonds [ou] Colombier"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Club jurassien, [puis] A. Mathey-Dupraz"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "Place 2"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Publisher 2"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "1866-1944"
+              }
+            ],
+            "type": "Date"
+          }
+        ]
+      },
+      {
+        "statement": [
+          {
+            "label": [
+              {
+                "value": "58-Clamecy"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Impr. Laballery"
+              }
+            ],
+            "type": "bf:Agent"
+          }
+        ],
+        "type": "bf:Manufacture"
+      }
+    ],
+    "extent": "17 p.",
+    "partOf": [
+      {
+        "document": {
+          "$ref": "https://bib.rero.ch/api/documents/doc1"
+        },
+        "numbering": [
+          {
+            "issue": "5",
+            "pages": "22-928",
+            "volume": "3",
+            "year": "1988"
+          },
+          {
+            "issue": "8",
+            "pages": "42",
+            "volume": "6",
+            "year": "1998"
+          }
+        ]
+      }
+    ],
+    "seriesStatement": [
+      {
+        "seriesTitle": [
+          {
+            "value": "Collection Savoir"
+          }
+        ]
+      }
+    ],
+    "electronicLocator": [
+      {
+        "content": "audio",
+        "type": "resource",
+        "url": "https://mediatheque.ch/html/lien1.pdf"
+      },
+      {
+        "type": "versionOfResource",
+        "url": "https://mediatheque.ch/html/lien2.pdf"
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Person",
+          "authorized_access_point": "Athenagoras (patriarche oecum\u00e9nique ; 1)",
+          "identifiedBy": {
+            "value": "A009963344",
+            "type": "RERO"
+          }
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Place",
+          "authorized_access_point": "Europe occidentale",
+          "identifiedBy": {
+            "value": "A009975209",
+            "type": "RERO"
+          }
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "Bases de donn\u00e9es d\u00e9ductives",
+          "identifiedBy": {
+            "value": "A021039750",
+            "type": "RERO"
+          }
+        }
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Bases de donn\u00e9esi (Voltenauer, Marc)",
+          "type": "bf:Work",
+          "identifiedBy": {
+            "type": "RERO",
+            "value": "A001234567"
+          }
+        }
+      },
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/concepts/idref/030752787",
+          "pid": "14613205"
+        }
+      }
+    ]
+  },
+  "doc9": {
+    "$schema": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json",
+    "pid": "doc2",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "ara"
+      }
+    ],
+    "harvested": false,
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "RERO",
+        "value": "R007153123"
+      },
+      {
+        "type": "bf:Isbn",
+        "qualifier": "broch\u00e9",
+        "value": "9786039012641"
+      },
+      {
+        "type": "bf:Local",
+        "source": "BNF",
+        "value": "FRBNF452959140000002"
+      },
+      {
+        "type": "uri",
+        "value": "http://catalogue.bnf.fr/ark:/12148/cb45295914f"
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/concepts/idref/030752787"
+        }
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "al-Waj\u012bz f\u012b ni\u1e93\u0101m khidmat al-afr\u0101d al-s\u02bf\u016bd\u012b"
+          }
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "al-Riy\u0101\u1e0d"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Maktabat al-qan\u016bn wa al-iqti\u1e63\u0101d"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2011"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2011
+      }
+    ],
+    "extent": "560 p.",
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "ebook1": {
+    "pid": "ebook1",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_e-book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": true,
+    "electronicLocator": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://www.site1.org/ebook",
+        "type": "resource"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "La maison des oubli\u00e9s"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Peter James",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      },
+      {
+        "entity": {
+          "authorized_access_point": "Great Edition",
+          "type": "bf:Organisation"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "Lausanne"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "H. Mignot"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "1971"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1971
+      }
+    ],
+    "identifiedBy": [
+      {
+        "type": "bf:Isbn",
+        "value": "9782823855890"
+      },
+      {
+        "type": "bf:Local",
+        "source": "cantook",
+        "value": "ebook1"
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "thriller"
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "suspense"
+        }
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "ebook2": {
+    "pid": "ebook2",
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_e-book"
+      },
+      {
+        "main_type": "docmaintype_audio",
+        "subtype": "docsubtype_audio_book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": true,
+    "electronicLocator": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://www.site1.org/ebook",
+        "type": "resource"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "cantook",
+        "value": "ebook2"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "Kurkuma: Effekte auf den menschlichen K\u00f6rper-Der aktuelle Stand der Wissenschaft"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "ger"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Christopher Sch\u00fctze",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "sz",
+            "label": [
+              {
+                "value": "Paris"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Amazon Media EU S.\u00e0 r.l."
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2011"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2011
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "ebook3": {
+    "pid": "ebook3",
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "cantook",
+        "value": "ebook3"
+      }
+    ],
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_e-book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": true,
+    "electronicLocator": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://www.site1.org/ebook",
+        "type": "resource"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "Harry Potter and the Chamber of Secrets"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "eng"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "J.K. Rowling",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "xxu",
+            "label": [
+              {
+                "value": "USA"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "Pottermore Publishing"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2015"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2015
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "ebook4": {
+    "pid": "ebook4",
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "cantook",
+        "value": "ebook4"
+      }
+    ],
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_e-book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": true,
+    "electronicLocator": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://www.site1.org/ebook",
+        "type": "resource"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "Nouveau titre"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Peter James",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "fr",
+            "label": [
+              {
+                "value": "Paris"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "12-21"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2019"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2019
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "thriller"
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "suspense"
+        }
+      }
+    ],
+    "note": [
+      {
+        "noteType": "general",
+        "label": "La maison des oubli\u00e9s"
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "ebook5": {
+    "pid": "ebook5",
+    "identifiedBy": [
+      {
+        "type": "bf:Local",
+        "source": "cantook",
+        "value": "ebook5"
+      }
+    ],
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_e-book"
+      }
+    ],
+    "fiction_statement": "unspecified",
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "harvested": true,
+    "electronicLocator": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://www.site1.org/ebook",
+        "type": "resource"
+      }
+    ],
+    "title": [
+      {
+        "type": "bf:Title",
+        "mainTitle": [
+          {
+            "value": "un autre titre"
+          }
+        ]
+      }
+    ],
+    "language": [
+      {
+        "type": "bf:Language",
+        "value": "fre"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "authorized_access_point": "Peter James",
+          "type": "bf:Person"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "country": "fr",
+            "label": [
+              {
+                "value": "Paris"
+              }
+            ],
+            "type": "bf:Place"
+          },
+          {
+            "label": [
+              {
+                "value": "12-21"
+              }
+            ],
+            "type": "bf:Agent"
+          },
+          {
+            "label": [
+              {
+                "value": "2019"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 2019
+      }
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "thriller"
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "suspense"
+        }
+      }
+    ],
+    "note": [
+      {
+        "noteType": "general",
+        "label": "La maison des oubli\u00e9s"
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    }
+  },
+  "item1": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item1",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "00001",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "notes": [
+      {
+        "type": "staff_note",
+        "content": "Lorem ipsum et blablabla..."
+      }
+    ],
+    "status": "on_shelf",
+    "url": "https://lipda.mediatheque.ch/CH-000019-X:223156.file",
+    "pac_code": "0_frozen_collection",
+    "price": 23.2,
+    "legacy_checkout_count": 4
+  },
+  "item2": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item2",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "00002",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc3"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf"
+  },
+  "item3": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item3",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "00003",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc5"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "notes": [
+      {
+        "type": "general_note",
+        "content": "This is a public note !"
+      },
+      {
+        "type": "checkout_note",
+        "content": "Dummy checkout noote"
+      }
+    ],
+    "status": "on_shelf"
+  },
+  "item4": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item4",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc3"
+    },
+    "call_number": "00004",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc7"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty4"
+    },
+    "status": "on_shelf"
+  },
+  "item5": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item5",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "001313",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf"
+  },
+  "item6": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item6",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "001316",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc8"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty4"
+    },
+    "status": "on_shelf"
+  },
+  "item7": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item7",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "0000155",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf"
+  },
+  "item8": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item8",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "100200300",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf"
+  },
+  "item9": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item9",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "00091231",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc3"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf"
+  },
+  "item10": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item10",
+    "type": "standard",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "000010",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc15"
+    },
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib7"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "status": "on_shelf",
+    "url": "https://lipda.mediatheque.ch/CH-000019-X:223156.file",
+    "pac_code": "0_frozen_collection",
+    "price": 15.2
+  },
+  "item11": {
+    "$schema": "https://bib.rero.ch/schemas/items/item-v0.0.1.json",
+    "pid": "item11",
+    "type": "provisional",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "call_number": "temp_00001",
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "item_type": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "notes": [
+      {
+        "type": "staff_note",
+        "content": "This is a temporary item to delete after item is returned."
+      }
+    ],
+    "status": "on_shelf",
+    "pac_code": "0_frozen_collection"
+  },
+  "ptrn1": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn1",
+    "first_name": "Simonetta",
+    "last_name": "Casalini",
+    "street": "Avenue Leopold-Robert, 132",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1967-06-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "email": "simolibri07@gmail.com",
+    "username": "simonetta",
+    "home_phone": "+41324993585",
+    "roles": [
+      "pro_full_permissions"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn2": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn2",
+    "first_name": "Marie",
+    "last_name": "Pedronni",
+    "street": "Avenue de la Gare, 3",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1965-02-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "username": "marie",
+    "email": "mpedronni@gmail.com",
+    "home_phone": "+41324993578",
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager",
+      "pro_acquisition_manager",
+      "pro_library_administrator",
+      "pro_entity_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn3": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn3",
+    "first_name": "Marcel",
+    "last_name": "Saudan",
+    "street": "Avenue du Chasseur, 3",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1975-02-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "username": "marcel",
+    "email": "msaudan@gmail.com",
+    "home_phone": "+41324993541",
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn4": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn4",
+    "first_name": "El\u00e9na",
+    "last_name": "Rodriguez",
+    "street": "Ave de la gare, 125",
+    "postal_code": "1907",
+    "city": "Saxon",
+    "birth_date": "1967-06-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib2"
+      }
+    ],
+    "username": "elena",
+    "email": "elena_rodriguez@gmail.com",
+    "home_phone": "+41324993515",
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager",
+      "pro_statistic_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn5": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn5",
+    "first_name": "Virgile",
+    "last_name": "Charbonnet",
+    "street": "Ave de la gare, 111",
+    "postal_code": "1926",
+    "city": "Fully",
+    "birth_date": "1967-06-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib3"
+      }
+    ],
+    "username": "virgile",
+    "email": "virgile_charbonnet@gmail.com",
+    "home_phone": "+41324111515",
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn6": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn6",
+    "first_name": "Louis",
+    "last_name": "Roduit",
+    "gender": "male",
+    "street": "Avenue Leopold-Robert, 13",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "country": "sz",
+    "birth_date": "1947-06-07",
+    "username": "louis",
+    "email": "lroduit@gmail.com",
+    "home_phone": "+41324993156",
+    "local_codes": [
+      "code1"
+    ],
+    "keep_history": true,
+    "roles": [
+      "patron"
+    ],
+    "patron": {
+      "expiration_date": "2023-10-07",
+      "blocked": false,
+      "blocked_note": "Check that even if blocking block exists, user is safe.",
+      "barcode": [
+        "4098124352"
+      ],
+      "libraries": [
+        {
+          "$ref": "https://bib.rero.ch/api/libraries/lib1"
+        }
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty1"
+      },
+      "communication_channel": "mail",
+      "communication_language": "fre"
+    },
+    "notes": [
+      {
+        "type": "public_note",
+        "content": "This person will be in vacations.\nWill be back in february."
+      },
+      {
+        "type": "staff_note",
+        "content": "A kind person."
+      }
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn7": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn7",
+    "first_name": "Louise",
+    "last_name": "Moret",
+    "gender": "female",
+    "street": "Avenue de la Gare, 13",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1967-07-07",
+    "username": "louise",
+    "email": "lmoret@gmail.com",
+    "home_phone": "+41324993151",
+    "roles": [
+      "patron"
+    ],
+    "patron": {
+      "expiration_date": "2023-10-07",
+      "barcode": [
+        "40981212452"
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+      },
+      "communication_channel": "email",
+      "communication_language": "eng"
+    },
+    "password": "Pw123456"
+  },
+  "ptrn8": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn8",
+    "birth_date": "2001-12-12",
+    "city": "Sion",
+    "username": "philippe",
+    "email": "biblion.demo+philippe@example.com",
+    "first_name": "Philippe",
+    "last_name": "Monnet",
+    "postal_code": "1950",
+    "street": "Rue du Nord 7",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib4"
+      }
+    ],
+    "roles": [
+      "pro_full_permissions",
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn9": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn9",
+    "birth_date": "1990-12-12",
+    "city": "Sion",
+    "username": "eric",
+    "email": "ecarron@gmail.com",
+    "first_name": "Eric",
+    "last_name": "Carron",
+    "postal_code": "1950",
+    "street": "Rue du Nord 17",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib4"
+      }
+    ],
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_acquisition_manager",
+      "pro_user_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn10": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn10",
+    "first_name": "Jules",
+    "last_name": "Rard",
+    "street": "Avenue de la Gare, 132",
+    "postal_code": "1950",
+    "city": "Sion",
+    "birth_date": "1967-06-07",
+    "username": "jules",
+    "email": "biblion.demo+jules@example.com",
+    "home_phone": "+41324993673",
+    "roles": [
+      "patron"
+    ],
+    "patron": {
+      "expiration_date": "2023-10-07",
+      "barcode": [
+        "4090124789243"
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty4"
+      },
+      "communication_channel": "email",
+      "communication_language": "eng"
+    },
+    "password": "Pw123456"
+  },
+  "ptrn11": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn11",
+    "first_name": "Marvin",
+    "last_name": "Lorgne",
+    "street": "Avenue de la Gare, 42",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1958-01-12",
+    "username": "marvin",
+    "email": "mlorgne@gmail.com",
+    "home_phone": "+41324993142",
+    "roles": [
+      "patron"
+    ],
+    "patron": {
+      "expiration_date": "2023-10-07",
+      "blocked": true,
+      "blocked_note": "Lost card",
+      "barcode": [
+        "42421313000"
+      ],
+      "libraries": [
+        {
+          "$ref": "https://bib.rero.ch/api/libraries/lib1"
+        },
+        {
+          "$ref": "https://bib.rero.ch/api/libraries/lib2"
+        }
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+      },
+      "communication_channel": "email",
+      "communication_language": "eng"
+    },
+    "password": "Pw123456"
+  },
+  "ptrn12": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn12",
+    "first_name": "Omar",
+    "last_name": "Sharif",
+    "street": "Avenue de la Gare, 26",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1928-01-01",
+    "email": "sharifo@gmail.com",
+    "username": "omar",
+    "home_phone": "+41324991231",
+    "roles": [
+      "patron"
+    ],
+    "patron": {
+      "expiration_date": "2023-10-07",
+      "barcode": [
+        "5127891213"
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty2"
+      },
+      "communication_channel": "email",
+      "communication_language": "fre"
+    },
+    "password": "Pw123456"
+  },
+  "ptrn13": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn13",
+    "first_name": "Michelle",
+    "last_name": "Bonvin",
+    "street": "Avenue de la Gare, 4",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "birth_date": "1975-02-07",
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib7"
+      }
+    ],
+    "username": "michelle",
+    "email": "mbonvin@gmail.com",
+    "home_phone": "+41324993599",
+    "roles": [
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager"
+    ],
+    "password": "Pw123456"
+  },
+  "ptrn14": {
+    "$schema": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json",
+    "pid": "ptrn14",
+    "first_name": "Simon",
+    "last_name": "Lopez",
+    "street": "Av. de la Gare",
+    "postal_code": "1920",
+    "city": "Martigny",
+    "country": "sz",
+    "birth_date": "1975-06-01",
+    "username": "simon",
+    "email": "simon.lopez@gmail.com",
+    "home_phone": "+41272222229",
+    "local_codes": [
+      "code14"
+    ],
+    "keep_history": true,
+    "roles": [
+      "patron",
+      "pro_read_only",
+      "pro_catalog_manager",
+      "pro_circulation_manager",
+      "pro_user_manager"
+    ],
+    "patron": {
+      "expiration_date": "2023-12-31",
+      "blocked": false,
+      "barcode": [
+        "4098124355"
+      ],
+      "libraries": [
+        {
+          "$ref": "https://bib.rero.ch/api/libraries/lib1"
+        }
+      ],
+      "type": {
+        "$ref": "https://bib.rero.ch/api/patron_types/ptty1"
+      },
+      "communication_channel": "mail",
+      "communication_language": "fre"
+    },
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "password": "Pw123456"
+  },
+  "dummy_notif": {
+    "$schema": "https://bib.rero.ch/schemas/notifications/notification-v0.0.1.json",
+    "pid": "notif1",
+    "status": "created",
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "notification_type": "availability",
+    "context": {
+      "reminder_counter": 0,
+      "loan": {
+        "$ref": "https://bib.rero.ch/api/loans/x"
+      }
+    }
+  },
+  "holding1": {
+    "$schema": "https://bib.rero.ch/schemas/holdings/holding-v0.0.1.json",
+    "pid": "holding1",
+    "call_number": "h00001",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "circulation_category": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    },
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    }
+  },
+  "holding2": {
+    "$schema": "https://bib.rero.ch/schemas/holdings/holding-v0.0.1.json",
+    "pid": "holding2",
+    "call_number": "h00002",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "circulation_category": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc3"
+    }
+  },
+  "holding3": {
+    "$schema": "https://bib.rero.ch/schemas/holdings/holding-v0.0.1.json",
+    "pid": "holding3",
+    "call_number": "h00003",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "circulation_category": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty1"
+    },
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc5"
+    }
+  },
+  "holding4": {
+    "$schema": "https://bib.rero.ch/schemas/holdings/holding-v0.0.1.json",
+    "pid": "holding4",
+    "call_number": "h00004",
+    "document": {
+      "$ref": "https://bib.rero.ch/api/documents/doc1"
+    },
+    "circulation_category": {
+      "$ref": "https://bib.rero.ch/api/item_types/itty5"
+    },
+    "location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc7"
+    }
+  },
+  "dummy_patron_transaction": {
+    "$schema": "https://bib.rero.ch/schemas/patron_transactions/patron_transaction-v0.0.1.json",
+    "pid": "pttr1",
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "type": "overdue",
+    "total_amount": 5,
+    "notification": {
+      "$ref": "https://bib.rero.ch/api/notifications/x"
+    },
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "status": "open"
+  },
+  "dummy_patron_transaction_event": {
+    "$schema": "https://bib.rero.ch/schemas/patron_transaction_events/patron_transaction_event-v0.0.1.json",
+    "pid": "ptre1",
+    "parent": {
+      "$ref": "https://bib.rero.ch/api/patron_transactions/pttr1"
+    },
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "type": "fee",
+    "subtype": "overdue",
+    "amount": 5,
+    "note": "event of the dummy_patron_transaction",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/x"
+    },
+    "operator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    }
+  },
+  "dummy_patron_transaction_sion": {
+    "$schema": "https://bib.rero.ch/schemas/patron_transactions/patron_transaction-v0.0.1.json",
+    "pid": "pttr2",
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "type": "overdue",
+    "total_amount": 5,
+    "notification": {
+      "$ref": "https://bib.rero.ch/api/notifications/x"
+    },
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn8"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "status": "open"
+  },
+  "dummy_patron_transaction_event_sion": {
+    "$schema": "https://bib.rero.ch/schemas/patron_transaction_events/patron_transaction_event-v0.0.1.json",
+    "pid": "ptre2",
+    "parent": {
+      "$ref": "https://bib.rero.ch/api/patron_transactions/pttr2"
+    },
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "type": "fee",
+    "subtype": "overdue",
+    "amount": 5,
+    "note": "event of the dummy_patron_transaction",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/x"
+    },
+    "operator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn8"
+    }
+  },
+  "pttr3": {
+    "$schema": "https://bib.rero.ch/schemas/patron_transactions/patron_transaction-v0.0.1.json",
+    "pid": "pttr3",
+    "creation_date": "2019-01-09T08:18:22.576291+00:00",
+    "type": "photocopy",
+    "total_amount": 5,
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "status": "open",
+    "note": "Frais de photocopie sur le copieur Richoh#A.11"
+  },
+  "tmpl1": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl1",
+    "name": "templ_doc_public_martigny",
+    "description": "Template for documents created at martigny.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "visibility": "public",
+    "template_type": "documents",
+    "data": {}
+  },
+  "tmpl2": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl2",
+    "name": "templ_doc_private_martigny",
+    "description": "Template for private documents created at martigny.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn2"
+    },
+    "visibility": "private",
+    "template_type": "documents",
+    "data": {}
+  },
+  "tmpl3": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl3",
+    "name": "templ_doc_public_sion",
+    "description": "Template for public documents created at sion.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn8"
+    },
+    "visibility": "public",
+    "template_type": "documents",
+    "data": {}
+  },
+  "tmpl4": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl4",
+    "name": "templ_hold_public_martigny",
+    "description": "Template for public holdings created at martigny.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "visibility": "public",
+    "template_type": "holdings",
+    "data": {}
+  },
+  "tmpl5": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl5",
+    "name": "templ_item_public_martigny",
+    "description": "Template for public items created at martigny.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "visibility": "public",
+    "template_type": "items",
+    "data": {
+      "barcode": "barcode_1234",
+      "type": "standard",
+      "call_number": "HB271"
+    }
+  },
+  "tmpl6": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl6",
+    "name": "templ_patron_public_martigny",
+    "description": "Template for public patron created at martigny.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn1"
+    },
+    "visibility": "public",
+    "template_type": "patrons",
+    "data": {
+      "patron": {
+        "source": "imported"
+      }
+    }
+  },
+  "tmpl7": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl7",
+    "name": "templ_doc_private_saxon",
+    "description": "Template for private documents created at saxon.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn4"
+    },
+    "visibility": "private",
+    "template_type": "documents",
+    "data": {}
+  },
+  "tmpl8": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl8",
+    "name": "templ_doc_public_saxon",
+    "description": "Template for public documents created at saxon.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn4"
+    },
+    "visibility": "public",
+    "template_type": "documents",
+    "data": {}
+  },
+  "tmpl9": {
+    "$schema": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json",
+    "pid": "tmpl9",
+    "name": "templ_doc_private_sion",
+    "description": "Template for private documents created at sion.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "creator": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn8"
+    },
+    "visibility": "private",
+    "template_type": "documents",
+    "data": {}
+  },
+  "illr1": {
+    "$schema": "https://bib.rero.ch/schemas/ill_requests/ill_request-v0.0.1.json",
+    "pid": "illr1",
+    "status": "pending",
+    "loan_status": "PENDING",
+    "copy": false,
+    "document": {
+      "title": "Histoire d'\u00c9gypte",
+      "authors": "Jane Doe, Example University"
+    },
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn6"
+    },
+    "pickup_location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    }
+  },
+  "illr2": {
+    "$schema": "https://bib.rero.ch/schemas/ill_requests/ill_request-v0.0.1.json",
+    "pid": "illr2",
+    "status": "pending",
+    "loan_status": "PENDING",
+    "copy": true,
+    "document": {
+      "title": "Python fr dummies."
+    },
+    "pages": "23-77",
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn10"
+    },
+    "pickup_location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc7"
+    }
+  },
+  "illr3": {
+    "$schema": "https://bib.rero.ch/schemas/ill_requests/ill_request-v0.0.1.json",
+    "pid": "illr3",
+    "status": "pending",
+    "loan_status": "PENDING",
+    "copy": true,
+    "document": {
+      "title": "Python"
+    },
+    "pages": "1-120",
+    "patron": {
+      "$ref": "https://bib.rero.ch/api/patrons/ptrn7"
+    },
+    "pickup_location": {
+      "$ref": "https://bib.rero.ch/api/locations/loc1"
+    }
+  },
+  "coll_martigny_1": {
+    "pid": "coll_martigny_1",
+    "collection_id": "CRS 1",
+    "title": "Course number 1",
+    "collection_type": "course",
+    "teachers": [
+      {
+        "name": "Pr. Smith, John"
+      },
+      {
+        "name": "Pr. Nonyme, Anne"
+      }
+    ],
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib1"
+      }
+    ],
+    "description": "List of items for course 1",
+    "subjects": [
+      {
+        "name": "Smith, John"
+      },
+      {
+        "name": "geographic"
+      }
+    ],
+    "start_date": "2020-09-01",
+    "end_date": "2020-12-31",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "items": [
+      {
+        "$ref": "https://bib.rero.ch/api/items/item1"
+      },
+      {
+        "$ref": "https://bib.rero.ch/api/items/item5"
+      }
+    ],
+    "published": true
+  },
+  "coll_saxon_1": {
+    "pid": "coll_saxon_1",
+    "collection_id": "CRS 1",
+    "title": "Course number 1",
+    "collection_type": "course",
+    "teachers": [
+      {
+        "name": "Pr. Smith, Will"
+      }
+    ],
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib2"
+      }
+    ],
+    "description": "List of items for course 1",
+    "subjects": [
+      {
+        "name": "geographic"
+      }
+    ],
+    "start_date": "2020-09-01",
+    "end_date": "2020-12-31",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org1"
+    },
+    "items": [
+      {
+        "$ref": "https://bib.rero.ch/api/items/item2"
+      },
+      {
+        "$ref": "https://bib.rero.ch/api/items/item9"
+      }
+    ],
+    "published": true
+  },
+  "coll_sion_1": {
+    "pid": "coll_sion_1",
+    "collection_id": "CRS 1",
+    "title": "Course number 1",
+    "collection_type": "course",
+    "teachers": [
+      {
+        "name": "Pr. Smith, John"
+      }
+    ],
+    "libraries": [
+      {
+        "$ref": "https://bib.rero.ch/api/libraries/lib4"
+      }
+    ],
+    "description": "List of items for course 1",
+    "subjects": [
+      {
+        "name": "geographic"
+      }
+    ],
+    "start_date": "2020-09-01",
+    "end_date": "2020-12-31",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/org2"
+    },
+    "items": [
+      {
+        "$ref": "https://bib.rero.ch/api/items/item4"
+      },
+      {
+        "$ref": "https://bib.rero.ch/api/items/item6"
+      }
+    ],
+    "published": true
+  },
+  "oplg1": {
+    "$schema": "https://bib.rero.ch/schemas/operation_logs/operation_log-v0.0.1.json",
+    "pid": "oplg1",
+    "record": {
+      "value": "item4",
+      "type": "item"
+    },
+    "operation": "update",
+    "user_name": "updated_user",
+    "date": "2021-01-01T09:51:52.879533+00:00"
+  },
+  "user1": {
+    "$schema": "https://bib.rero.ch/schemas/users/user-v0.0.1.json",
+    "username": "smith_john",
+    "first_name": "John",
+    "last_name": "Smith",
+    "birth_date": "1974-03-21",
+    "street": "1600 Donald Trump Avenue NW",
+    "postal_code": "20500",
+    "city": "Washington, D.C.",
+    "home_phone": "+012024561414",
+    "keep_history": true
+  },
+  "stats_cfg1": {
+    "$schema": "https://bib.rero.ch/schemas/stats_cfg/stat_cfg-v0.0.1.json",
+    "pid": "stats_cfg1",
+    "name": "Statistics configuration for organisation 1",
+    "description": "test",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib1"
+    },
+    "frequency": "month",
+    "is_active": true,
+    "category": {
+      "type": "catalog",
+      "indicator": {
+        "type": "number_of_documents",
+        "distributions": [
+          "created_month",
+          "owning_library"
+        ]
+      }
+    }
+  },
+  "stats_cfg2": {
+    "$schema": "https://bib.rero.ch/schemas/stats_cfg/stat_cfg-v0.0.1.json",
+    "pid": "stats_cfg2",
+    "name": "Statistics configuration for organisation 2",
+    "description": "test",
+    "library": {
+      "$ref": "https://bib.rero.ch/api/libraries/lib4"
+    },
+    "frequency": "month",
+    "is_active": true,
+    "category": {
+      "type": "catalog",
+      "indicator": {
+        "type": "number_of_documents",
+        "distributions": [
+          "created_month",
+          "owning_library"
+        ]
+      }
+    }
+  }
+}
