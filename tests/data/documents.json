@@ -1,0 +1,258 @@
+[
+  {
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "pid": "1",
+    "language": [
+      {
+        "value": "fre",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "0812781",
+        "type": "bf:Local",
+        "source": "RERO"
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "[\u00e9d.] Hans E. Bachmann"
+        }
+      ],
+      [
+        {
+          "value": "trad. Henri Perrin"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "La norme S.I.A. 118 et l'actualit\u00e9 juridique en mati\u00e8re de construction"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "un ouvrage pratique pour tous les entrepreneurs en rapport avec la construction, avec \u00e9tudes de cas, check-lists, exemples de contrats et de lettres relatifs au contrat d'entreprise"
+          }
+        ],
+        "type": "bf:Title"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/agents/idref/223977268"
+        },
+        "role": [
+          "aut"
+        ]
+      },
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/agents/rero/A017671081"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Z\u00fcrich"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Ed. Weka"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "1987->"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1987,
+        "place": [
+          {
+            "country": "sz"
+          }
+        ]
+      }
+    ],
+    "extent": "8 classeurs",
+    "note": [
+      {
+        "noteType": "otherPhysicalDetails",
+        "label": "ill."
+      },
+      {
+        "noteType": "general",
+        "label": "Publication \u00e0 feuillets mobiles avec mises \u00e0 jour p\u00e9riodiques"
+      }
+    ],
+    "illustrativeContent": [
+      "illustrations"
+    ],
+    "dimensions": [
+      "23 cm"
+    ],
+    "subjects": [
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "contrat de construction"
+        }
+      },
+      {
+        "entity": {
+          "type": "bf:Topic",
+          "authorized_access_point": "Suisse"
+        }
+      }
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    },
+    "fiction_statement": "unspecified"
+  },
+  {
+    "type": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "issuance": {
+      "main_type": "rdami:1001",
+      "subtype": "materialUnit"
+    },
+    "pid": "2",
+    "language": [
+      {
+        "value": "ger",
+        "type": "bf:Language"
+      }
+    ],
+    "identifiedBy": [
+      {
+        "value": "9783503057221",
+        "type": "bf:Isbn"
+      },
+      {
+        "value": "R270072860",
+        "type": "bf:Local",
+        "source": "RERO"
+      }
+    ],
+    "contribution": [
+      {
+        "entity": {
+          "$ref": "https://mef.rero.ch/api/agents/idref/223977268"
+        },
+        "role": [
+          "aut"
+        ]
+      }
+    ],
+    "responsibilityStatement": [
+      [
+        {
+          "value": "von Erwin Zacharias"
+        }
+      ]
+    ],
+    "title": [
+      {
+        "mainTitle": [
+          {
+            "value": "Going Public einer Fussball-Kapitalgesellschaft"
+          }
+        ],
+        "subtitle": [
+          {
+            "value": "rechtliche, betriebswirtschaftliche und strategische Konzepte bei der Vorbereitung der B\u00f6rseneinf\u00fchrung eines Fussball-Bundesligavereins"
+          }
+        ],
+        "type": "bf:Title"
+      }
+    ],
+    "provisionActivity": [
+      {
+        "type": "bf:Publication",
+        "statement": [
+          {
+            "type": "bf:Place",
+            "label": [
+              {
+                "value": "Bielefeld"
+              }
+            ]
+          },
+          {
+            "type": "bf:Agent",
+            "label": [
+              {
+                "value": "Erich Schmidt"
+              }
+            ]
+          },
+          {
+            "label": [
+              {
+                "value": "1999"
+              }
+            ],
+            "type": "Date"
+          }
+        ],
+        "startDate": 1999,
+        "place": [
+          {
+            "country": "gw"
+          }
+        ]
+      }
+    ],
+    "extent": "617 S.",
+    "note": [
+      {
+        "noteType": "otherPhysicalDetails",
+        "label": "Taf."
+      }
+    ],
+    "dimensions": [
+      "21 cm"
+    ],
+    "adminMetadata": {
+      "encodingLevel": "Minimal level"
+    },
+    "fiction_statement": "unspecified"
+  }
+]
