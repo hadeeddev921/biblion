@@ -1,0 +1,200 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""API for manipulating organisation."""
+
+from functools import partial
+
+from flask import abort
+
+from biblion.modules.api import IlsRecord, IlsRecordsIndexer, IlsRecordsSearch
+from biblion.modules.fetchers import id_fetcher
+from biblion.modules.item_types.api import ItemTypesSearch
+from biblion.modules.libraries.api import LibrariesSearch, Library
+from biblion.modules.minters import id_minter
+from biblion.modules.providers import Provider
+from biblion.modules.utils import sorted_pids
+from biblion.modules.vendors.api import Vendor, VendorsSearch
+
+from .extensions import OrganisationHomepageSanitizerExtension
+from .models import OrganisationIdentifier, OrganisationMetadata
+
+# provider
+OrganisationProvider = type(
+    "OrganisationProvider",
+    (Provider,),
+    {"identifier": OrganisationIdentifier, "pid_type": "org"},
+)
+# minter
+organisation_id_minter = partial(id_minter, provider=OrganisationProvider)
+# fetcher
+organisation_id_fetcher = partial(id_fetcher, provider=OrganisationProvider)
+
+
+class OrganisationsSearch(IlsRecordsSearch):
+    """Organisation search."""
+
+    class Meta:
+        """Meta class."""
+
+        index = "organisations"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+    def get_record_by_viewcode(self, viewcode, fields=None):
+        """Search by viewcode."""
+        query = self.filter("term", code=viewcode).extra(size=1)
+        if fields:
+            query = query.source(includes=fields)
+        response = query.execute()
+        if response.hits.total.value != 1:
+            abort(404, f"OrganisationsSearch viewcode {viewcode}: Result not found.")
+        return response.hits.hits[0]._source
+
+
+class Organisation(IlsRecord):
+    """Organisation class."""
+
+    minter = organisation_id_minter
+    fetcher = organisation_id_fetcher
+    provider = OrganisationProvider
+    model_cls = OrganisationMetadata
+    _extensions = [OrganisationHomepageSanitizerExtension()]
+
+    @classmethod
+    def get_all(cls):
+        """Get all organisations."""
+        return sorted(
+            [Organisation.get_record(_id) for _id in Organisation.get_all_ids()],
+            key=lambda org: org.get("name"),
+        )
+
+    @classmethod
+    def all_code(cls):
+        """Get all code."""
+        return [org.get("code") for org in cls.get_all()]
+
+    @classmethod
+    def get_record_by_viewcode(cls, viewcode):
+        """Get record by view code."""
+        result = OrganisationsSearch().filter("term", code=viewcode).execute()
+        if result["hits"]["total"]["value"] != 1:
+            abort(404, f"Organisation viewcode {viewcode}: Result not found.")
+
+        return result["hits"]["hits"][0]["_source"]
+
+    @classmethod
+    def get_record_by_online_harvested_source(cls, source):
+        """Get record by online harvested source.
+
+        :param source: the record source
+        :return: Organisation record or None.
+        """
+        for org in cls.get_records_by_online_harvested_source(source):
+            return org
+        return None
+
+    @classmethod
+    def get_records_by_online_harvested_source(cls, source):
+        """Get record by online harvested source.
+
+        :param source: the record source
+        :return: Organisation record or None.
+        """
+        query = OrganisationsSearch().filter("term", online_harvested_source=source)
+        org_pids = [hit.pid for hit in query.source("pid").scan()]
+        for org_pid in org_pids:
+            yield Organisation.get_record_by_pid(org_pid)
+
+    @property
+    def organisation_pid(self):
+        """Get organisation pid."""
+        return self.pid
+
+    def online_circulation_category(self):
+        """Get the default circulation category for online resources."""
+        results = (
+            ItemTypesSearch()
+            .filter("term", organisation__pid=self.pid)
+            .filter("term", type="online")
+            .source(["pid"])
+            .scan()
+        )
+        try:
+            return next(results).pid
+        except StopIteration:
+            return None
+
+    def get_online_locations(self):
+        """Get list of online locations."""
+        return [library.online_location for library in self.get_libraries() if library.online_location]
+
+    def get_libraries_pids(self):
+        """Get all libraries pids related to the organisation."""
+        query = LibrariesSearch().source(["pid"]).filter("term", organisation__pid=self.pid).source("pid")
+        return [hit.pid for hit in query.scan()]
+
+    def get_libraries(self):
+        """Get all libraries related to the organisation."""
+        for pid in self.get_libraries_pids():
+            yield Library.get_record_by_pid(pid)
+
+    def get_vendor_pids(self):
+        """Get all vendor pids related to the organisation."""
+        query = VendorsSearch().source(["pid"]).filter("term", organisation__pid=self.pid).source("pid")
+        return [hit.pid for hit in query.scan()]
+
+    def get_vendors(self):
+        """Get all vendors related to the organisation."""
+        for pid in self.get_vendor_pids():
+            yield Vendor.get_record_by_pid(pid)
+
+    def get_links_to_me(self, get_pids=False):
+        """Record links.
+
+        :param get_pids: if True list of linked pids
+                         if False count of linked records
+        """
+        from biblion.modules.acquisition.acq_receipts.api import AcqReceiptsSearch
+
+        library_query = LibrariesSearch().filter("term", organisation__pid=self.pid)
+        receipt_query = AcqReceiptsSearch().filter("term", organisation__pid=self.pid)
+        links = {}
+        if get_pids:
+            libraries = sorted_pids(library_query)
+            receipts = sorted_pids(receipt_query)
+        else:
+            libraries = library_query.count()
+            receipts = receipt_query.count()
+        if libraries:
+            links["libraries"] = libraries
+        if receipts:
+            links["acq_receipts"] = receipts
+        return links
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete record."""
+        cannot_delete = {}
+        if links := self.get_links_to_me():
+            cannot_delete["links"] = links
+        return cannot_delete
+
+    def is_test_organisation(self):
+        """Check if this is a test organisation."""
+        return self.get("code") == "e2e"
+
+
+class OrganisationsIndexer(IlsRecordsIndexer):
+    """Holdings indexing class."""
+
+    record_cls = Organisation
+
+    def bulk_index(self, record_id_iterator):
+        """Bulk index records.
+
+        :param record_id_iterator: Iterator yielding record UUIDs.
+        """
+        super().bulk_index(record_id_iterator, doc_type="org")
