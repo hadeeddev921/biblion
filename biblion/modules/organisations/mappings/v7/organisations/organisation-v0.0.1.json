@@ -1,0 +1,63 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "copy_to": "organisation_name"
+      },
+      "organisation_name": {
+        "type": "keyword"
+      },
+      "address": {
+        "type": "text"
+      },
+      "code": {
+        "type": "keyword"
+      },
+      "default_currency": {
+        "type": "keyword"
+      },
+      "current_budget_pid": {
+        "type": "keyword"
+      },
+      "online_harvested_source": {
+        "type": "keyword"
+      },
+      "collection_enabled_on_public_view": {
+        "type": "boolean"
+      },
+      "patron_cleanup": {
+        "type": "object",
+        "properties": {
+          "expiration_years": {
+            "type": "integer"
+          },
+          "inactivity_years": {
+            "type": "integer"
+          },
+          "excluded_patron_types": {
+            "type": "keyword"
+          }
+        }
+      },
+      "homepage": {
+        "type": "object",
+        "enabled": false
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
