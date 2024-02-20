@@ -1,0 +1,132 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests REST API organisations."""
+
+import json
+
+import pytest
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+from werkzeug.exceptions import NotFound
+
+from biblion.modules.organisations.api import Organisation
+from tests.utils import postdata
+
+
+def test_get_record_by_viewcode(org_martigny):
+    """Test Organisation.get_record_by_viewcode."""
+    data = Organisation.get_record_by_viewcode("org1")
+    assert data["pid"] == org_martigny.pid
+    with pytest.raises(NotFound):
+        assert Organisation.get_record_by_viewcode("dummy")
+
+
+def test_get_record_by_online_harvested_source(org_martigny):
+    """Test get_record_by_online_harvested_source."""
+    source = org_martigny.get("online_harvested_source")[0]
+    org = Organisation.get_record_by_online_harvested_source(source)
+    assert org.pid == org_martigny.pid
+    assert Organisation.get_record_by_online_harvested_source("dummy") is None
+
+
+def test_organisation_secure_api_update(
+    client,
+    json_header,
+    org_martigny,
+    librarian_martigny,
+    system_librarian_martigny,
+    librarian_sion,
+    org_martigny_data,
+):
+    """Test organisation secure api create."""
+    login_user_via_session(client, system_librarian_martigny.user)
+    record_url = url_for("invenio_records_rest.org_item", pid_value=org_martigny.pid)
+
+    data = org_martigny_data
+    data["name"] = "New Name 1"
+    res = client.put(record_url, data=json.dumps(data), headers=json_header)
+    assert res.status_code == 200
+
+    list_url = url_for("invenio_records_rest.org_list")
+    client.get(list_url)
+    assert res.status_code == 200
+
+    login_user_via_session(client, librarian_martigny.user)
+    data["name"] = "New Name 2"
+    res = client.put(record_url, data=json.dumps(data), headers=json_header)
+    assert res.status_code == 403
+
+    # Sion
+    login_user_via_session(client, librarian_sion.user)
+
+    res = client.put(record_url, data=json.dumps(data), headers=json_header)
+    assert res.status_code == 403
+
+
+def test_organisation_can_delete(client, org_martigny, lib_martigny, acq_receipt_fiction_martigny):
+    """Test can delete an organisation."""
+    can, reasons = org_martigny.can_delete
+    assert not can
+    assert reasons["links"]["libraries"]
+    assert reasons["links"]["acq_receipts"]
+
+
+def test_organisation_secure_api(client, json_header, org_martigny, librarian_martigny, librarian_sion):
+    """Test organisation secure api access."""
+    # Martigny
+    login_user_via_session(client, librarian_martigny.user)
+    record_url = url_for("invenio_records_rest.org_item", pid_value=org_martigny.pid)
+
+    res = client.get(record_url)
+    assert res.status_code == 200
+
+    # Sion
+    login_user_via_session(client, librarian_sion.user)
+    record_url = url_for("invenio_records_rest.org_item", pid_value=org_martigny.pid)
+
+
+def test_organisation_secure_api_create(
+    client,
+    json_header,
+    org_martigny,
+    librarian_martigny,
+    librarian_sion,
+    org_martigny_data,
+):
+    """Test organisation secure api create."""
+    # Martigny
+    login_user_via_session(client, librarian_martigny.user)
+    post_entrypoint = "invenio_records_rest.org_list"
+
+    del org_martigny_data["pid"]
+    res, _ = postdata(client, post_entrypoint, org_martigny_data)
+    assert res.status_code == 403
+
+    # Sion
+    login_user_via_session(client, librarian_sion.user)
+
+    res, _ = postdata(client, post_entrypoint, org_martigny_data)
+    assert res.status_code == 403
+
+
+def test_organisation_secure_api_delete(
+    client,
+    json_header,
+    org_martigny,
+    librarian_martigny,
+    librarian_sion,
+    org_martigny_data,
+):
+    """Test organisation secure api delete."""
+    login_user_via_session(client, librarian_martigny.user)
+    record_url = url_for("invenio_records_rest.org_item", pid_value=org_martigny.pid)
+
+    res = client.delete(record_url)
+    assert res.status_code == 403
+
+    # Sion
+    login_user_via_session(client, librarian_sion.user)
+
+    res = client.delete(record_url)
+    assert res.status_code == 403
