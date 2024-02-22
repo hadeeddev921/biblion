@@ -1,0 +1,564 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Library",
+  "description": "Institution, usually in the sense of a physical building.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "code",
+    "pid",
+    "name",
+    "organisation",
+    "communication_language",
+    "rollover_settings"
+  ],
+  "definitions": {
+    "default_notification_setting": {
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "email"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "at_desk",
+            "due_soon",
+            "auto_extend",
+            "overdue",
+            "recall",
+            "transit_notice",
+            "request",
+            "booking"
+          ]
+        },
+        "email": {
+          "title": "E-mail",
+          "description": "The notifications for patrons without e-mail are sent to this address.",
+          "type": "string",
+          "format": "email"
+        }
+      }
+    },
+    "delayed_notification_setting": {
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "email",
+        "delay"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "availability"
+          ]
+        },
+        "email": {
+          "title": "E-mail",
+          "description": "The notifications for patrons without e-mail are sent to this address.",
+          "type": "string",
+          "format": "email"
+        },
+        "delay": {
+          "title": "Delay in minutes",
+          "description": "Sending how many minutes after the item is available.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 720,
+          "default": 0
+        }
+      }
+    },
+    "address_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "street",
+        "zip_code",
+        "city",
+        "country"
+      ],
+      "properties": {
+        "street": {
+          "title": "Street",
+          "description": "Street + number",
+          "type": "string",
+          "minLength": 3
+        },
+        "zip_code": {
+          "title": "Zip code",
+          "type": "string",
+          "minLength": 3
+        },
+        "city": {
+          "title": "City",
+          "type": "string",
+          "minLength": 2
+        },
+        "country": {
+          "$ref": "https://bib.rero.ch/schemas/common/countries-v0.0.1.json#/country"
+        }
+      }
+    },
+    "acquisition_management_settings": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "shipping_informations"
+      ],
+      "properties": {
+        "shipping_informations": {
+          "title": "Shipping informations",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "email",
+            "address"
+          ],
+          "properties": {
+            "name": {
+              "title": "Contact person",
+              "type": "string",
+              "minLength": 3
+            },
+            "email": {
+              "title": "Contact email",
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "title": "Contact phone",
+              "type": "string",
+              "minLength": 6
+            },
+            "address": {
+              "$ref": "#/definitions/address_block"
+            },
+            "extra": {
+              "title": "Extra information",
+              "description": "VAT number, note, ...",
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        },
+        "billing_informations": {
+          "title": "Billing informations",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "address"
+          ],
+          "properties": {
+            "name": {
+              "title": "Contact person",
+              "type": "string",
+              "minLength": 3
+            },
+            "email": {
+              "title": "Contact email",
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "title": "Contact phone",
+              "type": "string",
+              "minLength": 6
+            },
+            "address": {
+              "$ref": "#/definitions/address_block"
+            },
+            "extra": {
+              "title": "Extra information",
+              "description": "VAT number, note, ...",
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/libraries/library-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Library ID",
+      "type": "string"
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "code": {
+      "title": "Code",
+      "description": "Code of the library.",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Name of the library.",
+      "type": "string",
+      "minLength": 1
+    },
+    "address": {
+      "title": "Address",
+      "description": "Address of the library.",
+      "type": "string",
+      "minLength": 1
+    },
+    "email": {
+      "title": "Email",
+      "description": "Email of the library.",
+      "type": "string",
+      "format": "email"
+    },
+    "opening_hours": {
+      "title": "Opening Hours",
+      "description": "Weekly opening hours",
+      "required": [
+        "day",
+        "is_open",
+        "times"
+      ],
+      "default": [
+        {
+          "day": "monday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "tuesday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "wednesday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "thursday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "friday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "saturday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        },
+        {
+          "day": "sunday",
+          "is_open": false,
+          "times": [
+            {
+              "start_time": "08:00",
+              "end_time": "17:00"
+            }
+          ]
+        }
+      ],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "title": "Day",
+            "description": "Weekday.",
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          },
+          "is_open": {
+            "title": "Is open",
+            "type": "boolean",
+            "default": "false"
+          },
+          "times": {
+            "type": "array",
+            "required": [
+              "start_time",
+              "end_time"
+            ],
+            "default": [
+              {
+                "start_time": "08:00",
+                "end_time": "17:00"
+              }
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "start_time": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 5,
+                  "default": "08:00"
+                },
+                "end_time": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 5,
+                  "default": "17:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "exception_dates": {
+      "title": "Exception Hours",
+      "description": "Exception opening hours",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "is_open",
+          "start_date"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "is_open": {
+            "type": "boolean"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "times": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "start_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end_time": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "repeat": {
+            "type": "object",
+            "properties": {
+              "interval": {
+                "type": "integer"
+              },
+              "period": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "weekly",
+                  "monthly",
+                  "yearly"
+                ]
+              }
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "notification_settings": {
+      "title": "Notification settings",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/default_notification_setting"
+          },
+          {
+            "$ref": "#/definitions/delayed_notification_setting"
+          }
+        ]
+      }
+    },
+    "communication_language": {
+      "title": "Communication language",
+      "type": "string",
+      "enum": [
+        "ger",
+        "eng",
+        "fre",
+        "ita"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "lang_fre",
+                "value": "fre"
+              },
+              {
+                "label": "lang_eng",
+                "value": "eng"
+              },
+              {
+                "label": "lang_ger",
+                "value": "ger"
+              },
+              {
+                "label": "lang_ita",
+                "value": "ita"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "acquisition_settings": {
+      "$ref": "#/definitions/acquisition_management_settings"
+    },
+    "serial_acquisition_settings": {
+      "$ref": "#/definitions/acquisition_management_settings"
+    },
+    "online_harvested_source": {
+      "title": "Online harvested sources",
+      "description": "Online harvested sources as configured in ebooks server.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "url"
+        ],
+        "properties": {
+          "source": {
+            "title": "Source",
+            "description": "Name of online source.",
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "title": "URL",
+            "description": "URL to online source.",
+            "type": "string",
+            "format": "uri",
+            "pattern": "^(rtsp?|ftps?|https?|http?)://.*$",
+            "minLength": 7
+          }
+        }
+      }
+    },
+    "rollover_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "account_transfer"
+      ],
+      "properties": {
+        "account_transfer": {
+          "title": "Account transfer",
+          "description": "This defines if and how the accounts are transferred into the next fiscal year.",
+          "type": "string",
+          "default": "rollover_no_transfer",
+          "enum": [
+            "rollover_no_transfer",
+            "rollover_allocated_amount"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "options": [
+                  {
+                    "label": "rollover_no_transfer",
+                    "value": "rollover_no_transfer"
+                  },
+                  {
+                    "label": "rollover_allocated_amount",
+                    "value": "rollover_allocated_amount"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
