@@ -1,0 +1,124 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests libraries permissions."""
+
+from unittest import mock
+
+from flask import current_app
+from flask_principal import AnonymousIdentity, identity_changed
+from flask_security import login_user
+
+from biblion.modules.libraries.permissions import LibraryPermissionPolicy
+from biblion.modules.patrons.api import Patron, PatronsSearch
+from tests.utils import check_permission
+
+
+@mock.patch.object(Patron, "_extensions", [])
+def test_library_permissions(
+    patron_martigny,
+    librarian_martigny,
+    system_librarian_martigny,
+    org_martigny,
+    lib_martigny,
+    lib_saxon,
+    lib_sion,
+):
+    """Test library permissions class."""
+    # Anonymous user
+    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
+    check_permission(
+        LibraryPermissionPolicy,
+        {
+            "search": False,
+            "read": False,
+            "create": False,
+            "update": False,
+            "delete": False,
+        },
+        {},
+    )
+
+    # Patron
+    #    A simple patron can't operate any operation about Library
+    login_user(patron_martigny.user)
+    check_permission(
+        LibraryPermissionPolicy,
+        {
+            "search": False,
+            "read": False,
+            "create": False,
+            "update": False,
+            "delete": False,
+        },
+        lib_martigny,
+    )
+
+    # Librarian without 'pro_library_administrator' role
+    #     - search : any Library despite organisation owner
+    #     - read : only Library for its own organisation
+    #     - create/update/delete : disallowed
+    librarian_martigny["roles"].remove("pro_library_administrator")
+    librarian_martigny.update(librarian_martigny, dbcommit=True, reindex=True)
+    PatronsSearch.flush_and_refresh()
+
+    login_user(librarian_martigny.user)
+    check_permission(LibraryPermissionPolicy, {"search": True}, None)
+    check_permission(LibraryPermissionPolicy, {"create": False}, {})
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": True, "create": False, "update": False, "delete": False},
+        lib_martigny,
+    )
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": False, "create": False, "update": False, "delete": False},
+        lib_sion,
+    )
+
+    # reset the librarian.
+    librarian_martigny["roles"].append("pro_library_administrator")
+    librarian_martigny.update(librarian_martigny, dbcommit=True, reindex=True)
+    PatronsSearch.flush_and_refresh()
+
+    # Librarian with 'pro_library_administrator' role
+    #    - search/read : same as common librarian
+    #    - create/update/delete : if patron is manager for this library
+
+    login_user(librarian_martigny.user)
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": True, "create": True, "update": True, "delete": True},
+        lib_martigny,
+    )
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": True, "create": False, "update": False, "delete": False},
+        lib_saxon,
+    )
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": False, "create": False, "update": False, "delete": False},
+        lib_sion,
+    )
+
+    # SystemLibrarian
+    #     - search : any Library despite organisation owner
+    #     - read : only Library for its own organisation
+    #     - create/update/delete : only Library for its own organisation
+    login_user(system_librarian_martigny.user)
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": True, "create": True, "update": True, "delete": True},
+        lib_martigny,
+    )
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": True, "create": True, "update": True, "delete": True},
+        lib_saxon,
+    )
+    check_permission(
+        LibraryPermissionPolicy,
+        {"read": False, "create": False, "update": False, "delete": False},
+        lib_sion,
+    )
