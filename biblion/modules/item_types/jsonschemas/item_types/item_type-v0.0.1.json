@@ -1,0 +1,262 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Item type",
+  "description": "Categorization of items.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "name",
+    "description",
+    "type",
+    "negative_availability",
+    "displayed_status",
+    "circulation_information",
+    "remove_temporary_item_type_on_scan"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "organisation",
+    "type",
+    "negative_availability"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/item_types/item_type-v0.0.1.json"
+    },
+    "pid": {
+      "title": "ItemType ID.",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "title": "Name",
+      "description": "Name of the ItemType.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "focus": true,
+          "props": {
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {
+                  "term": "item_type_name"
+                }
+              },
+              "messages": {
+                "alreadyTakenMessage": "This name is already taken."
+              }
+            }
+          }
+        }
+      }
+    },
+    "description": {
+      "title": "Description",
+      "description": "Description of the ItemType.",
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "title": "Type",
+      "description": "Type of the circulation category.",
+      "type": "string",
+      "default": "standard",
+      "enum": [
+        "online",
+        "standard"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "value": "standard",
+                "label": "standard"
+              },
+              {
+                "value": "online",
+                "label": "online"
+              }
+            ],
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {
+                  "remoteRecordType": "item_types",
+                  "limitToValues": [
+                    "online"
+                  ]
+                }
+              },
+              "messages": {
+                "alreadyTakenMessage": "Another online item type exists in this organisation."
+              }
+            }
+          }
+        }
+      }
+    },
+    "negative_availability": {
+      "title": "Mark the items of this category as not available",
+      "description": "If enabled, all items of this circulation category will be displayed as not available, with the red availability symbol.",
+      "type": "boolean",
+      "default": false
+    },
+    "displayed_status": {
+      "title": "Displayed status",
+      "type": "array",
+      "description": "Short text displayed in the interface, for instance 'in acquisition' or 'missing'.",
+      "minItems": 1,
+      "items": {
+        "title": "Status",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "language",
+          "label"
+        ],
+        "propertiesOrder": [
+          "language",
+          "label"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "https://bib.rero.ch/schemas/common/ui-languages-v0.0.1.json#/language"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string",
+            "maxLength": 90,
+            "minLength": 3,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-9"
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "field?.parent?.model && field.parent.model.negative_availability",
+            "hide": "field?.parent?.model && !field.parent.model.negative_availability"
+          },
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "language"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one label per language is allowed."
+              }
+            }
+          }
+        }
+      }
+    },
+    "circulation_information": {
+      "title": "Circulation information",
+      "type": "array",
+      "description": "This optional text is displayed in the public interface, for instance 'On-site consultation'",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "title": "Information",
+        "additionalProperties": false,
+        "required": [
+          "language",
+          "label"
+        ],
+        "propertiesOrder": [
+          "language",
+          "label"
+        ],
+        "properties": {
+          "language": {
+            "$ref": "https://bib.rero.ch/schemas/common/ui-languages-v0.0.1.json#/language"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string",
+            "maxLength": 90,
+            "minLength": 3,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-9"
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "language"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one label per language is allowed."
+              }
+            }
+          }
+        }
+      }
+    },
+    "remove_temporary_item_type_on_scan": {
+      "title": "Remove temporary item type on check-in/checkout",
+      "description": "If enabled, scanning (in the circulation module) an item with this temporary item type will remove the temporary item type from the item.",
+      "type": "boolean",
+      "default": false
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
