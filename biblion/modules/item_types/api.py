@@ -1,0 +1,193 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""API for manipulating item types."""
+
+import contextlib
+from functools import partial
+
+from elasticsearch_dsl import Q
+from flask_babel import gettext as _
+
+from ..api import IlsRecord, IlsRecordsIndexer, IlsRecordsSearch
+from ..circ_policies.api import CircPoliciesSearch
+from ..fetchers import id_fetcher
+from ..minters import id_minter
+from ..providers import Provider
+from ..utils import extracted_data_from_ref, sorted_pids
+from .models import ItemTypeIdentifier, ItemTypeMetadata
+
+# provider
+ItemTypeProvider = type(
+    "ItemTypeProvider",
+    (Provider,),
+    {"identifier": ItemTypeIdentifier, "pid_type": "itty"},
+)
+# minter
+item_type_id_minter = partial(id_minter, provider=ItemTypeProvider)
+# fetcher
+item_type_id_fetcher = partial(id_fetcher, provider=ItemTypeProvider)
+
+
+class ItemTypesSearch(IlsRecordsSearch):
+    """ItemTypeSearch."""
+
+    class Meta:
+        """Search only on item_types index."""
+
+        index = "item_types"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+    def by_organisation_pid(self, organisation_pid):
+        """Build a search to get hits related to an organisation pid.
+
+        :param organisation_pid: string - the organisation pid to filter with
+        :returns: An ElasticSearch query to get hits related the entity.
+        :rtype: `elasticsearch_dsl.Search`
+        """
+        return self.filter("term", organisation__pid=organisation_pid)
+
+
+class ItemType(IlsRecord):
+    """ItemType class."""
+
+    minter = item_type_id_minter
+    fetcher = item_type_id_fetcher
+    provider = ItemTypeProvider
+    model_cls = ItemTypeMetadata
+
+    def extended_validation(self, **kwargs):
+        """Validate record against schema.
+
+        and extended validation to allow only one item type of type online
+        per organisation.
+        """
+        online_type_pid = self.get_organisation().online_circulation_category()
+        if self.get("type") == "online" and online_type_pid and self.pid != online_type_pid:
+            return _("Another online item type exists in this organisation")
+        return True
+
+    def get_organisation(self):
+        """Get organisation."""
+        from ..organisations.api import Organisation
+
+        org_pid = extracted_data_from_ref(self.get("organisation"))
+        return Organisation.get_record_by_pid(org_pid)
+
+    @classmethod
+    def get_pid_by_name(cls, name):
+        """Get pid by name."""
+        pid = None
+        with contextlib.suppress(Exception):
+            if pids := [
+                n.pid for n in ItemTypesSearch().filter("term", item_type_name=name).source(includes=["pid"]).scan()
+            ]:
+                pid = pids[0]
+        return pid
+
+    @classmethod
+    def exist_name_and_organisation_pid(cls, name, organisation_pid):
+        """Check if the name is unique in organisation.
+
+        :param name: the circulation category name to check.
+        :param organisation_pid: the organisation pid to check.
+        :return: A search hit if a circulation category already use thi name in
+                 the organisation; otherwise, return None.
+        """
+        item_type = (
+            ItemTypesSearch()
+            .filter("term", item_type_name=name)
+            .filter("term", organisation__pid=organisation_pid)
+            .source()
+            .scan()
+        )
+        try:
+            return next(item_type)
+        except StopIteration:
+            return None
+
+    def get_links_to_me(self, get_pids=False):
+        """Record links.
+
+        :param get_pids: if True list of linked pids
+                         if False count of linked records
+        """
+        from ..holdings.api import HoldingsSearch
+        from ..items.api import ItemsSearch
+
+        links = {}
+        items_query = ItemsSearch().filter(
+            "bool",
+            should=[
+                Q("term", item_type__pid=self.pid),
+                Q("term", temporary_item_type__pid=self.pid),
+            ],
+        )
+        cipo_query = CircPoliciesSearch().filter(
+            "nested",
+            path="settings",
+            query=Q("bool", must=[Q("match", settings__item_type__pid=self.pid)]),
+        )
+        holdings_query = (
+            HoldingsSearch()
+            # Standard holdings are entirely dependent on their items, so they don't need to be checked
+            .exclude("term", holdings_type="standard")
+            .filter("term", circulation_category__pid=self.pid)
+        )
+        if get_pids:
+            items = sorted_pids(items_query)
+            circ_policies = sorted_pids(cipo_query)
+            holdings = sorted_pids(holdings_query)
+        else:
+            items = items_query.count()
+            circ_policies = cipo_query.count()
+            holdings = holdings_query.count()
+        if items:
+            links["items"] = items
+        if circ_policies:
+            links["circ_policies"] = circ_policies
+        if holdings:
+            links["holdings"] = holdings
+        return links
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete record."""
+        cannot_delete = {}
+        if links := self.get_links_to_me():
+            cannot_delete["links"] = links
+        return cannot_delete
+
+    def get_label(self, language=None):
+        """Get the best name possible related to the current language.
+
+        :param language: the language ISO code expected label.
+        :return: the best possible label. If none label found for the language,
+                 return the item_type name.
+        """
+        if language:
+            labels = (
+                self.get("displayed_status", [])
+                if self.get("negative_availability", False)
+                else self.get("circulation_information", [])
+            )
+            label = [entry["label"] for entry in labels if entry["language"] == language]
+            if label and label[0]:
+                return label[0]
+        return self.get("name")
+
+
+class ItemTypesIndexer(IlsRecordsIndexer):
+    """Indexing documents in search index."""
+
+    record_cls = ItemType
+
+    def bulk_index(self, record_id_iterator):
+        """Bulk index records.
+
+        :param record_id_iterator: Iterator yielding record UUIDs.
+        """
+        super().bulk_index(record_id_iterator, doc_type="itty")
