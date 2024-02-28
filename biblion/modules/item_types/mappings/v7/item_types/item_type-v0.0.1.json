@@ -1,0 +1,69 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "copy_to": "item_type_name"
+      },
+      "item_type_name": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "negative_availability": {
+        "type": "boolean"
+      },
+      "displayed_status": {
+        "properties": {
+          "language": {
+            "type": "keyword"
+          },
+          "label": {
+            "type": "text"
+          }
+        }
+      },
+      "circulation_information": {
+        "properties": {
+          "language": {
+            "type": "keyword"
+          },
+          "label": {
+            "type": "text"
+          }
+        }
+      },
+      "remove_temporary_item_type_on_scan": {
+        "type": "boolean"
+      },
+      "organisation": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
