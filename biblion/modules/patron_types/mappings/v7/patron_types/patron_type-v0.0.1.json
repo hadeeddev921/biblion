@@ -1,0 +1,121 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "copy_to": "patron_type_name"
+      },
+      "patron_type_name": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text"
+      },
+      "code": {
+        "type": "keyword"
+      },
+      "organisation": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "subscription_amount": {
+        "type": "float"
+      },
+      "limits": {
+        "properties": {
+          "unpaid_subscription": {
+            "type": "boolean"
+          },
+          "fee_amount_limits": {
+            "properties": {
+              "default_value": {
+                "type": "float"
+              }
+            }
+          },
+          "overdue_items_limits": {
+            "properties": {
+              "default_value": {
+                "type": "integer"
+              }
+            }
+          },
+          "checkout_limits": {
+            "properties": {
+              "global_limit": {
+                "type": "integer"
+              },
+              "library_limit": {
+                "type": "integer"
+              },
+              "library_exceptions": {
+                "properties": {
+                  "library": {
+                    "properties": {
+                      "pid": {
+                        "type": "keyword"
+                      },
+                      "type": {
+                        "type": "keyword"
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "request_limits": {
+            "properties": {
+              "global_limit": {
+                "type": "integer"
+              },
+              "library_limit": {
+                "type": "integer"
+              },
+              "library_exceptions": {
+                "properties": {
+                  "library": {
+                    "properties": {
+                      "pid": {
+                        "type": "keyword"
+                      },
+                      "type": {
+                        "type": "keyword"
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
