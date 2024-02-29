@@ -1,0 +1,331 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Patron type",
+  "description": "Categorization of patrons.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "name",
+    "code",
+    "description",
+    "subscription_amount",
+    "limits"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "organisation"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/patron_types/patron_type-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Patron type ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "title": "Name",
+      "description": "The name of the patron type",
+      "type": "string",
+      "minLength": 2,
+      "widget": {
+        "formlyConfig": {
+          "focus": true,
+          "props": {
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {
+                  "term": "patron_type_name"
+                }
+              },
+              "messages": {
+                "alreadyTakenMessage": "This name is already taken."
+              }
+            }
+          }
+        }
+      }
+    },
+    "description": {
+      "title": "Description",
+      "description": "The description of the patron type.",
+      "type": "string"
+    },
+    "code": {
+      "title": "Code",
+      "description": "Code to identify the patron type.",
+      "type": "string",
+      "minLength": 1
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "subscription_amount": {
+      "title": "Yearly subscription",
+      "description": "Yearly amount due by patrons linked to this patron type.",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "limits": {
+      "title": "Limits",
+      "type": "object",
+      "propertiesOrder": [
+        "unpaid_subscription",
+        "checkout_limits",
+        "request_limits",
+        "fee_amount_limits",
+        "overdue_items_limits"
+      ],
+      "properties": {
+        "checkout_limits": {
+          "title": "Limit by checkouts",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "global_limit"
+          ],
+          "propertiesOrder": [
+            "global_limit",
+            "library_limit",
+            "library_exceptions"
+          ],
+          "properties": {
+            "global_limit": {
+              "title": "Number of checkouts in the organisation",
+              "description": "The checkout is blocked once the specified checkout number is reached by the patron. This is a global checkout limit.",
+              "type": "number",
+              "minimum": 1,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "step": 1
+                  }
+                }
+              }
+            },
+            "library_limit": {
+              "title": "Number of checkouts by library",
+              "description": "The checkout is blocked once the specified checkout number is reached by the patron for items of the same owning library. This is the same limit for all libraries.",
+              "type": "number",
+              "minimum": 1,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "step": 1
+                  }
+                }
+              }
+            },
+            "library_exceptions": {
+              "type": "array",
+              "title": "Library checkout limit exceptions",
+              "items": {
+                "type": "object",
+                "title": "Exception",
+                "required": [
+                  "library",
+                  "value"
+                ],
+                "propertiesOrder": [
+                  "library",
+                  "value"
+                ],
+                "properties": {
+                  "library": {
+                    "title": "Library",
+                    "type": "object",
+                    "required": [
+                      "$ref"
+                    ],
+                    "properties": {
+                      "$ref": {
+                        "title": "Library URI",
+                        "type": "string",
+                        "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+                        "widget": {
+                          "formlyConfig": {
+                            "props": {
+                              "remoteOptions": {
+                                "type": "libraries"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "value": {
+                    "title": "Checkout limit",
+                    "type": "number",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "request_limits": {
+          "title": "Limit requests",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "global_limit",
+            "library_limit",
+            "library_exceptions"
+          ],
+          "properties": {
+            "global_limit": {
+              "title": "Number of active requests in the organisation",
+              "description": "Requests are blocked once the specified number of requests is reached by the patron.",
+              "type": "number",
+              "minimum": 1,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "step": 1
+                  }
+                }
+              }
+            },
+            "library_limit": {
+              "title": "Number of active requests by library",
+              "description": "Requests are blocked once the specified number of requests is reached by the patron for items of the same owning library. This is the same limit for all libraries.",
+              "type": "number",
+              "minimum": 1,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "step": 1
+                  }
+                }
+              }
+            },
+            "library_exceptions": {
+              "type": "array",
+              "title": "Exceptions by library to the requests limits",
+              "items": {
+                "type": "object",
+                "title": "Exception",
+                "required": [
+                  "library",
+                  "value"
+                ],
+                "propertiesOrder": [
+                  "library",
+                  "value"
+                ],
+                "properties": {
+                  "library": {
+                    "title": "Library",
+                    "type": "object",
+                    "required": [
+                      "$ref"
+                    ],
+                    "properties": {
+                      "$ref": {
+                        "title": "Library URI",
+                        "type": "string",
+                        "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+                        "widget": {
+                          "formlyConfig": {
+                            "props": {
+                              "remoteOptions": {
+                                "type": "libraries"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "value": {
+                    "title": "Requests limit",
+                    "type": "number",
+                    "minimum": 1,
+                    "widget": {
+                      "formlyConfig": {
+                        "props": {
+                          "step": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "widget": {
+                "formlyConfig": {
+                  "expressions": {
+                    "hide": "field?.parent?.model?.library_limit == 0"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fee_amount_limits": {
+          "title": "Limit by overdue fee amount",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "default_value": {
+              "title": "Fee amount",
+              "description": "The checkout, renewal and the request are blocked once the specified overdue fee amount is reached by the patron.",
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "overdue_items_limits": {
+          "title": "Limit by overdue items",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "default_value": {
+              "title": "Number of overdue items",
+              "description": "The checkout, renewal and the request are blocked once the specified number of overdue items is reached by the patron.",
+              "type": "number",
+              "minimum": 1,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "step": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "unpaid_subscription": {
+          "type": "boolean",
+          "title": "Block the patron if the subscription is not paid",
+          "default": true,
+          "widget": {
+            "formlyConfig": {
+              "expressions": {
+                "hide": "field?.parent?.parent?.model?.subscription_amount <= 0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
