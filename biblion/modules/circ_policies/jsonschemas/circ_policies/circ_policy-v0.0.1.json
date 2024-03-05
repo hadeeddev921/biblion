@@ -1,0 +1,518 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Circulation policy",
+  "description": "Set of circulation rules applying to a loan resource and depending on a patron type and an item type.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "organisation",
+    "is_default",
+    "allow_requests",
+    "policy_library_level"
+  ],
+  "propertiesOrder": [
+    "name",
+    "description",
+    "allow_requests",
+    "pickup_hold_duration",
+    "checkout_duration",
+    "number_renewals",
+    "renewal_duration",
+    "automatic_renewal",
+    "is_default",
+    "policy_library_level",
+    "libraries",
+    "reminders",
+    "overdue_fees",
+    "settings"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/circ_policies/circ_policy-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Circulation policy ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "title": "Name",
+      "type": "string",
+      "minLength": 2,
+      "widget": {
+        "formlyConfig": {
+          "focus": true
+        }
+      }
+    },
+    "description": {
+      "title": "Description",
+      "type": "string",
+      "widget": {
+        "formlyConfig": {
+          "type": "textarea",
+          "props": {
+            "rows": 3
+          }
+        }
+      }
+    },
+    "organisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "checkout_duration": {
+      "title": "Checkout duration",
+      "description": "Remove this field to disable the checkout. Enter 0 to allow the checkout until the end of the day.",
+      "type": "integer",
+      "minimum": 0,
+      "widget": {
+        "formlyConfig": {
+          "type": "number",
+          "props": {
+            "step": 1,
+            "addonRight": [
+              "day(s)"
+            ],
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "allow_requests": {
+      "title": "Allow patron requests",
+      "type": "boolean",
+      "default": true
+    },
+    "pickup_hold_duration": {
+      "title": "Pickup hold duration in days",
+      "description": "Number of day(s) after which a not-picked up validated request will be cancelled. Keep empty to specify infinite duration.",
+      "type": "integer",
+      "minimum": 1,
+      "widget": {
+        "formlyConfig": {
+          "type": "number",
+          "expressions": {
+            "hide": "model && !model.allow_requests"
+          },
+          "props": {
+            "step": 1,
+            "addonRight": [
+              "day(s)"
+            ]
+          }
+        }
+      }
+    },
+    "reminders": {
+      "type": "array",
+      "description": "They include the loan expiry notices, sent before the due date, and the reminders, sent after the due date.",
+      "title": "Reminders",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "title": "Reminder",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "days_delay",
+          "communication_channel",
+          "template"
+        ],
+        "propertiesOrder": [
+          "type",
+          "days_delay",
+          "fee_amount",
+          "communication_channel",
+          "template"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "due_soon",
+              "overdue"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "options": [
+                    {
+                      "label": "due_soon",
+                      "value": "due_soon"
+                    },
+                    {
+                      "label": "overdue",
+                      "value": "overdue"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "days_delay": {
+            "type": "integer",
+            "description": "Number of days before the due date (for loan expiry notices) or after the due date (for reminders). This number defines when the notification is sent.",
+            "title": "Delay",
+            "minimum": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "number",
+                "props": {
+                  "step": 1,
+                  "addonRight": [
+                    "day(s)"
+                  ]
+                }
+              }
+            }
+          },
+          "fee_amount": {
+            "type": "number",
+            "title": "Amount",
+            "exclusiveMinimum": 0,
+            "multipleOf": 0.01,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "hide": true,
+                  "fieldMap": "amount"
+                }
+              }
+            }
+          },
+          "communication_channel": {
+            "type": "string",
+            "title": "Communication channel",
+            "enum": [
+              "patron_setting",
+              "mail"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "options": [
+                    {
+                      "label": "patron_setting",
+                      "value": "patron_setting"
+                    },
+                    {
+                      "label": "mail",
+                      "value": "mail"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "template": {
+            "type": "string",
+            "title": "Template",
+            "minLength": 2,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "fieldMap": "notification_template"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "overdue_fees": {
+      "type": "object",
+      "title": "Overdue fees",
+      "additionalProperties": false,
+      "required": [
+        "intervals"
+      ],
+      "propertiesOrder": [
+        "intervals",
+        "maximum_total_amount"
+      ],
+      "properties": {
+        "intervals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "title": "Days intervals",
+            "description": "During an interval, the specified amount will be incremented for each overdue open day.",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "fee_amount"
+            ],
+            "propertiesOrder": [
+              "from",
+              "to",
+              "fee_amount"
+            ],
+            "properties": {
+              "from": {
+                "type": "integer",
+                "title": "From",
+                "minimum": 1,
+                "widget": {
+                  "formlyConfig": {
+                    "type": "number",
+                    "props": {
+                      "itemCssClass": "ui:col-span-12 ui:md:col-span-2",
+                      "step": 1
+                    }
+                  }
+                }
+              },
+              "to": {
+                "type": "integer",
+                "title": "To",
+                "minimum": 1,
+                "widget": {
+                  "formlyConfig": {
+                    "type": "number",
+                    "props": {
+                      "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+                      "step": 1
+                    }
+                  }
+                }
+              },
+              "fee_amount": {
+                "type": "number",
+                "title": "Amount",
+                "exclusiveMinimum": 0,
+                "multipleOf": 0.01,
+                "widget": {
+                  "formlyConfig": {
+                    "props": {
+                      "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                      "fieldMap": "fee_amount"
+                    }
+                  }
+                }
+              }
+            },
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+                }
+              }
+            }
+          }
+        },
+        "maximum_total_amount": {
+          "type": "number",
+          "description": "This defines the maximum fee amount per document, without considering the reminder fees.",
+          "title": "Maximum total amount",
+          "exclusiveMinimum": 0,
+          "multipleOf": 0.01,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "fieldMap": "amount"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "number_renewals": {
+      "title": "Maximum number of renewals",
+      "description": "Enter 0 if renewal is not allowed.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "widget": {
+        "formlyConfig": {
+          "type": "number",
+          "expressions": {
+            "hide": "!model.checkout_duration && model.checkout_duration !== 0"
+          },
+          "props": {
+            "step": 1
+          }
+        }
+      }
+    },
+    "renewal_duration": {
+      "title": "Renewal duration in days",
+      "type": "integer",
+      "minimum": 1,
+      "widget": {
+        "formlyConfig": {
+          "type": "number",
+          "expressions": {
+            "props.required": "model?.number_renewals > 0",
+            "hide": "!model.number_renewals"
+          },
+          "props": {
+            "step": 1,
+            "addonRight": [
+              "day(s)"
+            ]
+          }
+        }
+      }
+    },
+    "automatic_renewal": {
+      "title": "Automatic renewal",
+      "description": "Defines whether loans are automatically renewed by the system when they reach their due date. Automatic renewal only renews loans that are also renewable manually (taking into account existing limits and blocks).",
+      "type": "boolean",
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "hide": "!model.number_renewals"
+          }
+        }
+      }
+    },
+    "is_default": {
+      "title": "Mark as default policy",
+      "type": "boolean",
+      "default": false,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true
+          }
+        }
+      }
+    },
+    "policy_library_level": {
+      "title": "Library level policy",
+      "type": "boolean",
+      "default": false
+    },
+    "libraries": {
+      "title": "List of libraries",
+      "uniqueItems": true,
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Library",
+        "additionalProperties": false,
+        "required": [
+          "$ref"
+        ],
+        "properties": {
+          "$ref": {
+            "type": "string",
+            "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "fieldMap": "library"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "hide": "field?.parent?.model?.policy_library_level !== true"
+          }
+        }
+      }
+    },
+    "settings": {
+      "title": "Patron + Item types links",
+      "description": "This defines which item categories and patron types this circulation policy applies to.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "patron_type",
+          "item_type"
+        ],
+        "properties": {
+          "patron_type": {
+            "title": "Patron type",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "$ref"
+            ],
+            "properties": {
+              "$ref": {
+                "title": "Patron type URI",
+                "type": "string",
+                "pattern": "^https://bib.rero.ch/api/patron_types/.*?$"
+              }
+            }
+          },
+          "item_type": {
+            "title": "Item type",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "$ref"
+            ],
+            "properties": {
+              "$ref": {
+                "title": "Item type URI",
+                "type": "string",
+                "pattern": "^https://bib.rero.ch/api/item_types/.*?$"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "type": "cipo-pt-it",
+          "props": {
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
