@@ -1,0 +1,138 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "copy_to": "circ_policy_name"
+      },
+      "circ_policy_name": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text"
+      },
+      "organisation": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "checkout_duration": {
+        "type": "integer"
+      },
+      "allow_requests": {
+        "type": "boolean"
+      },
+      "number_renewals": {
+        "type": "integer"
+      },
+      "reminders": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "days_delay": {
+            "type": "integer"
+          },
+          "fee_amount": {
+            "type": "float"
+          },
+          "communication_channel": {
+            "type": "keyword"
+          },
+          "template": {
+            "type": "keyword"
+          }
+        }
+      },
+      "overdue_fees": {
+        "properties": {
+          "intervals": {
+            "properties": {
+              "from": {
+                "type": "integer"
+              },
+              "to": {
+                "type": "integer"
+              },
+              "fee_amount": {
+                "type": "float"
+              }
+            }
+          },
+          "maximum_total_amount": {
+            "type": "float"
+          }
+        }
+      },
+      "pickup_hold_duration": {
+        "type": "integer"
+      },
+      "renewal_duration": {
+        "type": "integer"
+      },
+      "automatic_renewal": {
+        "type": "boolean"
+      },
+      "is_default": {
+        "type": "boolean"
+      },
+      "policy_library_level": {
+        "type": "boolean"
+      },
+      "libraries": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "settings": {
+        "type": "nested",
+        "properties": {
+          "patron_type": {
+            "properties": {
+              "type": {
+                "type": "keyword"
+              },
+              "pid": {
+                "type": "keyword"
+              }
+            }
+          },
+          "item_type": {
+            "properties": {
+              "type": {
+                "type": "keyword"
+              },
+              "pid": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
