@@ -1,0 +1,300 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Personal data (user)",
+  "description": "Data about a person (first name, last name, addresses). This resource is shared by the various Biblion organisations, enabling the data of people registered with several organizations to be shared.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "first_name",
+    "last_name",
+    "username",
+    "email",
+    "password",
+    "street",
+    "postal_code",
+    "city",
+    "country",
+    "birth_date",
+    "gender",
+    "home_phone",
+    "business_phone",
+    "mobile_phone",
+    "other_phone",
+    "keep_history"
+  ],
+  "required": [
+    "$schema",
+    "first_name",
+    "last_name",
+    "birth_date"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/users/user-v0.0.1.json"
+    },
+    "pid": {
+      "title": "User ID",
+      "type": "number"
+    },
+    "first_name": {
+      "title": "First name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "focus": true
+        }
+      }
+    },
+    "last_name": {
+      "title": "Last name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "birth_date": {
+      "title": "Date of birth",
+      "type": "string",
+      "format": "date",
+      "pattern": "^(19|2[0-9])[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "validation": {
+            "messages": {
+              "patternMessage": "Invalid date format."
+            }
+          },
+          "props": {
+            "placeholder": "Example: 29.12.1985",
+            "dateFormat": "dd.mm.yy",
+            "showOnFocus": false
+          }
+        }
+      }
+    },
+    "gender": {
+      "title": "Gender",
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other",
+        "no_information"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "options": [
+              {
+                "label": "female",
+                "value": "female"
+              },
+              {
+                "label": "male",
+                "value": "male"
+              },
+              {
+                "label": "other",
+                "value": "other"
+              },
+              {
+                "label": "no_information",
+                "value": "no_information"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "username": {
+      "title": "Username",
+      "description": "Login username for the web interface.",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9\\-_]{2,255}$",
+      "minLength": 3,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "expressionProperties": {
+            "templateOptions.required": "true"
+          },
+          "validation": {
+            "messages": {
+              "patternMessage": "Username must start with a letter or a number, be at least three characters long and only contain alphanumeric characters, dashes and underscores.",
+              "uniqueUsernameMessage": "This username is already taken."
+            }
+          }
+        }
+      }
+    },
+    "street": {
+      "title": "Street",
+      "description": "Street and number of the address.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "type": "textarea",
+          "props": {
+            "rows": 2
+          }
+        }
+      }
+    },
+    "postal_code": {
+      "title": "Postal code",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16
+    },
+    "city": {
+      "title": "City",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "country": {
+      "allOf": [
+        {
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12"
+              }
+            }
+          }
+        },
+        {
+          "$ref": "https://bib.rero.ch/schemas/common/countries-v0.0.1.json#/country"
+        }
+      ]
+    },
+    "home_phone": {
+      "title": "Home phone number",
+      "description": "Home phone number with the international prefix, without spaces.",
+      "type": "string",
+      "pattern": "^\\+[0-9]*$",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "validation": {
+            "messages": {
+              "patternMessage": "Phone number with the international prefix, without spaces, ie +41221234567."
+            }
+          },
+          "props": {
+            "placeholder": "Example: +41791231212"
+          }
+        }
+      }
+    },
+    "business_phone": {
+      "title": "Business phone number",
+      "description": "Business phone number with the international prefix, without spaces.",
+      "type": "string",
+      "pattern": "^\\+[0-9]*$",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "validation": {
+            "messages": {
+              "patternMessage": "Phone number with the international prefix, without spaces, ie +41221234567."
+            }
+          },
+          "props": {
+            "placeholder": "Example: +41791231212"
+          }
+        }
+      }
+    },
+    "mobile_phone": {
+      "title": "Mobile phone number",
+      "description": "Mobile phone number with the international prefix, without spaces.",
+      "type": "string",
+      "pattern": "^\\+[0-9]*$",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "validation": {
+            "messages": {
+              "patternMessage": "Phone number with the international prefix, without spaces, ie +41221234567."
+            }
+          },
+          "props": {
+            "placeholder": "Example: +41791231212"
+          }
+        }
+      }
+    },
+    "other_phone": {
+      "title": "Other phone number",
+      "description": "Other phone number with the international prefix, without spaces.",
+      "type": "string",
+      "pattern": "^\\+[0-9]*$",
+      "minLength": 1,
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "validation": {
+            "messages": {
+              "patternMessage": "Phone number with the international prefix, without spaces, ie +41221234567."
+            }
+          },
+          "props": {
+            "placeholder": "Example: +41791231212"
+          }
+        }
+      }
+    },
+    "keep_history": {
+      "title": "Keep history",
+      "description": "If enabled, the loan history is visible in the patron account. Loan data is always anonymised after a certain period.",
+      "type": "boolean",
+      "default": false
+    },
+    "email": {
+      "title": "Email",
+      "type": "string",
+      "format": "email",
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "validation": {
+            "messages": {
+              "uniqueEmailMessage": "This email is already taken."
+            }
+          }
+        }
+      }
+    },
+    "password": {
+      "title": "Password",
+      "type": "string",
+      "maxLength": 255,
+      "widget": {
+        "formlyConfig": {
+          "type": "passwordGenerator",
+          "props": {
+            "api": "/api/user/password/generate"
+          }
+        }
+      }
+    }
+  },
+  "widget": {
+    "formlyConfig": {
+      "props": {
+        "hideLabel": true
+      }
+    }
+  }
+}
