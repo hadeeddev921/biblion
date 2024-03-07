@@ -1,0 +1,637 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Patron",
+  "description": "A library patron, i.e. a person who is registered with an organisation. It is linked to a user resource and contains patron data useful to libraries (role, card number, specific address, etc.).",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "user_id",
+    "second_address",
+    "roles",
+    "patron",
+    "libraries",
+    "notes",
+    "source",
+    "local_codes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "user_id",
+    "roles"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/patrons/patron-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Patron ID",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "description": "Source if the record has been loaded in a batch.",
+      "type": "string",
+      "minLength": 2
+    },
+    "local_codes": {
+      "title": "Local codes",
+      "description": "Codes used to classify users, for instance for statistics.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "title": "Local code",
+        "type": "string",
+        "minLength": 1,
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "hideLabel": true
+            }
+          }
+        }
+      }
+    },
+    "user_id": {
+      "title": "Personal data (user)",
+      "description": "",
+      "type": "number",
+      "widget": {
+        "formlyConfig": {
+          "wrappers": [
+            "form-field",
+            "user-id"
+          ]
+        }
+      }
+    },
+    "second_address": {
+      "title": "Second address",
+      "type": "object",
+      "additionalProperties": false,
+      "propertiesOrder": [
+        "street",
+        "postal_code",
+        "city",
+        "country"
+      ],
+      "properties": {
+        "street": {
+          "title": "Street",
+          "description": "Street and number of the address.",
+          "type": "string",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "type": "textarea",
+              "props": {
+                "itemCssClass": "ui:col-span-12",
+                "rows": 2
+              }
+            }
+          }
+        },
+        "postal_code": {
+          "title": "Postal code",
+          "type": "string",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+              }
+            }
+          }
+        },
+        "city": {
+          "title": "City",
+          "type": "string",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+              }
+            }
+          }
+        },
+        "country": {
+          "allOf": [
+            {
+              "$ref": "https://bib.rero.ch/schemas/common/countries-v0.0.1.json#/country"
+            },
+            {
+              "widget": {
+                "formlyConfig": {
+                  "expressions": {
+                    "hide": "!field?.parent?.model?.city"
+                  },
+                  "props": {
+                    "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+          }
+        }
+      }
+    },
+    "patron": {
+      "title": "Patron information",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "barcode",
+        "type",
+        "communication_channel",
+        "communication_language",
+        "expiration_date"
+      ],
+      "propertiesOrder": [
+        "barcode",
+        "type",
+        "communication_channel",
+        "additional_communication_email",
+        "communication_language",
+        "expiration_date",
+        "libraries",
+        "blocked",
+        "blocked_note"
+      ],
+      "properties": {
+        "type": {
+          "title": "Patron Type",
+          "description": "Patron type in terms of circulation policy.",
+          "type": "object",
+          "required": [
+            "$ref"
+          ],
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "pattern": "^https://bib.rero.ch/api/patron_types/.*?$",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "remoteOptions": {
+                      "type": "patron_types"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "barcode": {
+          "title": "Patron's barcodes or cards number",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "title": "Patron's barcode or card number",
+            "type": "string",
+            "minLength": 6,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "hideLabel": true,
+                  "doNotSubmitOnEnter": true,
+                  "validation": {
+                    "validators": {
+                      "valueAlreadyExists": {
+                        "term": "barcode"
+                      }
+                    },
+                    "messages": {
+                      "alreadyTakenMessage": "This barcode is already taken."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "libraries": {
+          "title": "Affiliation libraries",
+          "description": "Library affiliation of the patron.",
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 0,
+          "items": {
+            "title": "Affiliation library",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "$ref"
+            ],
+            "properties": {
+              "$ref": {
+                "type": "string",
+                "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+                "widget": {
+                  "formlyConfig": {
+                    "props": {
+                      "fieldMap": "libraries"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expiration_date": {
+          "title": "Patron's expiration date",
+          "type": "string",
+          "format": "date",
+          "pattern": "\\d{4}-((0[1-9])|(1[0-2]))-(((0[1-9])|[1-2][0-9])|(3[0-1]))$",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "communication_channel": {
+          "title": "Communication channel",
+          "description": "For the email channel, the user must have an e-mail or an additional e-mail.",
+          "type": "string",
+          "enum": [
+            "email",
+            "mail"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "options": [
+                  {
+                    "label": "email",
+                    "value": "email"
+                  },
+                  {
+                    "label": "mail",
+                    "value": "mail"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "additional_communication_email": {
+          "title": "Additional communication email",
+          "type": "string",
+          "format": "email",
+          "widget": {
+            "formlyConfig": {
+              "expressions": {
+                "hide": "field?.parent?.model?.communication_channel !== 'email'"
+              }
+            }
+          }
+        },
+        "communication_language": {
+          "title": "Communication language",
+          "type": "string",
+          "enum": [
+            "ger",
+            "eng",
+            "fre",
+            "ita"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "options": [
+                  {
+                    "label": "lang_fre",
+                    "value": "fre"
+                  },
+                  {
+                    "label": "lang_eng",
+                    "value": "eng"
+                  },
+                  {
+                    "label": "lang_ger",
+                    "value": "ger"
+                  },
+                  {
+                    "label": "lang_ita",
+                    "value": "ita"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "subscriptions": {
+          "title": "Subscriptions",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Subscription",
+            "type": "object",
+            "required": [
+              "start_date",
+              "end_date",
+              "patron_type",
+              "patron_transaction"
+            ],
+            "properties": {
+              "start_date": {
+                "title": "Subscription start date",
+                "description": "The subscription start date (selected date included).",
+                "type": "string",
+                "format": "date",
+                "pattern": "\\d{4}-((0[1-9])|(1[0-2]))-(((0[1-9])|[1-2][0-9])|(3[0-1]))$"
+              },
+              "end_date": {
+                "title": "Subscription end date",
+                "description": "The subscription end date (selected date excluded).",
+                "type": "string",
+                "format": "date",
+                "pattern": "\\d{4}-((0[1-9])|(1[0-2]))-(((0[1-9])|[1-2][0-9])|(3[0-1]))$"
+              },
+              "patron_type": {
+                "title": "Patron type",
+                "type": "object",
+                "required": [
+                  "$ref"
+                ],
+                "properties": {
+                  "$ref": {
+                    "type": "string",
+                    "pattern": "^https://bib.rero.ch/api/patron_types/.*?$"
+                  }
+                }
+              },
+              "patron_transaction": {
+                "title": "Patron transaction",
+                "type": "object",
+                "required": [
+                  "$ref"
+                ],
+                "properties": {
+                  "$ref": {
+                    "title": "Patron transaction URI",
+                    "type": "string",
+                    "pattern": "^https://bib.rero.ch/api/patron_transactions/.*?$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "blocked": {
+          "title": "Blocking",
+          "description": "A patron with a blocked account cannot extend, request and borrow items.",
+          "type": "boolean"
+        },
+        "blocked_note": {
+          "title": "Reason",
+          "type": "string",
+          "description": "The reason is displayed in the circulation module and is visible by the patron in his account.",
+          "widget": {
+            "formlyConfig": {
+              "expressions": {
+                "props.required": true,
+                "hide": "field?.parent?.model?.blocked !== true"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": true,
+            "hide": "!field?.parent?.model?.roles.includes('patron')"
+          },
+          "props": {}
+        }
+      }
+    },
+    "libraries": {
+      "title": "libraries",
+      "description": "Library affiliations for the professional users.",
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 1,
+      "items": {
+        "title": "Library",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$ref"
+        ],
+        "properties": {
+          "$ref": {
+            "title": "Library URI",
+            "type": "string",
+            "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "label": "",
+                  "fieldMap": "libraries"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "field?.parent?.model?.roles.some(v => (v !== 'patron'))",
+            "hide": "!field?.parent?.model?.roles.some(v => (v !== 'patron'))"
+          }
+        }
+      }
+    },
+    "roles": {
+      "title": "Role",
+      "description": "Define the roles of the user. Please do not remove existing user role, this can have unintended side effects.",
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 1,
+      "default": [
+        "patron"
+      ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "patron",
+          "pro_full_permissions",
+          "pro_read_only",
+          "pro_catalog_manager",
+          "pro_circulation_manager",
+          "pro_user_manager",
+          "pro_acquisition_manager",
+          "pro_library_administrator",
+          "pro_entity_manager",
+          "pro_statistic_manager"
+        ]
+      },
+      "widget": {
+        "formlyConfig": {
+          "type": "multi-checkbox",
+          "props": {
+            "fieldMap": "roles",
+            "options": [
+              {
+                "label": "patron",
+                "value": "patron"
+              },
+              {
+                "label": "pro_full_permissions",
+                "value": "pro_full_permissions"
+              },
+              {
+                "label": "pro_read_only",
+                "value": "pro_read_only"
+              },
+              {
+                "label": "pro_catalog_manager",
+                "value": "pro_catalog_manager"
+              },
+              {
+                "label": "pro_circulation_manager",
+                "value": "pro_circulation_manager"
+              },
+              {
+                "label": "pro_user_manager",
+                "value": "pro_user_manager"
+              },
+              {
+                "label": "pro_acquisition_manager",
+                "value": "pro_acquisition_manager"
+              },
+              {
+                "label": "pro_library_administrator",
+                "value": "pro_library_administrator"
+              },
+              {
+                "label": "pro_entity_manager",
+                "value": "pro_entity_manager"
+              },
+              {
+                "label": "pro_statistic_manager",
+                "value": "pro_statistic_manager"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "The public note is visible for the patron in his/her account.",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "public_note",
+              "staff_note"
+            ],
+            "default": "public_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "public_note",
+                      "value": "public_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-8",
+                  "rows": 3
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
