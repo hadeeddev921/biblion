@@ -1,0 +1,257 @@
+{
+  "settings": {
+    "analysis": {
+      "normalizer": {
+        "name_normalizer": {
+          "type": "custom",
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "first_name": {
+        "type": "text",
+        "copy_to": "first_name_sort"
+      },
+      "first_name_sort": {
+        "normalizer": "name_normalizer",
+        "type": "keyword"
+      },
+      "last_name": {
+        "type": "text",
+        "copy_to": "last_name_sort"
+      },
+      "last_name_sort": {
+        "normalizer": "name_normalizer",
+        "type": "keyword"
+      },
+      "gender": {
+        "type": "keyword"
+      },
+      "birth_date": {
+        "type": "date",
+        "fields": {
+          "analyzed": {
+            "type": "text"
+          }
+        }
+      },
+      "email": {
+        "type": "keyword",
+        "fields": {
+          "analyzed": {
+            "type": "text",
+            "analyzer": "custom_keyword"
+          }
+        }
+      },
+      "username": {
+        "type": "keyword",
+        "fields": {
+          "analyzed": {
+            "type": "text",
+            "analyzer": "custom_keyword"
+          }
+        }
+      },
+      "user_id": {
+        "type": "keyword"
+      },
+      "street": {
+        "type": "text"
+      },
+      "postal_code": {
+        "type": "keyword"
+      },
+      "city": {
+        "type": "text",
+        "copy_to": "facet_city"
+      },
+      "facet_city": {
+        "type": "keyword"
+      },
+      "country": {
+        "type": "text"
+      },
+      "second_address": {
+        "properties": {
+          "street": {
+            "type": "text"
+          },
+          "postal_code": {
+            "type": "keyword"
+          },
+          "city": {
+            "type": "text",
+            "copy_to": "facet_city"
+          },
+          "country": {
+            "type": "text"
+          }
+        }
+      },
+      "home_phone": {
+        "type": "keyword"
+      },
+      "phone": {
+        "type": "keyword"
+      },
+      "business_phone": {
+        "type": "keyword"
+      },
+      "mobile_phone": {
+        "type": "keyword"
+      },
+      "other_phone": {
+        "type": "keyword"
+      },
+      "barcode": {
+        "type": "keyword"
+      },
+      "patron": {
+        "properties": {
+          "type": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          },
+          "barcode": {
+            "type": "keyword",
+            "copy_to": "barcode"
+          },
+          "libraries": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              }
+            }
+          },
+          "expiration_date": {
+            "type": "date",
+            "fields": {
+              "analyzed": {
+                "type": "text"
+              }
+            }
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "blocked_note": {
+            "type": "text"
+          },
+          "communication_channel": {
+            "type": "keyword"
+          },
+          "additional_communication_email": {
+            "type": "keyword",
+            "fields": {
+              "analyzed": {
+                "type": "text",
+                "analyzer": "custom_keyword"
+              }
+            }
+          },
+          "communication_language": {
+            "type": "keyword"
+          },
+          "subscriptions": {
+            "properties": {
+              "patron_type": {
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "type": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "patron_transaction": {
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "type": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "start_date": {
+                "type": "date"
+              },
+              "end_date": {
+                "type": "date"
+              }
+            }
+          }
+        }
+      },
+      "roles": {
+        "type": "keyword"
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
+      "local_codes": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "libraries": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "keep_history": {
+        "type": "boolean"
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
