@@ -1,0 +1,118 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Permissions for patrons."""
+
+from flask import current_app, g
+from flask_login import current_user
+from invenio_access import action_factory, any_user
+from invenio_records_permissions.generators import Generator
+
+from biblion.modules.permissions import (
+    AllowedByAction,
+    AllowedByActionRestrictByOrganisation,
+    AllowedByActionRestrictByOwnerOrOrganisation,
+    LibraryNeed,
+    RecordPermissionPolicy,
+)
+from biblion.modules.users.models import UserRole
+
+from .api import Patron, current_librarian
+from .utils import validate_role_changes
+
+# Actions to control patron permission policy
+search_action = action_factory("ptrn-search")
+read_action = action_factory("ptrn-read")
+create_action = action_factory("ptrn-create")
+update_action = action_factory("ptrn-update")
+delete_action = action_factory("ptrn-delete")
+access_action = action_factory("ptrn-access")
+
+
+class AllowedByActionRestrictStaffByManageableLibrary(AllowedByActionRestrictByOrganisation):
+    """Restrict action on staff users by staff users of the same library.
+
+    If the updated record represents a staff `Patron` user, then only staff
+    members related to the same library that this record could update it.
+    """
+
+    def needs(self, record=None, *args, **kwargs):
+        """Allows the given action depending on record.
+
+        :param record: the record to check.
+        :param args: extra arguments.
+        :param kwargs: extra named arguments.
+        :returns: a list of Needs to validate access.
+        """
+        if not isinstance(record, Patron):
+            record = Patron(record)
+
+        record_roles = set(record.get("roles", []))
+        professional_roles = set(UserRole.PROFESSIONAL_ROLES)
+
+        # If the updated user is not a staff member, use the standard organisation
+        # and action permission checks.
+        if not professional_roles.intersection(record_roles):
+            return super().needs(record, *args, **kwargs)
+
+        # If updated user is a staff member, only user related to the same
+        # library (so only staff members because simple patron are not
+        # related to any library) can perform operation on this user.
+        library_pids = record.library_pids or []
+        if not library_pids:
+            # Missing libraries is a validation error, not a permission error.
+            return AllowedByAction.needs(self, record, *args, **kwargs)
+
+        required_needs = [LibraryNeed(pid) for pid in library_pids]
+        if not g.identity.provides.intersection(required_needs):
+            return []
+
+        return super().needs(record, *args, **kwargs)
+
+
+class RestrictDeleteDependOnPatronRolesManagement(Generator):
+    """Restrict deletion of patron depending on role management restrictions.
+
+    Depending on the current logged user profile, some roles' management
+    updates could be disallowed. Manageable roles are defined into the
+    `BIBLION_PATRON_ROLES_MANAGEMENT_RESTRICTIONS` configuration attribute.
+    """
+
+    def excludes(self, record=None, **kwargs):
+        """Disallow operation check.
+
+        :param record; the record to check.
+        :param kwargs: extra named arguments.
+        :returns: a list of Needs to disable access.
+        """
+        roles = set(record.get("roles", []))
+        if not validate_role_changes(current_user, roles, raise_exc=False):
+            return [any_user]
+        return []
+
+
+class PatronPermissionPolicy(RecordPermissionPolicy):
+    """Patron Permission Policy used by the CRUD operations."""
+
+    can_search = [AllowedByAction(search_action)]
+    can_read = [AllowedByActionRestrictByOwnerOrOrganisation(read_action, patron_callback=lambda record: record.pid)]
+    can_create = [AllowedByActionRestrictStaffByManageableLibrary(create_action)]
+    can_update = [AllowedByActionRestrictStaffByManageableLibrary(update_action)]
+    can_delete = [
+        AllowedByActionRestrictStaffByManageableLibrary(delete_action),
+        RestrictDeleteDependOnPatronRolesManagement(),
+    ]
+
+
+def get_allowed_roles_management():
+    """Get the roles that current logged user could manage.
+
+    :return An array of allowed role management.
+    """
+    if not current_librarian:
+        return {}
+    config_roles = current_app.config.get("BIBLION_PATRON_ROLES_MANAGEMENT_RESTRICTIONS", {})
+    manageable_roles = set()
+    for role in current_librarian.user.roles:
+        manageable_roles = manageable_roles.union(config_roles.get(role.name, {}))
+    return manageable_roles
