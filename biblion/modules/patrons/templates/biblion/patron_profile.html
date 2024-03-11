@@ -1,0 +1,14 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% extends 'biblion/page.html' %}
+
+{%- block body %}
+<public-patron-profile-app class="rero-ils-ui"/>
+{%- endblock body %}
+
+{%- block javascript %}
+{{ super() }}
+{{ angular_assets('@rero/rero-ils-ui/dist/public-patron-profile/browser', 'modulepreload') }}
+{{ angular_assets('@rero/rero-ils-ui/dist/public-patron-profile/browser', 'js') }}
+{%- endblock javascript %}
