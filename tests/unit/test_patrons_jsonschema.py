@@ -1,0 +1,191 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Patron JSON schema tests."""
+
+import pytest
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
+from biblion.modules.patrons.api import Patron
+
+
+def test_required(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test required for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        validate({}, patron_schema)
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_pid(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test pid for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["pid"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_first_name(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test first_name for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["first_name"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_last_name(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test last_name for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["last_name"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_street(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test street for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["street"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_postal_code(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test postal_code for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["postal_code"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_city(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test city for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["city"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_barcode(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test barcode for patron jsonschemas."""
+    data = patron_martigny_data_tmp_with_id
+    validate(data, patron_schema)
+
+    # bad type for barcode (int instead of string)
+    with pytest.raises(ValidationError):
+        data["patron"]["barcode"][0] = 25
+        validate(data, patron_schema)
+
+    # try to validate a patron without barcode
+    with pytest.raises(ValidationError) as e:
+        del data["patron"]["barcode"]
+        validate(data, patron_schema)
+    assert "'barcode' is a required property" in str(e)
+
+
+def test_birth_date(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test birth date for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["birth_date"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_additional_email(app, patron_martigny):
+    """Test additional email for a patron."""
+    Patron.validate(patron_martigny)
+    user = patron_martigny.user
+
+    original_user_email = user.email
+    user._email = None
+    patron_martigny["patron"]["communication_channel"] = "email"
+    with pytest.raises(ValidationError) as e:
+        Patron.validate(patron_martigny)
+    assert "At least one email should be defined for an email communication channel" in str(e)
+
+    user._email = original_user_email
+
+
+def test_phone(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test phone for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["home_phone"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_patron_type(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test patron_type for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["patron_type_pid"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_roles(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test roles for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["roles"] = "text"
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_blocked(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test blocked field for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    # blocked is a boolean field, should fail with everything except boolean
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["patron"]["blocked"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["patron"]["blocked"] = "text"
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    # Should pass with boolean
+    patron_martigny_data_tmp_with_id["patron"]["blocked"] = False
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_blocked_note(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test blocked_note field for patron jsonschemas."""
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    # blocked_note is text field. Should fail except with text.
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["patron"]["blocked_note"] = 25
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["patron"]["blocked_note"] = True
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    patron_martigny_data_tmp_with_id["patron"]["blocked_note"] = "Lost card"
+    validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+
+def test_local_codes(patron_schema, patron_martigny_data_tmp_with_id):
+    """Test local codes for patron jsonschemas."""
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["local_codes"] = "data"
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["local_codes"] = ["data", 12]
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
+
+    with pytest.raises(ValidationError):
+        patron_martigny_data_tmp_with_id["local_codes"] = ["data", "data"]
+        validate(patron_martigny_data_tmp_with_id, patron_schema)
