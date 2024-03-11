@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests Views for patrons."""
+
+from copy import deepcopy
+
+from invenio_accounts.testutils import login_user_via_session
+
+from biblion.modules.cli.utils import create_personal
+from biblion.modules.items.models import ItemStatus
+from biblion.modules.loans.models import LoanAction
+from tests.utils import postdata
+
+
+def test_patron_can_delete(
+    client,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_lib_martigny,
+    json_header,
+    lib_martigny,
+    circulation_policies,
+):
+    """Test patron can delete."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    patron = patron_martigny
+    location = loc_public_martigny
+
+    data = deepcopy(patron_martigny)
+    del data["patron"]["type"]
+    assert not data.organisation
+
+    # request
+    res, data = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": item.pid,
+            "pickup_location_pid": location.pid,
+            "patron_pid": patron.pid,
+            "transaction_library_pid": lib_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    loan_pid = data.get("action_applied")[LoanAction.REQUEST].get("pid")
+
+    can, reasons = patron_martigny.can_delete
+    assert not can
+    assert reasons["links"]["loans"]
+
+    res, data = postdata(
+        client,
+        "api_item.cancel_item_request",
+        {
+            "pid": loan_pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    assert item.status == ItemStatus.ON_SHELF
+
+
+def test_patron_authenticate(
+    client,
+    patron_martigny,
+    patron_martigny_data,
+    system_librarian_martigny,
+    default_user_password,
+):
+    """Test for patron authenticate."""
+    # parameters
+    token = "Or7DTg1WT34cLKuSMcS7WzhdhxtKklpTizb1Hn2H0aaV5Vig6nden63VEqBE"
+    token_url_data = {"access_token": token}
+    username = patron_martigny_data["username"]
+    password = default_user_password
+
+    create_personal(
+        name="token_test",
+        user_id=system_librarian_martigny["user_id"],
+        access_token=token,
+    )
+
+    # Missing access_token parameter
+    res, _ = postdata(client, "api_patrons.patron_authenticate")
+    assert res.status_code == 401
+
+    # Missing parameters (username and password)
+    res, _ = postdata(client, "api_patrons.patron_authenticate", url_data=token_url_data)
+    assert res.status_code == 400
+
+    # User not found
+    post_data = {"username": "foo", "password": "bar"}
+    res, _ = postdata(client, "api_patrons.patron_authenticate", post_data, url_data=token_url_data)
+    assert res.status_code == 404
+
+    # User found, bad password
+    post_data = {"username": username, "password": "bar"}
+    res, _ = postdata(client, "api_patrons.patron_authenticate", post_data, url_data=token_url_data)
+    assert res.status_code == 401
+
+    # User found
+    post_data = {"username": username, "password": password}
+    res, output = postdata(client, "api_patrons.patron_authenticate", post_data, url_data=token_url_data)
+    assert res.status_code == 200
+    assert output["city"] == patron_martigny_data["city"]
+    assert output["fullname"] == patron_martigny_data["first_name"] + " " + patron_martigny_data["last_name"]
+    assert "blocked" not in output
