@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent (textual)",
+  "type": "object",
+  "description": "Textual description of a person, family or corporate body (including conferences). Usually used temporarily until a link to an entity can be established.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "type",
+    "authorized_access_point",
+    "identifiedBy"
+  ],
+  "required": [
+    "type",
+    "authorized_access_point"
+  ],
+  "properties": {
+    "type": {
+      "title": "Type",
+      "type": "string",
+      "default": "bf:Person",
+      "enum": [
+        "bf:Person",
+        "bf:Organisation"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+            "sort": true,
+            "options": [
+              {
+                "label": "bf:Person",
+                "value": "bf:Person"
+              },
+              {
+                "label": "bf:Organisation",
+                "value": "bf:Organisation"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "authorized_access_point": {
+      "title": "Access Point",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-9",
+            "placeholder": "Example: Musset, Alfred de, 1810-1857"
+          }
+        }
+      }
+    },
+    "identifiedBy": {
+      "$ref": "https://bib.rero.ch/schemas/common/identifier-v0.0.1.json#/identifier"
+    }
+  },
+  "widget": {
+    "formlyConfig": {
+      "props": {
+        "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+      }
+    }
+  }
+}

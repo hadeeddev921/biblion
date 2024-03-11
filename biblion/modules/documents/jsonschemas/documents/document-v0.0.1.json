@@ -1,0 +1,366 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Document",
+  "description": "Bibliographic record",
+  "type": "object",
+  "required": [
+    "$schema",
+    "pid",
+    "type",
+    "fiction_statement",
+    "title",
+    "language",
+    "provisionActivity",
+    "adminMetadata",
+    "issuance"
+  ],
+  "propertiesOrder": [
+    "identifiedBy",
+    "type",
+    "fiction_statement",
+    "contentMediaCarrier",
+    "issuance",
+    "genreForm",
+    "genreForm_imported",
+    "title",
+    "originalTitle",
+    "responsibilityStatement",
+    "contribution",
+    "work_access_point",
+    "provisionActivity",
+    "copyrightDate",
+    "sequence_numbering",
+    "editionStatement",
+    "seriesStatement",
+    "extent",
+    "dimensions",
+    "bookFormat",
+    "productionMethod",
+    "note",
+    "acquisitionTerms",
+    "electronicLocator",
+    "otherEdition",
+    "otherPhysicalFormat",
+    "language",
+    "originalLanguage",
+    "tableOfContents",
+    "summary",
+    "credits",
+    "duration",
+    "illustrativeContent",
+    "colorContent",
+    "intendedAudience",
+    "scale",
+    "cartographicAttributes",
+    "supplementaryContent",
+    "subjects",
+    "subjects_imported",
+    "classification",
+    "temporalCoverage",
+    "partOf",
+    "supplement",
+    "supplementTo",
+    "issuedWith",
+    "precededBy",
+    "succeededBy",
+    "relatedTo",
+    "hasReproduction",
+    "reproductionOf",
+    "frequency",
+    "dissertation",
+    "adminMetadata",
+    "usageAndAccessPolicy",
+    "_masked"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "default": "https://bib.rero.ch/schemas/documents/document-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Document PID",
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_types-v0.0.1.json#/type"
+    },
+    "title": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_title-v0.0.1.json#/title"
+    },
+    "responsibilityStatement": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_responsibility_statement-v0.0.1.json#/responsibilityStatement"
+    },
+    "partOf": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_part_of-v0.0.1.json#/partOf"
+    },
+    "language": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_language-v0.0.1.json#/language"
+    },
+    "issuance": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_issuance-v0.0.1.json#/issuance"
+    },
+    "contribution": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_contribution-v0.0.1.json#/contribution"
+    },
+    "copyrightDate": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_copyright_date-v0.0.1.json#/copyrightDate"
+    },
+    "editionStatement": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_edition_statement-v0.0.1.json#/editionStatement"
+    },
+    "provisionActivity": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_provision_activity-v0.0.1.json#/provisionActivity"
+    },
+    "illustrativeContent": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_illustrative_content-v0.0.1.json#/illustrativeContent"
+    },
+    "extent": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_extent-v0.0.1.json#/extent"
+    },
+    "duration": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_duration-v0.0.1.json#/duration"
+    },
+    "colorContent": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_color_content-v0.0.1.json#/colorContent"
+    },
+    "productionMethod": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_production_method-v0.0.1.json#/productionMethod"
+    },
+    "bookFormat": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_book_format-v0.0.1.json#/bookFormat"
+    },
+    "dimensions": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_dimensions-v0.0.1.json#/dimensions"
+    },
+    "seriesStatement": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_series-v0.0.1.json#/seriesStatement"
+    },
+    "note": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_note-v0.0.1.json#/note"
+    },
+    "identifiedBy": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_identified_by-v0.0.1.json#/identifiedBy"
+    },
+    "subjects": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_subjects-v0.0.1.json#/subjects"
+    },
+    "electronicLocator": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_electronic_locator-v0.0.1.json#/electronicLocator"
+    },
+    "intendedAudience": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_intended_audience-v0.0.1.json#/intendedAudience"
+    },
+    "summary": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_summary-v0.0.1.json#/summary"
+    },
+    "supplement": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/supplement"
+    },
+    "supplementTo": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/supplementTo"
+    },
+    "otherEdition": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/otherEdition"
+    },
+    "otherPhysicalFormat": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/otherPhysicalFormat"
+    },
+    "issuedWith": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/issuedWith"
+    },
+    "precededBy": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/precededBy"
+    },
+    "succeededBy": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/succeededBy"
+    },
+    "relatedTo": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/relatedTo"
+    },
+    "hasReproduction": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/hasReproduction"
+    },
+    "reproductionOf": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_document_relation-v0.0.1.json#/reproductionOf"
+    },
+    "contentMediaCarrier": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_content_media_carrier-v0.0.1.json#/contentMediaCarrier"
+    },
+    "originalLanguage": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_original_language-v0.0.1.json#/originalLanguage"
+    },
+    "frequency": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_frequency-v0.0.1.json#/frequency"
+    },
+    "originalTitle": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_titles_original-v0.0.1.json#/originalTitle"
+    },
+    "classification": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_classification-v0.0.1.json#/classification"
+    },
+    "sequence_numbering": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_sequence_numbering-v0.0.1.json#/sequence_numbering"
+    },
+    "dissertation": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_dissertation-v0.0.1.json#/dissertation"
+    },
+    "credits": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_credits-v0.0.1.json#/credits"
+    },
+    "supplementaryContent": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_supplementary_content-v0.0.1.json#/supplementaryContent"
+    },
+    "acquisitionTerms": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_acquisition_terms-v0.0.1.json#/acquisitionTerms"
+    },
+    "tableOfContents": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_table_of_contents-v0.0.1.json#/tableOfContents"
+    },
+    "temporalCoverage": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_temporal_coverage-v0.0.1.json#/temporalCoverage"
+    },
+    "genreForm": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_genre_form-v0.0.1.json#/genreForm"
+    },
+    "scale": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_scale_cartographic-v0.0.1.json#/scale"
+    },
+    "cartographicAttributes": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_scale_cartographic-v0.0.1.json#/cartographicAttributes"
+    },
+    "usageAndAccessPolicy": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_usage_and_access_policy-v0.0.1.json#/usageAndAccessPolicy"
+    },
+    "subjects_imported": {
+      "title": "Subjects (imported)",
+      "description": "Subject imported from external data",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Entities",
+        "description": "Imported topic, place, temporal, person, family or corporate body (including conferences), used for information. Do not enter data manually.",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "entity"
+        ],
+        "required": [
+          "entity"
+        ],
+        "properties": {
+          "entity": {
+            "$ref": "https://bib.rero.ch/schemas/documents/document_entity_local-v0.0.1.json"
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true
+          }
+        }
+      }
+    },
+    "genreForm_imported": {
+      "title": "Genres, forms (imported)",
+      "description": "Genre or form imported from external data",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Entities",
+        "description": "Imported genre or form, used for information. Do not enter data manually.",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "entity"
+        ],
+        "required": [
+          "entity"
+        ],
+        "properties": {
+          "entity": {
+            "$ref": "https://bib.rero.ch/schemas/documents/document_genre_form_local-v0.0.1.json"
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true
+          }
+        }
+      }
+    },
+    "work_access_point": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_work_access_point-v0.0.1.json#/work_access_point"
+    },
+    "adminMetadata": {
+      "$ref": "https://bib.rero.ch/schemas/documents/document_admin_metadata-v0.0.1.json#/adminMetadata"
+    },
+    "harvested": {
+      "title": "Harvested",
+      "description": "Document is harvested or not, will disable record edition or similar.",
+      "type": "boolean"
+    },
+    "fiction_statement": {
+      "title": "Fiction statement",
+      "description": "Defines whether the document is fiction or non-fiction (documentary). If irrelevant (image, object, score, etc.), use unspecified.",
+      "type": "string",
+      "default": "unspecified",
+      "enum": [
+        "fiction",
+        "non_fiction",
+        "unspecified"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "radioButton",
+          "props": {
+            "style": "inline",
+            "options": [
+              {
+                "label": "fiction",
+                "value": "fiction"
+              },
+              {
+                "label": "non_fiction",
+                "value": "non_fiction"
+              },
+              {
+                "label": "unspecified",
+                "value": "unspecified"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "_draft": {
+      "title": "Draft",
+      "description": "Document is a draft record or not, will disable record validation.",
+      "type": "boolean",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true
+          }
+        }
+      }
+    },
+    "_masked": {
+      "title": "Masked",
+      "type": "boolean",
+      "description": "A masked document is visible in the professional interface, but not in the public interface.",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true
+          }
+        }
+      }
+    }
+  }
+}
