@@ -1,0 +1,290 @@
+{
+  "electronicLocator": {
+    "title": "Electronic locations",
+    "description": "Information needed to locate and access an electronic resource.",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "type": "object",
+      "title": "Electronic location",
+      "required": [
+        "type",
+        "url"
+      ],
+      "propertiesOrder": [
+        "url",
+        "type",
+        "content",
+        "publicNote"
+      ],
+      "properties": {
+        "url": {
+          "title": "URL",
+          "description": "Record a unique URL here.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^(rtsp?|ftps?|https?)://.*$",
+          "minLength": 7,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12",
+                "validation": {
+                  "messages": {
+                    "patternMessage": "This URL is invalid."
+                  }
+                },
+                "placeholder": "Example: https://www.example.com/"
+              }
+            }
+          }
+        },
+        "type": {
+          "title": "Type of link",
+          "type": "string",
+          "default": "resource",
+          "enum": [
+            "resource",
+            "versionOfResource",
+            "relatedResource",
+            "hiddenUrl",
+            "noInfo"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                "options": [
+                  {
+                    "label": "resource",
+                    "value": "resource"
+                  },
+                  {
+                    "label": "versionOfResource",
+                    "value": "versionOfResource"
+                  },
+                  {
+                    "label": "relatedResource",
+                    "value": "relatedResource"
+                  },
+                  {
+                    "label": "hiddenUrl",
+                    "value": "hiddenUrl"
+                  },
+                  {
+                    "label": "noInfo",
+                    "value": "noInfo"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "content": {
+          "title": "Content type",
+          "description": "Is displayed as the text of the link.",
+          "type": "string",
+          "enum": [
+            "poster",
+            "audio",
+            "postcard",
+            "addition",
+            "debriefing",
+            "exhibitionDocumentation",
+            "erratum",
+            "bookplate",
+            "extract",
+            "educationalSheet",
+            "illustrations",
+            "coverImage",
+            "deliveryInformation",
+            "biographicalInformation",
+            "introductionPreface",
+            "classReading",
+            "teachersKit",
+            "publishersNote",
+            "noteOnContent",
+            "titlePage",
+            "photography",
+            "summarization",
+            "onlineResourceViaRERODOC",
+            "pressReview",
+            "webSite",
+            "tableOfContents",
+            "fullText",
+            "video",
+            "film"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                "options": [
+                  {
+                    "label": "poster",
+                    "value": "poster"
+                  },
+                  {
+                    "label": "audio",
+                    "value": "audio"
+                  },
+                  {
+                    "label": "postcard",
+                    "value": "postcard"
+                  },
+                  {
+                    "label": "addition",
+                    "value": "addition"
+                  },
+                  {
+                    "label": "debriefing",
+                    "value": "debriefing"
+                  },
+                  {
+                    "label": "exhibitionDocumentation",
+                    "value": "exhibitionDocumentation"
+                  },
+                  {
+                    "label": "erratum",
+                    "value": "erratum"
+                  },
+                  {
+                    "label": "bookplate",
+                    "value": "bookplate"
+                  },
+                  {
+                    "label": "extract",
+                    "value": "extract"
+                  },
+                  {
+                    "label": "educationalSheet",
+                    "value": "educationalSheet"
+                  },
+                  {
+                    "label": "illustrations",
+                    "value": "illustrations"
+                  },
+                  {
+                    "label": "coverImage",
+                    "value": "coverImage"
+                  },
+                  {
+                    "label": "deliveryInformation",
+                    "value": "deliveryInformation"
+                  },
+                  {
+                    "label": "biographicalInformation",
+                    "value": "biographicalInformation"
+                  },
+                  {
+                    "label": "introductionPreface",
+                    "value": "introductionPreface"
+                  },
+                  {
+                    "label": "classReading",
+                    "value": "classReading"
+                  },
+                  {
+                    "label": "teachersKit",
+                    "value": "teachersKit"
+                  },
+                  {
+                    "label": "publishersNote",
+                    "value": "publishersNote"
+                  },
+                  {
+                    "label": "noteOnContent",
+                    "value": "noteOnContent"
+                  },
+                  {
+                    "label": "titlePage",
+                    "value": "titlePage"
+                  },
+                  {
+                    "label": "photography",
+                    "value": "photography"
+                  },
+                  {
+                    "label": "summarization",
+                    "value": "summarization"
+                  },
+                  {
+                    "label": "onlineResourceViaRERODOC",
+                    "value": "onlineResourceViaRERODOC"
+                  },
+                  {
+                    "label": "pressReview",
+                    "value": "pressReview"
+                  },
+                  {
+                    "label": "webSite",
+                    "value": "webSite"
+                  },
+                  {
+                    "label": "tableOfContents",
+                    "value": "tableOfContents"
+                  },
+                  {
+                    "label": "fullText",
+                    "value": "fullText"
+                  },
+                  {
+                    "label": "video",
+                    "value": "video"
+                  },
+                  {
+                    "label": "film",
+                    "value": "film"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "publicNote": {
+          "title": "Public notes",
+          "description": "Is displayed next to the link, as additional information.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Public note",
+            "type": "string",
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "placeholder": "Example: Access only from the library"
+                }
+              }
+            }
+          },
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+          }
+        }
+      }
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "copyrightDate": {
+    "title": "Copyright dates",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "type": "string",
+      "title": "Copyright date",
+      "minLength": 4,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "cssClass": "ui:w-md-50",
+            "placeholder": "Example: cop. 2010"
+          }
+        }
+      }
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  }
+}

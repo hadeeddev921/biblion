@@ -1,0 +1,309 @@
+{
+  "supplement": {
+    "title": "Supplements",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Supplement",
+      "description": "A document that updates or otherwise complements the predominant document (MARC 770).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "supplementTo": {
+    "title": "Supplements to",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Supplement to",
+      "description": "A document that is updated or otherwise complemented by the augmenting document (MARC 772).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "otherEdition": {
+    "title": "Other editions",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Other edition",
+      "description": "Other available editions, for example simultaneously published language editions or reprints (MARC 775).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "otherPhysicalFormat": {
+    "title": "Also issued as",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Also issued as",
+      "description": "A document that embodies the same expression of a work in a different format (MARC 776).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "issuedWith": {
+    "title": "Issued with",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Issued with",
+      "description": "A document that is issued on the same carrier as the document being described (MARC 777).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "precededBy": {
+    "title": "Preceded by",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Preceded by",
+      "description": "A document that precedes the succeeding document (earlier in time or before in a narrative) (MARC 780).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "succeededBy": {
+    "title": "Succeeded by",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Succeeded by",
+      "description": "A document that succeeds, that is, is later in time or after in a narrative, etc., the preceding work (MARC 785).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "relatedTo": {
+    "title": "Related to",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Related to",
+      "description": "Any other relationship between documents (MARC 787).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "hasReproduction": {
+    "title": "Has reproduction",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Has reproduction",
+      "description": "Descriptive data for a reproduction (MARC 533).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "reproductionOf": {
+    "title": "Reproduction of",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "title": "Reproduction of",
+      "description": "A reproduction of a document (MARC 534).",
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/document"
+        },
+        {
+          "$ref": "#/definitions/label"
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "definitions": {
+    "document": {
+      "title": "Document link",
+      "type": "object",
+      "additionalProperties": false,
+      "propertiesOrder": [
+        "$ref"
+      ],
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/documents/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "type": "remoteAutoComplete",
+              "props": {
+                "scrollHeight": "50vh",
+                "validation": {
+                  "messages": {
+                    "patternMessage": "Should be in the following format: https://bib.rero.ch/api/documents/<PID>."
+                  }
+                },
+                "queryOptions": {
+                  "type": "documents",
+                  "filter": "NOT harvested:true"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "label": {
+      "title": "Label",
+      "type": "object",
+      "additionalProperties": false,
+      "propertiesOrder": [
+        "label",
+        "identifiedBy"
+      ],
+      "required": [
+        "label"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identifiedBy": {
+          "$ref": "https://bib.rero.ch/schemas/documents/document_identified_by-v0.0.1.json#/identifiedBy"
+        }
+      }
+    }
+  }
+}

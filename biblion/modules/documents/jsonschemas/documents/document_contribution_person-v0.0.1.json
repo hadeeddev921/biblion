@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Person",
+  "type": "object",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "preferred_name",
+    "type",
+    "date_of_birth",
+    "date_of_death",
+    "numeration",
+    "qualifier",
+    "fuller_form_of_name",
+    "identifiedBy"
+  ],
+  "required": [
+    "type",
+    "preferred_name"
+  ],
+  "properties": {
+    "type": {
+      "title": "Type",
+      "type": "string",
+      "readOnly": true,
+      "default": "bf:Person",
+      "const": "bf:Person",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true
+          }
+        }
+      }
+    },
+    "preferred_name": {
+      "title": "Name",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "placeholder": "Example: Miller, John"
+          }
+        }
+      }
+    },
+    "date_of_birth": {
+      "title": "Birth date",
+      "description": "Record only years.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "placeholder": "Example: 1955"
+          }
+        }
+      }
+    },
+    "date_of_death": {
+      "title": "Death date",
+      "description": "Record only years.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "placeholder": "Example: 2012"
+          }
+        }
+      }
+    },
+    "qualifier": {
+      "title": "Qualifier",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "placeholder": "Example: physicist"
+          }
+        }
+      }
+    },
+    "numeration": {
+      "title": "Numeration",
+      "description": "Record only a number.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "placeholder": "Example: XXIII"
+          }
+        }
+      }
+    },
+    "fuller_form_of_name": {
+      "title": "Fuller form of Name",
+      "description": "Used only for import. Fuller form of a name represented only by an initial, abbreviation, or other variant not included in the form chosen as the preferred name",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+          }
+        }
+      }
+    },
+    "identifiedBy": {
+      "$ref": "https://bib.rero.ch/schemas/common/identifier-v0.0.1.json#/identifier"
+    }
+  },
+  "widget": {
+    "formlyConfig": {
+      "props": {
+        "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-x-2"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "editionStatement": {
+    "title": "Edition statements",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "type": "object",
+      "title": "Edition statement",
+      "additionalProperties": false,
+      "properties": {
+        "editionDesignation": {
+          "title": "Edition designations",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Edition designation",
+            "$ref": "https://bib.rero.ch/schemas/common/languages-v0.0.1.json#/language_script"
+          }
+        },
+        "responsibility": {
+          "title": "Responsibilities",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Responsibility",
+            "$ref": "https://bib.rero.ch/schemas/common/languages-v0.0.1.json#/language_script"
+          },
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hide": true
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "editionDesignation"
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true,
+          "navigation": {
+            "essential": true
+          }
+        }
+      }
+    }
+  }
+}

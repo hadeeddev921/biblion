@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Entity (textual)",
+  "type": "object",
+  "description": "Textual description of a topic, person, organisation (including conferences), place, temporal or work. Usually used temporarily until a link to an entity can be established.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "type",
+    "authorized_access_point",
+    "identifiedBy",
+    "subdivisions",
+    "source"
+  ],
+  "required": [
+    "type",
+    "authorized_access_point"
+  ],
+  "properties": {
+    "type": {
+      "title": "Type",
+      "type": "string",
+      "default": "bf:Person",
+      "enum": [
+        "bf:Person",
+        "bf:Organisation",
+        "bf:Work",
+        "bf:Topic",
+        "bf:Place",
+        "bf:Temporal"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+            "options": [
+              {
+                "label": "bf:Person",
+                "value": "bf:Person"
+              },
+              {
+                "label": "bf:Organisation",
+                "value": "bf:Organisation"
+              },
+              {
+                "label": "bf:Work",
+                "value": "bf:Work"
+              },
+              {
+                "label": "bf:Topic",
+                "value": "bf:Topic"
+              },
+              {
+                "label": "bf:Place",
+                "value": "bf:Place"
+              },
+              {
+                "label": "bf:Temporal",
+                "value": "bf:Temporal"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "authorized_access_point": {
+      "title": "Access Point",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-8"
+          }
+        }
+      }
+    },
+    "identifiedBy": {
+      "$ref": "https://bib.rero.ch/schemas/common/identifier-v0.0.1.json#/identifier"
+    },
+    "source": {
+      "title": "Source",
+      "description": "Source catalog where the subject was imported from.",
+      "type": "string",
+      "minLength": 3,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    },
+    "subdivisions": {
+      "title": "Subdivisions",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "title": "Entity (textual)",
+        "description": "Textual description of a topic (including genre and forms), person, organisation (including conferences), place, temporal or work.",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "entity"
+        ],
+        "required": [
+          "entity"
+        ],
+        "properties": {
+          "entity": {
+            "title": "Subdivision",
+            "type": "object",
+            "additionalProperties": false,
+            "propertiesOrder": [
+              "type",
+              "isGenreForm",
+              "authorized_access_point",
+              "identifiedBy"
+            ],
+            "required": [
+              "type",
+              "authorized_access_point"
+            ],
+            "properties": {
+              "type": {
+                "$ref": "#/definitions/subtype"
+              },
+              "isGenreForm": {
+                "title": "Genre, form",
+                "description": "Is this entity a genre, form ?",
+                "type": "boolean",
+                "default": false,
+                "widget": {
+                  "formlyConfig": {
+                    "expressions": {
+                      "hide": "field?.parent?.model?.type !== 'bf:Topic'"
+                    }
+                  }
+                }
+              },
+              "authorized_access_point": {
+                "$ref": "#/properties/authorized_access_point"
+              },
+              "identifiedBy": {
+                "$ref": "https://bib.rero.ch/schemas/common/identifier-v0.0.1.json#/identifier"
+              }
+            },
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12",
+            "hide": true
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "subtype": {
+      "title": "Type",
+      "type": "string",
+      "default": "bf:Topic",
+      "enum": [
+        "bf:Topic",
+        "bf:Place",
+        "bf:Temporal"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+            "options": [
+              {
+                "label": "bf:Topic",
+                "value": "bf:Topic"
+              },
+              {
+                "label": "bf:Place",
+                "value": "bf:Place"
+              },
+              {
+                "label": "bf:Temporal",
+                "value": "bf:Temporal"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "widget": {
+    "formlyConfig": {
+      "props": {
+        "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+      }
+    }
+  }
+}
