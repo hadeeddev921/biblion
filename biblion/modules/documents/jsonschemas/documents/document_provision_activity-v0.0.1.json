@@ -1,0 +1,303 @@
+{
+  "provisionActivity": {
+    "title": "Provision activities",
+    "type": "array",
+    "minItems": 1,
+    "default": [
+      {
+        "type": "bf:Publication"
+      }
+    ],
+    "items": {
+      "title": "Provision activity",
+      "type": "object",
+      "additionalProperties": false,
+      "propertiesOrder": [
+        "type",
+        "startDate",
+        "endDate",
+        "original_date",
+        "note",
+        "place",
+        "statement"
+      ],
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "default": "bf:Publication",
+          "enum": [
+            "bf:Publication",
+            "bf:Manufacture",
+            "bf:Distribution",
+            "bf:Production"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                "options": [
+                  {
+                    "label": "bf:Publication",
+                    "value": "bf:Publication"
+                  },
+                  {
+                    "label": "bf:Manufacture",
+                    "value": "bf:Manufacture"
+                  },
+                  {
+                    "label": "bf:Distribution",
+                    "value": "bf:Distribution"
+                  },
+                  {
+                    "label": "bf:Production",
+                    "value": "bf:Production"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "place": {
+          "title": "Places",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "title": "Place",
+            "required": [
+              "country"
+            ],
+            "propertiesOrder": [
+              "country",
+              "canton",
+              "identifiedBy"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "allOf": [
+                  {
+                    "widget": {
+                      "formlyConfig": {
+                        "props": {
+                          "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "https://bib.rero.ch/schemas/common/countries-v0.0.1.json#/country"
+                  }
+                ]
+              },
+              "canton": {
+                "allOf": [
+                  {
+                    "widget": {
+                      "formlyConfig": {
+                        "props": {
+                          "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "https://bib.rero.ch/schemas/common/cantons-v0.0.1.json#/canton"
+                  }
+                ]
+              },
+              "identifiedBy": {
+                "allOf": [
+                  {
+                    "widget": {
+                      "formlyConfig": {
+                        "props": {
+                          "itemCssClass": "ui:col-span-12"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "https://bib.rero.ch/schemas/common/identifier-v0.0.1.json#/identifier"
+                  }
+                ]
+              }
+            },
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+                }
+              }
+            }
+          },
+          "widget": {
+            "formlyConfig": {
+              "expressions": {
+                "props.required": "field?.parent?.model && field.parent.model.type === 'bf:Publication'"
+              },
+              "props": {
+                "itemCssClass": "ui:col-span-12"
+              }
+            }
+          }
+        },
+        "statement": {
+          "title": "Statements",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "title": "Statement",
+            "description": "Statement of place and agent of the provision activity.",
+            "propertiesOrder": [
+              "type",
+              "label"
+            ],
+            "required": [
+              "type",
+              "label"
+            ],
+            "properties": {
+              "type": {
+                "title": "Type",
+                "type": "string",
+                "enum": [
+                  "bf:Place",
+                  "bf:Agent",
+                  "Date"
+                ],
+                "widget": {
+                  "formlyConfig": {
+                    "type": "select",
+                    "props": {
+                      "sort": true,
+                      "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                      "options": [
+                        {
+                          "label": "bf:Place",
+                          "value": "bf:Place"
+                        },
+                        {
+                          "label": "bf:Agent",
+                          "value": "bf:Agent"
+                        },
+                        {
+                          "label": "Date",
+                          "value": "Date"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "label": {
+                "title": "Labels",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "title": "Label",
+                  "$ref": "https://bib.rero.ch/schemas/common/languages-v0.0.1.json#/language_script_textarea"
+                },
+                "widget": {
+                  "formlyConfig": {
+                    "props": {
+                      "itemCssClass": "ui:col-span-12 ui:md:col-span-8"
+                    }
+                  }
+                }
+              }
+            },
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+                }
+              }
+            }
+          },
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12"
+              }
+            }
+          }
+        },
+        "note": {
+          "title": "Note",
+          "type": "string",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-8",
+                "hide": true
+              }
+            }
+          }
+        },
+        "startDate": {
+          "title": "Date 1",
+          "description": "Normalised date used for sorting and filtering options (MARC 008). A free text date (transcripted) can be added in the field Statements.",
+          "type": "integer",
+          "minimum": -9999,
+          "maximum": 9999,
+          "widget": {
+            "formlyConfig": {
+              "expressions": {
+                "props.required": "model.type === 'bf:Publication'"
+              },
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4"
+              }
+            }
+          }
+        },
+        "endDate": {
+          "title": "Date 2",
+          "description": "Normalised end date if the provision activity covers more than one year, and used for sorting and filtering options (MARC 008). A free text date (transcripted) can be added in the field Statements",
+          "type": "integer",
+          "minimum": -9999,
+          "maximum": 9999,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                "hide": true
+              }
+            }
+          }
+        },
+        "original_date": {
+          "title": "Date of the original",
+          "description": "Date of the original in case of a reproduction.",
+          "type": "integer",
+          "minimum": -9999,
+          "maximum": 9999,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                "hide": true
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+          }
+        }
+      }
+    }
+  }
+}

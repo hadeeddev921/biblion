@@ -1,0 +1,61 @@
+{
+  "language": {
+    "title": "Languages",
+    "type": "array",
+    "minItems": 1,
+    "uniqueItems": true,
+    "items": {
+      "type": "object",
+      "title": "Language",
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false,
+      "propertiesOrder": [
+        "type",
+        "value",
+        "note"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "default": "bf:Language",
+          "enum": [
+            "bf:Language"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "alwaysHidden": true,
+                "options": [
+                  {
+                    "label": "bf:Language",
+                    "value": "bf:Language"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "value": {
+          "$ref": "https://bib.rero.ch/schemas/common/languages-v0.0.1.json#/language"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string",
+          "widget": {
+            "formlyConfig": {
+              "type": "textarea",
+              "props": {
+                "rows": 3,
+                "hide": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

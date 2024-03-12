@@ -1,0 +1,248 @@
+{
+  "issuance": {
+    "title": "Mode of issuance",
+    "type": "object",
+    "oneOf": [
+      {
+        "title": "rdami:1001",
+        "type": "object",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "main_type",
+          "subtype"
+        ],
+        "required": [
+          "main_type",
+          "subtype"
+        ],
+        "properties": {
+          "subtype": {
+            "title": "Subtype",
+            "type": "string",
+            "default": "materialUnit",
+            "enum": [
+              "article",
+              "materialUnit",
+              "privateFile",
+              "privateSubfile"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:md:w-6/12",
+                  "options": [
+                    {
+                      "label": "article",
+                      "value": "article"
+                    },
+                    {
+                      "label": "materialUnit",
+                      "value": "materialUnit"
+                    },
+                    {
+                      "label": "privateFile",
+                      "value": "privateFile"
+                    },
+                    {
+                      "label": "privateSubfile",
+                      "value": "privateSubfile"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "main_type": {
+            "title": "Main type",
+            "type": "string",
+            "readOnly": true,
+            "default": "rdami:1001",
+            "const": "rdami:1001",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "alwaysHidden": true
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "title": "rdami:1002",
+        "type": "object",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "main_type",
+          "subtype"
+        ],
+        "required": [
+          "main_type",
+          "subtype"
+        ],
+        "properties": {
+          "subtype": {
+            "title": "Subtype",
+            "type": "string",
+            "default": "set",
+            "enum": [
+              "set",
+              "partIndependentTitle",
+              "partDependantTitle"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:md:w-6/12",
+                  "options": [
+                    {
+                      "label": "Set",
+                      "value": "set"
+                    },
+                    {
+                      "label": "partIndependentTitle",
+                      "value": "partIndependentTitle"
+                    },
+                    {
+                      "label": "partDependantTitle",
+                      "value": "partDependantTitle"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "main_type": {
+            "title": "Main type",
+            "type": "string",
+            "readOnly": true,
+            "default": "rdami:1002",
+            "const": "rdami:1002",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "alwaysHidden": true
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "title": "rdami:1003",
+        "type": "object",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "main_type",
+          "subtype"
+        ],
+        "required": [
+          "main_type",
+          "subtype"
+        ],
+        "properties": {
+          "subtype": {
+            "title": "Subtype",
+            "type": "string",
+            "default": "periodical",
+            "enum": [
+              "serialInSerial",
+              "monographicSeries",
+              "periodical"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:md:w-6/12",
+                  "options": [
+                    {
+                      "label": "serialInSerial",
+                      "value": "serialInSerial"
+                    },
+                    {
+                      "label": "monographicSeries",
+                      "value": "monographicSeries"
+                    },
+                    {
+                      "label": "periodical",
+                      "value": "periodical"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "main_type": {
+            "title": "Main type",
+            "type": "string",
+            "readOnly": true,
+            "default": "rdami:1003",
+            "const": "rdami:1003",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "alwaysHidden": true
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "title": "rdami:1004",
+        "type": "object",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "main_type",
+          "subtype"
+        ],
+        "required": [
+          "main_type",
+          "subtype"
+        ],
+        "properties": {
+          "subtype": {
+            "title": "Subtype",
+            "type": "string",
+            "default": "updatingWebsite",
+            "enum": [
+              "updatingWebsite",
+              "updatingLoose-leaf"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:md:w-6/12",
+                  "options": [
+                    {
+                      "label": "updatingWebsite",
+                      "value": "updatingWebsite"
+                    },
+                    {
+                      "label": "updatingLoose-leaf",
+                      "value": "updatingLoose-leaf"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "main_type": {
+            "title": "Main type",
+            "type": "string",
+            "readOnly": true,
+            "default": "rdami:1004",
+            "const": "rdami:1004",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "alwaysHidden": true
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
