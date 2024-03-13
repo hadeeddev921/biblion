@@ -1,0 +1,251 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Biblion Document JSON serialization."""
+
+from datetime import datetime
+
+from flask import current_app, json, request, stream_with_context
+from werkzeug.local import LocalProxy
+
+from biblion.modules.documents.utils import process_i18n_literal_fields
+from biblion.modules.documents.views import (
+    create_title_alternate_graphic,
+    create_title_responsibilites,
+    create_title_variants,
+)
+from biblion.modules.libraries.api import LibrariesSearch
+from biblion.modules.locations.api import LocationsSearch
+from biblion.modules.organisations.api import OrganisationsSearch
+from biblion.modules.serializers import JSONSerializer
+from biblion.modules.serializers.mixins import CachedDataSerializerMixin
+
+from ..dumpers import document_replace_refs_dumper
+from ..dumpers.indexer import IndexerDumper
+from ..extensions import TitleExtension
+
+GLOBAL_VIEW_CODE = LocalProxy(lambda: current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE"))
+
+
+def _rewrite_nested_terms(terms):
+    """Rewrite a nested terms aggregation to expose root-document counts.
+
+    The nested holdings context counts holdings; the `record_count`
+    (reverse_nested) sub-aggregation gives the number of documents. Expose it
+    as `doc_count` on each bucket and drop empty buckets. The aggregation query
+    already orders buckets by descending document count (`order` on
+    `record_count`), so the buckets are not reordered.
+
+    The `sum_other_doc_count` and `doc_count_error_upper_bound` metadata still
+    describe the holdings-count terms aggregation and no longer match the
+    rewritten (document-count) buckets, so they are dropped.
+    """
+    for bucket in terms["buckets"]:
+        bucket["doc_count"] = bucket.pop("record_count")["doc_count"]
+    terms["buckets"] = [bucket for bucket in terms["buckets"] if bucket["doc_count"] > 0]
+    terms.pop("sum_other_doc_count", None)
+    terms.pop("doc_count_error_upper_bound", None)
+    return terms
+
+
+class DocumentJSONSerializer(JSONSerializer, CachedDataSerializerMixin):
+    """Serializer for Biblion `Document` records as JSON."""
+
+    @staticmethod
+    def _get_view_information():
+        """Get the `view_id` and `view_code` to use to build response."""
+        view_id = None
+        view_code = request.args.get("view", GLOBAL_VIEW_CODE)
+        if view_code != GLOBAL_VIEW_CODE:
+            view_id = OrganisationsSearch().get_record_by_viewcode(view_code, "pid")["pid"]
+        return view_id, view_code
+
+    def preprocess_record(self, pid, record, links_factory=None, **kwargs):
+        """Prepare a record and persistent identifier for serialization."""
+        rec = record
+
+        # TODO: uses dumpers
+        # build responsibility data for display purpose
+        responsibility_statement = rec.get("responsibilityStatement", [])
+        if responsibilities := create_title_responsibilites(responsibility_statement):
+            rec["ui_responsibilities"] = responsibilities
+        titles = rec.get("title", [])
+        if altgr_titles := create_title_alternate_graphic(titles):
+            rec["ui_title_altgr"] = altgr_titles
+        if altgr_titles_responsibilities := create_title_alternate_graphic(titles, responsibility_statement):
+            rec["ui_title_altgr_responsibilities"] = altgr_titles_responsibilities
+
+        if variant_titles := create_title_variants(titles):
+            rec["ui_title_variants"] = variant_titles
+
+        data = super().preprocess_record(pid=pid, record=rec, links_factory=links_factory, kwargs=kwargs)
+        metadata = data["metadata"]
+        resolve = request.args.get("resolve", default=False, type=lambda v: v.lower() in ["true", "1"])
+        if request and resolve:
+            IndexerDumper()._process_host_document(None, metadata)
+        return data
+
+    def _postprocess_search_hit(self, hit):
+        """Post-process each hit of a search result."""
+        view_id, view_code = DocumentJSONSerializer._get_view_information()
+        metadata = hit.get("metadata", {})
+        pid = metadata.get("pid")
+
+        titles = metadata.get("title", [])
+        if text_title := TitleExtension.format_text(titles, with_subtitle=False):
+            metadata["ui_title_text"] = text_title
+        if text_title := TitleExtension.format_text(
+            titles,
+            responsabilities=metadata.get("responsibilityStatement", []),
+            with_subtitle=False,
+        ):
+            metadata["ui_title_text_responsibility"] = text_title
+
+        if view_code != GLOBAL_VIEW_CODE:
+            metadata["items"] = [
+                item for item in metadata.get("items", []) if item["organisation"].get("organisation_pid") == view_id
+            ]
+        super()._postprocess_search_hit(hit)
+
+    def _postprocess_search_aggregations(self, aggregations):
+        """Post-process aggregations from a search result."""
+        view_id, view_code = DocumentJSONSerializer._get_view_information()
+
+        # format the results of the facet 'year' to be displayed
+        # as range
+        if aggregations.get("year"):
+
+            def extract_year(key, default):
+                """Extract year from year aggregation.
+
+                :param: key: the dict key.
+                :param: default: the default year.
+                :return: the year in yyyy format.
+                """
+                # default could be None
+                if year := aggregations["year"][key].get("value"):
+                    return float(year)
+                return default
+
+            # transform aggregation to send configuration
+            # for ng-core range widget.
+            # this allows you to fill in the fields on the frontend.
+            aggregations["year"] = {
+                "type": "range",
+                "config": {
+                    "min": extract_year("year_min", 0.0),
+                    "max": extract_year("year_max", 9999.9),
+                    "step": 1,
+                },
+            }
+
+        if aggregations.get("acquisition"):
+            # format the results of facet 'acquisition' to be displayed
+            # as date range with min and max date (limit)
+            def extract_acquisition_date(key, default):
+                """Exact date from acquisition aggregation.
+
+                :param: key: the dict key.
+                :param: default: the default date.
+                :return: the date in yyyy-MM-dd format.
+                """
+                return aggregations["acquisition"][key].get(
+                    "value_as_string",
+                    aggregations["acquisition"][key].get("value", default),
+                )
+
+            # transform aggregation to send configuration
+            # for ng-core date-range widget.
+            # this allows you to fill in the fields on the frontend.
+            aggregations["acquisition"] = {
+                "type": "date-range",
+                "config": {
+                    "min": extract_acquisition_date("date_min", "1900-01-01"),
+                    "max": extract_acquisition_date("date_max", datetime.now().strftime("%Y-%m-%d")),
+                },
+            }
+        # organisation aggregation is a nested aggregation, we need to
+        # remove this useless level.
+        if aggr_by_org := aggregations.pop("organisation", None):
+            if aggr_by_org.get("nested_holdings"):
+                aggregations["organisation"] = aggr_by_org["nested_holdings"]["organisation"]
+            else:
+                aggregations["organisation"] = aggr_by_org
+
+        organisation = aggregations.get("organisation", {})
+        if organisation.get("buckets"):
+            # load all organisations, libraries and locations in cache
+            # to avoid multiple queries
+            self.load_all(
+                OrganisationsSearch().source(["name", "pid"]),
+                LibrariesSearch().source(["name", "pid"]),
+                LocationsSearch().source(["name", "pid"]),
+            )
+            # expose document counts (reverse_nested) and prune empty buckets
+            _rewrite_nested_terms(organisation)
+            # For a "local view", we only need the facet on the location
+            # organisation. We can filter the organisation aggregation to keep
+            # only this value
+            if view_code != GLOBAL_VIEW_CODE:
+                organisation["buckets"] = [term for term in organisation["buckets"] if term["key"] == view_id]
+            for org in organisation["buckets"]:
+                # add aggregation name
+                org["name"] = self.get_resource(OrganisationsSearch(), org["key"])["name"]
+                _rewrite_nested_terms(org["library"])
+                for lib_term in org["library"]["buckets"]:
+                    # add aggregation name
+                    lib_term["name"] = self.get_resource(LibrariesSearch(), lib_term["key"])["name"]
+                    _rewrite_nested_terms(lib_term["location"])
+                    for loc_term in lib_term["location"]["buckets"]:
+                        # add aggregation name
+                        loc_term["name"] = self.get_resource(LocationsSearch(), loc_term["key"])["name"]
+
+            # For a "local view", we replace the organisation aggregation by
+            # a library aggregation containing only for the local organisation
+            if view_code != GLOBAL_VIEW_CODE:
+                aggregations["library"] = (
+                    organisation["buckets"][0].get("library", {}) if organisation["buckets"] else {}
+                )
+                del aggregations["organisation"]
+
+        super()._postprocess_search_aggregations(aggregations)
+
+
+class DocumentExportJSONSerializer(JSONSerializer):
+    """Mixin serializing records as JSON.
+
+    Compared to the default JSONSerializer, this serializes only document
+    metadata without any other information like aggregations, links...
+    The search serialization implements stream results with context.
+    """
+
+    @staticmethod
+    def _format_args():
+        """Get JSON dump indentation and separates."""
+        return {
+            "indent": 2,
+            "separators": (", ", ": "),
+        }
+
+    def serialize(self, pid, record, links_factory=None, **kwargs):
+        """Serialize a single record.
+
+        :param pid: Persistent identifier instance.
+        :param record: Record instance.
+        :param links_factory: Factory function for record links.
+        """
+        record = record.dumps(document_replace_refs_dumper)
+        if contributions := record.pop("contribution", []):
+            record["contribution"] = process_i18n_literal_fields(contributions)
+        return json.dumps(record, **self._format_args())
+
+    def serialize_search(self, pid_fetcher, search_result, links=None, item_links_factory=None, **kwargs):
+        """Serialize a search result.
+
+        :param pid_fetcher: Persistent identifier fetcher.
+        :param search_result: search index search result.
+        :param links: Dictionary of links to add to response.
+        :param item_links_factory: Factory function for record links.
+        """
+        records = [hit["_source"] for hit in search_result["hits"]["hits"]]
+        return stream_with_context(json.dumps(records, **self._format_args()))
