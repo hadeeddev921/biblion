@@ -1,0 +1,63 @@
+{
+  "usageAndAccessPolicy": {
+    "title": "Usage and access policies",
+    "description": "description: Information about restrictions imposed on access to the described materials, including retention, reproduction, access, and lending (MARC 506, 540).",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+      "type": "object",
+      "title": "Usage and access policy",
+      "required": [
+        "type",
+        "label"
+      ],
+      "propertiesOrder": [
+        "type",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "default": "bf:UsageAndAccessPolicy",
+          "const": "bf:UsageAndAccessPolicy",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "alwaysHidden": true
+              }
+            }
+          }
+        },
+        "label": {
+          "title": "Label",
+          "type": "string",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12",
+                "placeholder": "Example: Copy not allowed"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+          }
+        }
+      }
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  }
+}

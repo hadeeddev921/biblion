@@ -1,0 +1,960 @@
+{
+  "type": {
+    "title": "Types",
+    "type": "array",
+    "minItems": 1,
+    "default": [
+      {
+        "main_type": "docmaintype_book",
+        "subtype": "docsubtype_other_book"
+      }
+    ],
+    "items": {
+      "title": "Type",
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "docmaintype_archives",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_archives",
+              "const": "docmaintype_archives",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_article",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_article",
+              "const": "docmaintype_article",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_audio",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_audio",
+              "const": "docmaintype_audio",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_music",
+              "enum": [
+                "docsubtype_music",
+                "docsubtype_sound",
+                "docsubtype_audio_book",
+                "docsubtype_recorded_words"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_music",
+                        "value": "docsubtype_music"
+                      },
+                      {
+                        "label": "docsubtype_sound",
+                        "value": "docsubtype_sound"
+                      },
+                      {
+                        "label": "docsubtype_audio_book",
+                        "value": "docsubtype_audio_book"
+                      },
+                      {
+                        "label": "docsubtype_recorded_words",
+                        "value": "docsubtype_recorded_words"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_book",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_book",
+              "const": "docmaintype_book",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_other_book",
+              "enum": [
+                "docsubtype_other_book",
+                "docsubtype_large_print_book",
+                "docsubtype_braille_book",
+                "docsubtype_manuscript",
+                "docsubtype_thesis",
+                "docsubtype_e-book",
+                "docsubtype_microform",
+                "docsubtype_pictorial_book"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_other_book",
+                        "value": "docsubtype_other_book"
+                      },
+                      {
+                        "label": "docsubtype_large_print_book",
+                        "value": "docsubtype_large_print_book"
+                      },
+                      {
+                        "label": "docsubtype_braille_book",
+                        "value": "docsubtype_braille_book"
+                      },
+                      {
+                        "label": "docsubtype_manuscript",
+                        "value": "docsubtype_manuscript"
+                      },
+                      {
+                        "label": "docsubtype_thesis",
+                        "value": "docsubtype_thesis"
+                      },
+                      {
+                        "label": "docsubtype_e-book",
+                        "value": "docsubtype_e-book"
+                      },
+                      {
+                        "label": "docsubtype_microform",
+                        "value": "docsubtype_microform"
+                      },
+                      {
+                        "label": "docsubtype_pictorial_book",
+                        "value": "docsubtype_pictorial_book"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_children",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_children",
+              "const": "docmaintype_children",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_comic",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_comic",
+              "const": "docmaintype_comic",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_comic",
+              "enum": [
+                "docsubtype_comic",
+                "docsubtype_manga"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_comic",
+                        "value": "docsubtype_comic"
+                      },
+                      {
+                        "label": "docsubtype_manga",
+                        "value": "docsubtype_manga"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_electronic",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_electronic",
+              "const": "docmaintype_electronic",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_other_electronic_carrier",
+              "enum": [
+                "docsubtype_cdrom_dvdrom",
+                "docsubtype_other_electronic_carrier"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "options": [
+                      {
+                        "label": "docsubtype_cdrom_dvdrom",
+                        "value": "docsubtype_cdrom_dvdrom"
+                      },
+                      {
+                        "label": "docsubtype_other_electronic_carrier",
+                        "value": "docsubtype_other_electronic_carrier"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_game",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_game",
+              "const": "docmaintype_game",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_other_game",
+              "enum": [
+                "docsubtype_other_game",
+                "docsubtype_video_game",
+                "docsubtype_role-playing_game",
+                "docsubtype_board_game",
+                "docsubtype_toy"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_other_game",
+                        "value": "docsubtype_other_game"
+                      },
+                      {
+                        "label": "docsubtype_video_game",
+                        "value": "docsubtype_video_game"
+                      },
+                      {
+                        "label": "docsubtype_role-playing_game",
+                        "value": "docsubtype_role-playing_game"
+                      },
+                      {
+                        "label": "docsubtype_board_game",
+                        "value": "docsubtype_board_game"
+                      },
+                      {
+                        "label": "docsubtype_toy",
+                        "value": "docsubtype_toy"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_image",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_image",
+              "const": "docmaintype_image",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_photography",
+              "enum": [
+                "docsubtype_poster",
+                "docsubtype_postcard",
+                "docsubtype_photography",
+                "docsubtype_print_engraving",
+                "docsubtype_calendar",
+                "docsubtype_other_image",
+                "docsubtype_projected_image"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_poster",
+                        "value": "docsubtype_poster"
+                      },
+                      {
+                        "label": "docsubtype_postcard",
+                        "value": "docsubtype_postcard"
+                      },
+                      {
+                        "label": "docsubtype_photography",
+                        "value": "docsubtype_photography"
+                      },
+                      {
+                        "label": "docsubtype_print_engraving",
+                        "value": "docsubtype_print_engraving"
+                      },
+                      {
+                        "label": "docsubtype_calendar",
+                        "value": "docsubtype_calendar"
+                      },
+                      {
+                        "label": "docsubtype_other_image",
+                        "value": "docsubtype_other_image"
+                      },
+                      {
+                        "label": "docsubtype_projected_image",
+                        "value": "docsubtype_projected_image"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_language_method",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_language_method",
+              "const": "docmaintype_language_method",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_leaf",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_leaf",
+              "const": "docmaintype_leaf",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_map",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_map",
+              "const": "docmaintype_map",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_map",
+              "enum": [
+                "docsubtype_map",
+                "docsubtype_atlas"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "options": [
+                      {
+                        "label": "docsubtype_map",
+                        "value": "docsubtype_map"
+                      },
+                      {
+                        "label": "docsubtype_atlas",
+                        "value": "docsubtype_atlas"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_movie_series",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_movie_series",
+              "const": "docmaintype_movie_series",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_movie",
+              "enum": [
+                "docsubtype_movie",
+                "docsubtype_series",
+                "docsubtype_documentary"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_movie",
+                        "value": "docsubtype_movie"
+                      },
+                      {
+                        "label": "docsubtype_series",
+                        "value": "docsubtype_series"
+                      },
+                      {
+                        "label": "docsubtype_documentary",
+                        "value": "docsubtype_documentary"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_object",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_object",
+              "const": "docmaintype_object",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_other_object",
+              "enum": [
+                "docsubtype_kamishibai",
+                "docsubtype_tablet",
+                "docsubtype_other_object"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_kamishibai",
+                        "value": "docsubtype_kamishibai"
+                      },
+                      {
+                        "label": "docsubtype_tablet",
+                        "value": "docsubtype_tablet"
+                      },
+                      {
+                        "label": "docsubtype_other_object",
+                        "value": "docsubtype_other_object"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_other",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_other",
+              "const": "docmaintype_other",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_score",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_score",
+              "const": "docmaintype_score",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_printed_score",
+              "enum": [
+                "docsubtype_printed_score",
+                "docsubtype_music_method",
+                "docsubtype_manuscript_score"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_printed_score",
+                        "value": "docsubtype_printed_score"
+                      },
+                      {
+                        "label": "docsubtype_music_method",
+                        "value": "docsubtype_music_method"
+                      },
+                      {
+                        "label": "docsubtype_manuscript_score",
+                        "value": "docsubtype_manuscript_score"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_serial",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_serial",
+              "const": "docmaintype_serial",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_series",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type"
+          ],
+          "required": [
+            "main_type"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_series",
+              "const": "docmaintype_series",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "docmaintype_teaching_material",
+          "type": "object",
+          "additionalProperties": false,
+          "propertiesOrder": [
+            "main_type",
+            "subtype"
+          ],
+          "required": [
+            "main_type",
+            "subtype"
+          ],
+          "properties": {
+            "main_type": {
+              "title": "Main type",
+              "type": "string",
+              "readOnly": true,
+              "default": "docmaintype_teaching_material",
+              "const": "docmaintype_teaching_material",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "alwaysHidden": true
+                  }
+                }
+              }
+            },
+            "subtype": {
+              "title": "Subtype",
+              "type": "string",
+              "default": "docsubtype_reading_kit",
+              "enum": [
+                "docsubtype_reading_kit",
+                "docsubtype_experimentation_kit",
+                "docsubtype_thematic_kit",
+                "docsubtype_official_material",
+                "docsubtype_guided_reading",
+                "docsubtype_exhibition_panel"
+              ],
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:md:w-6/12",
+                    "options": [
+                      {
+                        "label": "docsubtype_reading_kit",
+                        "value": "docsubtype_reading_kit"
+                      },
+                      {
+                        "label": "docsubtype_experimentation_kit",
+                        "value": "docsubtype_experimentation_kit"
+                      },
+                      {
+                        "label": "docsubtype_thematic_kit",
+                        "value": "docsubtype_thematic_kit"
+                      },
+                      {
+                        "label": "docsubtype_official_material",
+                        "value": "docsubtype_official_material"
+                      },
+                      {
+                        "label": "docsubtype_guided_reading",
+                        "value": "docsubtype_guided_reading"
+                      },
+                      {
+                        "label": "docsubtype_exhibition_panel",
+                        "value": "docsubtype_exhibition_panel"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "widget": {
+      "formlyConfig": {
+        "props": {
+          "cssClass": "ui:w-md-50"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Link to a subject",
+  "type": "object",
+  "description": "Link to a remote or local entity of type topic, person, organisation (including conferences), place, temporal or work.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "$ref"
+  ],
+  "required": [
+    "$ref"
+  ],
+  "properties": {
+    "$ref": {
+      "title": "Subject",
+      "type": "string",
+      "pattern": "^(https://mef.rero.ch/api/(agents|concepts|places)/(gnd|idref|rero)/.*|https://bib.rero.ch/api/local_entities/.*?)$",
+      "widget": {
+        "formlyConfig": {
+          "type": "entity-autocomplete",
+          "props": {
+            "scrollHeight": "50vh",
+            "group": true,
+            "filters": {
+              "selected": "bf:Topic",
+              "options": [
+                {
+                  "label": "Topic",
+                  "value": "bf:Topic"
+                },
+                {
+                  "label": "Person",
+                  "value": "bf:Person"
+                },
+                {
+                  "label": "bf:Organisation",
+                  "value": "bf:Organisation"
+                },
+                {
+                  "label": "Place",
+                  "value": "bf:Place"
+                },
+                {
+                  "label": "Temporal",
+                  "value": "bf:Temporal"
+                },
+                {
+                  "label": "Work",
+                  "value": "bf:Work"
+                }
+              ]
+            },
+            "queryOptions": {
+              "type": "mef"
+            }
+          }
+        }
+      }
+    },
+    "pid": {
+      "title": "MEF ID",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
