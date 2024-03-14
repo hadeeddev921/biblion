@@ -1,0 +1,455 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Blueprint used for loading templates."""
+
+from elasticsearch_dsl.query import Q
+from flask import Blueprint, current_app, render_template, url_for
+from flask_babel import gettext as _
+from invenio_records_ui.signals import record_viewed
+
+from biblion.modules.entities.api import Entity
+from biblion.modules.entities.helpers import get_entity_record_from_data
+from biblion.modules.locations.api import Location
+from biblion.modules.organisations.api import Organisation
+from biblion.modules.patrons.api import current_librarian, current_patrons
+from biblion.modules.utils import extracted_data_from_ref
+
+from .api import Document
+from .dumpers import document_indexer_dumper
+from .extensions import (
+    EditionStatementExtension,
+    ProvisionActivitiesExtension,
+    TitleExtension,
+)
+from .utils import (
+    display_alternate_graphic_first,
+    title_format_text_alternate_graphic,
+    title_variant_format_text,
+)
+
+
+def doc_item_view_method(pid, record, template=None, **kwargs):
+    """Display default view.
+
+    Sends record_viewed signal and renders template.
+    :param pid: PID object.
+    :param record: Record object.
+    :param template: Template to render.
+    :param kwargs: Additional view arguments based on URL rule.
+    :return: The rendered template.
+    """
+    record_viewed.send(current_app._get_current_object(), pid=pid, record=record)
+
+    viewcode = kwargs["viewcode"]
+    organisation = None
+    if viewcode != current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE"):
+        organisation = Organisation.get_record_by_viewcode(viewcode)
+
+    # build provision activity
+    ProvisionActivitiesExtension().post_dump(record={}, data=record)
+
+    # Counting holdings to display the get button
+    from ..holdings.api import HoldingsSearch
+
+    query = HoldingsSearch().filter("term", document__pid=pid.pid_value)
+    query = query.filter("bool", must_not=[Q("term", _masked=True)])
+    if organisation:
+        query = query.filter("term", organisation__pid=organisation.pid)
+    holdings_count = query.count()
+
+    # Counting linked documents
+    from .api import DocumentsSearch
+
+    query = DocumentsSearch().filter("term", partOf__document__pid=pid.pid_value)
+    if organisation:
+        query = query.filter("term", holdings__organisation__organisation_pid=organisation.pid)
+    linked_documents_count = query.count()
+    return render_template(
+        template,
+        pid=pid,
+        record=record,
+        search_record=record.dumps(document_indexer_dumper),
+        holdings_count=holdings_count,
+        viewcode=viewcode,
+        recordType="documents",
+        current_patrons=current_patrons,
+        current_librarian=current_librarian,
+        linked_documents_count=linked_documents_count,
+    )
+
+
+blueprint = Blueprint(
+    "documents",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+)
+
+
+@blueprint.app_template_filter()
+def babeltheque_enabled_view(view):
+    """Check if the view is activated for babeltheque."""
+    enabled_views = current_app.config.get("BIBLION_BABELTHEQUE_ENABLED_VIEWS", [])
+    return view in enabled_views
+
+
+@blueprint.app_template_filter()
+def get_first_isbn(record):
+    """Get first isbn result."""
+    # ISBN
+    isbns = [
+        identified_by.get("value")
+        for identified_by in record.get("identifiedBy", [])
+        if identified_by.get("type") == "bf:Isbn"
+    ]
+    return isbns[0] if isbns else None
+
+
+@blueprint.app_template_filter()
+def provision_activity(provisions):
+    """Preprocess provision activity."""
+    output = {}
+    provisions = list(filter(lambda t: "_text" in t and "statement" in t, provisions))
+    for provision in provisions:
+        if provision["type"] not in output:
+            output.setdefault(provision["type"], [])
+        for text in provision["_text"]:
+            output[provision["type"]].append(text)
+    return output
+
+
+@blueprint.app_template_filter()
+def provision_activity_publication(provisions):
+    """Extact only publication of provision activity."""
+    return {"bf:Publication": provisions.get("bf:Publication", [])}
+
+
+@blueprint.app_template_filter()
+def contribution_format(contributions, language, viewcode, with_roles=False):
+    """Format contribution for template in given language.
+
+    :param contributions: the list of contributors to format.
+    :param language: language to use.
+    :param viewcode: viewcode to use.
+    :param with_roles: display roles.
+    :return the contribution in formatted form.
+    """
+    output = []
+    for contrib in filter(lambda c: c.get("entity"), contributions):
+        if entity := get_entity_record_from_data(contrib["entity"]):
+            text = entity.get_authorized_access_point(language=language)
+            args = {
+                "viewcode": viewcode,
+                "recordType": "documents",
+                "q": f"contribution.entity.pids.{entity.resource_type}:{entity.pid}",
+                "simple": 0,
+            }
+        else:
+            default_key = "authorized_access_point"
+            localized_key = f"authorized_access_point_{language}"
+            text = contrib["entity"].get(localized_key) or contrib["entity"].get(default_key)
+            args = {
+                "viewcode": viewcode,
+                "recordType": "documents",
+                "q": f'contribution.entity.{localized_key}:"{text}"',
+                "simple": 0,
+            }
+        url = url_for("biblion.search", **args)
+        label = f'<a href="{url}">{text}</a>'
+
+        if with_roles:
+            if roles := [_(role) for role in contrib.get("role", [])]:
+                roles_str = ", ".join(roles)
+                label += f'<span class="text-secondary"> ({roles_str})</span>'
+        output.append(label)
+
+    return " ; ".join(output)
+
+
+@blueprint.app_template_filter()
+def doc_entity_label(entity, language=None, part_separator=" - "):
+    """Format an entity according to the available keys.
+
+    :param entity: the entity to analyze.
+    :param language: current language on interface.
+    :param part_separator: the string use to glue parts of the entity label.
+    :returns: the best possible label to display.
+    """
+    parts = []
+    if "$ref" in entity:
+        # Local or remote entity
+        if entity := Entity.get_record_by_ref(entity["$ref"]):
+            entity_type = entity.resource_type
+            value = entity.pid
+            parts.append(entity.get_authorized_access_point(language=language))
+    else:
+        # Textual entity
+        entity_type = "textual"
+        default_key = "authorized_access_point"
+        localized_key = f"{default_key}_{language}"
+        value = entity.get(localized_key) or entity.get(default_key)
+        parts.append(value)
+
+    # Subdivisions (only for textual entity)
+    for subdivision in entity.get("subdivisions", []):
+        if sub_entity := subdivision.get("entity"):
+            _, _, label = doc_entity_label(sub_entity, language, part_separator)
+            parts.append(label)
+
+    return entity_type, value, part_separator.join(filter(None, parts))
+
+
+@blueprint.app_template_filter()
+def edition_format(editions):
+    """Format edition for template."""
+    output = []
+    for edition in editions:
+        if languages := EditionStatementExtension.format_text(edition):
+            output.extend(edition.get("value") for edition in languages)
+    return output
+
+
+@blueprint.app_template_filter()
+def part_of_format(part_of):
+    """Format 'part of' data for template."""
+    document_pid = extracted_data_from_ref(part_of.get("document"), data="pid")
+    document = Document.get_record_by_pid(document_pid)
+    nums = part_of.get("numbering")
+    # Set host document pid
+    output = {"document_pid": document_pid}
+    # Set label
+    subtype = document.get("issuance").get("subtype")
+    if subtype == "periodical":
+        output["label"] = _("Journal")
+    elif subtype == "monographicSeries":
+        output["label"] = _("Series")
+    else:
+        output["label"] = _("Published in")
+    # Set title
+    bf_titles = list(filter(lambda t: t["type"] == "bf:Title", document.get("title")))
+    output["title"] = TitleExtension.format_text(bf_titles)
+
+    # Format and set numbering (example: 2020, vol. 2, nr. 3, p. 302)
+    if nums is not None:
+        for num in nums:
+            numbering = []
+            if num.get("year"):
+                numbering.append(num.get("year"))
+            if num.get("volume"):
+                volume = [_("vol"), str(num.get("volume"))]
+                numbering.append(". ".join(volume))
+            if num.get("issue"):
+                issue = [_("nr"), str(num.get("issue"))]
+                numbering.append(". ".join(issue))
+            if num.get("pages"):
+                pages = [_("p"), str(num.get("pages"))]
+                numbering.append(". ".join(pages))
+            output.setdefault("numbering", [])
+            output["numbering"].append(", ".join(numbering))
+    return output
+
+
+@blueprint.app_template_filter()
+def create_publication_statement(provision_activity):
+    """Create publication statement from place, agent and date values."""
+    output = []
+    publication_texts = ProvisionActivitiesExtension.format_text(provision_activity)
+    for publication_text in publication_texts:
+        language = publication_text.get("language", "default")
+        if display_alternate_graphic_first(language):
+            output.insert(0, publication_text.get("value"))
+        else:
+            output.append(publication_text.get("value"))
+    return output
+
+
+@blueprint.app_template_filter()
+def get_cover_art(record):
+    """Return the cover image URL from the document's electronicLocator list.
+
+    :param record: The document record.
+    :returns: The cover image URL, or ``None`` if no coverImage locator is present.
+    """
+    # electronicLocator
+    for electronic_locator in record.get("electronicLocator", []):
+        e_content = electronic_locator.get("content")
+        e_type = electronic_locator.get("type")
+        if e_content == "coverImage" and e_type == "relatedResource":
+            if url := electronic_locator.get("url"):
+                return url
+    return None
+
+
+@blueprint.app_template_filter()
+def get_other_accesses(record):
+    """Length for electronic locator.
+
+    :param record: record
+    :return: dictonary list of other access informations
+    """
+    accesses = []
+
+    def filter_type(electronic_locator):
+        """Filter electronic locator for related resources and no info."""
+        return (
+            electronic_locator.get("type") in ["noInfo", "resource", "relatedResource", "versionOfResource"]
+            and electronic_locator.get("content") != "coverImage"
+        )
+
+    filtered_electronic_locators = filter(filter_type, record.get("electronicLocator", []))
+    for electronic_locator in filtered_electronic_locators:
+        url = electronic_locator.get("url")
+        content = _(electronic_locator.get("content"))
+        public_notes = electronic_locator.get("publicNote", [])
+        public_note = ", ".join(public_notes)
+        accesses.append(
+            {
+                "type": electronic_locator.get("type"),
+                "url": url,
+                "content": content,
+                "public_note": public_note,
+            }
+        )
+    return accesses
+
+
+@blueprint.app_template_filter()
+def create_title_text(titles, responsibility_statement=None):
+    """Create the title text for display purpose.
+
+    :param titles: list of title objects
+    :type titles: list
+    :param responsibility_statement: list of title objects
+    :type responsibility_statement: list
+    :return: the title text for display purpose
+    :rtype: str
+    """
+    return TitleExtension.format_text(titles, responsibility_statement, with_subtitle=True)
+
+
+@blueprint.app_template_filter()
+def create_title_alternate_graphic(titles, responsibility_statement=None):
+    """Create the list of alternate graphic titles as text for detail view.
+
+    :param titles: list of title objects
+    :type titles: list
+    :param responsibility_statement: list of title objects
+    :type responsibility_statement: list
+    :return: list of alternate graphic titles as text for detail view
+    :rtype: list
+    """
+    output = []
+    altgr_texts = title_format_text_alternate_graphic(titles, responsibility_statement)
+    for altgr_text in altgr_texts:
+        value = altgr_text.get("value")
+        if value not in output:
+            output.append(value)
+    return output
+
+
+@blueprint.app_template_filter()
+def document_types(record, translate=True):
+    """Get document types.
+
+    :param record: record
+    :param translate: is document types should be localized
+    :return: list of document types
+    """
+    doc_types = record.document_types  # always a not-empty list
+    if translate:
+        doc_types = [_(doc_type) for doc_type in doc_types]
+    return doc_types
+
+
+@blueprint.app_template_filter()
+def document_main_type(record, translate=True):
+    """Get first document main type.
+
+    :param record: record
+    :param translate: is the response should be localized
+    :return: the document main type
+    """
+    if "type" in record:
+        doc_type = record["type"][0]["main_type"]
+        return _(doc_type) if translate else doc_type
+    return None
+
+
+@blueprint.app_template_filter()
+def main_title_text(title):
+    """Extract title with type bf:Title.
+
+    :param title: array of the field title.
+    """
+    return list(filter(lambda t: t.get("type") == "bf:Title", title))
+
+
+@blueprint.app_template_filter()
+def record_library_pickup_locations(record):
+    """Get the pickup locations of the library of the given item or holding."""
+    location_pid = extracted_data_from_ref(record.get("location"))
+    location = Location.get_record_by_pid(location_pid)
+    # Either the location defines some 'restrict_pickup_to' either not.
+    # * If 'restrict_pickup_to' is defined, then only these locations are
+    #   eligible as possible pickup_locations
+    # * Otherwise, get all organisation pickup locations
+    #   of the record belongs to
+    if "restrict_pickup_to" in location:
+        # Get all pickup locations as Location objects and append it to the
+        # location record (removing possible None values)
+        pickup_locations = [Location.get_record_by_pid(loc_pid) for loc_pid in location.restrict_pickup_to]
+    else:
+        org = Organisation.get_record_by_pid(location.organisation_pid)
+        # Get the pickup location from each library of the record organisation
+        # (removing possible None value)
+        pickup_locations = []
+        for library in org.get_libraries():
+            pickup_locations.extend(
+                Location.get_record_by_pid(location_pid) for location_pid in list(library.get_pickup_locations_pids())
+            )
+    return sorted(
+        filter(None, pickup_locations),
+        key=lambda location: location.get("pickup_name", location.get("code")),
+    )
+
+
+@blueprint.app_template_filter()
+def create_title_responsibilites(responsibilityStatement):
+    """Create the list of title responsibilites as text for detail view.
+
+    :param responsibilityStatement: list of responsibilityStatement
+    :type responsibilityStatement: list
+    :return: list of title responsibilites as text for detail view
+    :rtype: list
+
+    """
+    output = []
+    for responsibility in responsibilityStatement:
+        for responsibility_language in responsibility:
+            value = responsibility_language.get("value")
+            if value not in output:
+                language = responsibility_language.get("language", "default")
+                if display_alternate_graphic_first(language):
+                    output.insert(0, value)
+                else:
+                    output.append(value)
+    return output
+
+
+@blueprint.app_template_filter()
+def create_title_variants(titles):
+    """Create the list of variant titles as text for detail view.
+
+    :param titles: list of title objects
+    :type titles: list
+    :return: list of variant titles as text for detail view
+    :rtype: list
+    """
+    output = []
+    title_variant_texts = title_variant_format_text(titles=titles, with_subtitle=True)
+    for title_variant_text in title_variant_texts:
+        value = title_variant_text.get("value")
+        if value not in output:
+            output.append(value)
+    return output
