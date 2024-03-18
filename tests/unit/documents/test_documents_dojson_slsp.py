@@ -1,0 +1,714 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""DOJSON module tests."""
+
+from unittest import mock
+
+import pytest
+from dojson.contrib.marc21.utils import create_record
+
+from biblion.modules.documents.dojson.contrib.marc21tojson.slsp import marc21
+from biblion.modules.documents.models import DocumentFictionType
+
+
+def test_marc21_to_contribution():
+    """Test dojson marc21_to_contribution."""
+    marc21xml = """
+    <record>
+      <datafield tag="100" ind1=" " ind2=" ">
+        <subfield code="a">Jean-Paul</subfield>
+        <subfield code="b">II</subfield>
+        <subfield code="c">Pape</subfield>
+        <subfield code="d">1954-</subfield>
+        <subfield code="4">aut</subfield>
+      </datafield>
+      <datafield tag="240" ind1=" " ind2=" ">
+        <subfield code="a">Treaties, etc.</subfield>
+      </datafield>
+      <datafield tag="700" ind1=" " ind2=" ">
+        <subfield code="a">Dumont, Jean</subfield>
+        <subfield code="c">Historien</subfield>
+        <subfield code="d">1921-2014</subfield>
+        <subfield code="4">edt</subfield>
+      </datafield>
+      <datafield tag="700" ind1="1" ind2=" ">
+        <subfield code="a">Santamaría, Germán</subfield>
+        <subfield code="t">No morirás</subfield>
+        <subfield code="l">français</subfield>
+      </datafield>
+      <datafield tag="710" ind1=" " ind2=" ">
+        <subfield code="a">RERO</subfield>
+      </datafield>
+      <datafield tag="711" ind1="2" ind2=" ">
+        <subfield code="a">Biennale de céramique contemporaine</subfield>
+        <subfield code="n">(17 :</subfield>
+        <subfield code="d">2003 :</subfield>
+        <subfield code="c">Châteauroux)</subfield>
+      </datafield>
+      <datafield tag="730" ind1="0" ind2=" ">
+        <subfield code="a">Bible.</subfield>
+        <subfield code="n">000.</subfield>
+        <subfield code="p">A.T. et N.T. :</subfield>
+        <subfield code="l">Coréen</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("contribution") == [
+        {
+            "entity": {
+                "type": "bf:Person",
+                "authorized_access_point": "Jean-Paul II, Pape, 1954",
+            },
+            "role": ["aut"],
+        },
+        {
+            "entity": {
+                "type": "bf:Person",
+                "authorized_access_point": "Dumont, Jean, 1921-2014, Historien",
+            },
+            "role": ["edt"],
+        },
+        {
+            "entity": {"type": "bf:Organisation", "authorized_access_point": "RERO"},
+            "role": ["ctb"],
+        },
+        {
+            "entity": {
+                "type": "bf:Organisation",
+                "authorized_access_point": "Biennale de céramique contemporaine (17 : 2003 : Châteauroux)",
+            },
+            "role": ["aut"],
+        },
+    ]
+    assert data.get("work_access_point") == [
+        {
+            "creator": {
+                "date_of_birth": "1954",
+                "numeration": "II",
+                "preferred_name": "Jean-Paul",
+                "qualifier": "Pape",
+                "type": "bf:Person",
+            },
+            "title": "Treaties, etc.",
+        },
+        {
+            "creator": {"preferred_name": "Santamaría, Germán", "type": "bf:Person"},
+            "language": "fre",
+            "title": "No morirás",
+        },
+        {
+            "miscellaneous_information": "language: Coréen",
+            "part": [{"partName": "A.T. et N.T.", "partNumber": "000"}],
+            "title": "Bible",
+        },
+    ]
+
+    marc21xml = """
+    <record>
+      <datafield tag="700" ind1="1" ind2=" ">
+        <subfield code="a">Santamaría, Germán</subfield>
+        <subfield code="t">No morirás</subfield>
+        <subfield code="d">1919-1990</subfield>
+      </datafield>
+      <datafield tag="700" ind1="1" ind2=" ">
+        <subfield code="a">Santamaría, Germán</subfield>
+        <subfield code="t">No morirás</subfield>
+        <subfield code="d">1919-</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("work_access_point") == [
+        {
+            "creator": {
+                "date_of_birth": "1919",
+                "date_of_death": "1990",
+                "preferred_name": "Santamaría, Germán",
+                "type": "bf:Person",
+            },
+            "title": "No morirás",
+        },
+        {
+            "creator": {
+                "date_of_birth": "1919",
+                "preferred_name": "Santamaría, Germán",
+                "type": "bf:Person",
+            },
+            "title": "No morirás",
+        },
+    ]
+
+
+@mock.patch("biblion.modules.documents.dojson.contrib.marc21tojson.slsp.model.get_mef_link")
+def test_marc21_to_subjects(mock_get_mef_link):
+    """Test dojson subjects imported from 6xx."""
+    # 600 Person => to import (all subfields)
+    marc21xml = """
+    <record>
+      <datafield tag="600" ind1="2" ind2="0">
+        <subfield code="a">Person</subfield>
+      </datafield>
+      <datafield tag="600" ind1="2" ind2="0">
+        <subfield code="a">Person MEF</subfield>
+        <subfield code="0">(DE-588)TEST)</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/agents/gnd/PERSON"
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Person",
+                "authorized_access_point": "Person",
+                "source": "LCSH",
+            }
+        }
+    ]
+    assert data.get("subjects") == [{"entity": {"$ref": "https://test.rero.ch/api/agents/gnd/PERSON"}}]
+
+    # 610 Organisation => to import (all subfields)
+    marc21xml = """
+    <record>
+      <datafield tag="610" ind1="2" ind2="0">
+        <subfield code="a">Organisation</subfield>
+      </datafield>
+      <datafield tag="610" ind1="2" ind2="0">
+        <subfield code="a">Organisation</subfield>
+        <subfield code="0">(DE-588)TEST)</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/agents/gnd/ORGANISATION"
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Organisation",
+                "authorized_access_point": "Organisation",
+                "source": "LCSH",
+            }
+        }
+    ]
+    assert data.get("subjects") == [{"entity": {"$ref": "https://test.rero.ch/api/agents/gnd/ORGANISATION"}}]
+
+    # 611 Congresses and events => import (all subfields) into which field? Congress does not exist...
+    #  611 0x et 611 1x =>organisation;
+    #  611 2x => organisation + convention specification as entry under convention name
+    marc21xml = """
+    <record>
+      <datafield tag="611" ind1="0" ind2="0">
+        <subfield code="a">Organisation</subfield>
+      </datafield>
+      <datafield tag="611" ind1="2" ind2="0">
+        <subfield code="a">Convention</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Organisation",
+                "authorized_access_point": "Organisation",
+                "source": "LCSH",
+            }
+        },
+        {
+            "entity": {
+                "type": "bf:Organisation",
+                "authorized_access_point": "Convention",
+                "source": "LCSH",
+            },
+        },
+    ]
+
+    # 630 Uniform titles => import (all subfields) into Oeuvre
+    marc21xml = """
+    <record>
+      <datafield tag="630" ind1="0" ind2="0">
+        <subfield code="a">Uniform Title</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Work",
+                "authorized_access_point": "Uniform Title",
+                "source": "LCSH",
+            }
+        }
+    ]
+
+    # 647 Event (hurricane, earthquake, financial crisis, war, volcanic eruption...)
+    #  (in IdRef these are currently 650) => import (all subfields) into
+    #  Theme (risk of changes following modifications to RDA rules)
+    marc21xml = """
+    <record>
+      <datafield tag="647" ind1="0" ind2="0">
+        <subfield code="a">Earthquake</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    # TODO: implement transformation
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") is None
+
+    # 648 Chronological term (1863) (1900-1999) => import (all sub-fields) in Time frame
+    marc21xml = """
+    <record>
+      <datafield tag="648" ind1="0" ind2="0">
+        <subfield code="a">1900-1999</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    # TODO: implement transformation
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "authorized_access_point": "1900-1999",
+                "source": "LCSH",
+                "type": "bf:Temporal",
+            }
+        }
+    ]
+
+    # 650 Common name => import (all subfields) into Theme
+
+    # 651 Geographic name => import (all subfields) in Places
+    # 651	_	7	$a Schweizer Mittelland $z West $0 (DE-588)4386654-2 $2 gnd
+    marc21xml = """
+    <record>
+      <datafield tag="651" ind1="0" ind2="0">
+        <subfield code="a">Schweizer Mittelland</subfield>
+        <subfield code="z">West</subfield>
+      </datafield>
+      <datafield tag="651" ind1="0" ind2="0">
+        <subfield code="a">Schweizer Mittelland</subfield>
+        <subfield code="z">West</subfield>
+        <subfield code="0">(DE-588)4386654-2</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/places/gnd/PLACE"
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Place",
+                "authorized_access_point": "Schweizer Mittelland",
+                "subdivisions": [{"entity": {"authorized_access_point": "West", "type": "bf:Place"}}],
+                "source": "LCSH",
+            }
+        }
+    ]
+    assert data.get("subjects") == [{"entity": {"$ref": "https://test.rero.ch/api/places/gnd/PLACE"}}]
+
+    # 655 Genre or form => route based on $2
+    # 655 with $2 gnd-content (treated as gnd) => genreForm
+    # 655 with $2 idref (non-gnd) => genreForm_imported
+    marc21xml = """
+    <record>
+      <datafield tag="655" ind1="0" ind2="0">
+        <subfield code="a">Bildband</subfield>
+        <subfield code="2">gnd-content</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("genreForm") == [
+        {
+            "entity": {"type": "bf:Topic", "authorized_access_point": "Bildband"},
+        },
+    ]
+    assert data.get("genreForm_imported") is None
+
+    marc21xml = """
+    <record>
+      <datafield tag="655" ind1="0" ind2="0">
+        <subfield code="a">Photographie</subfield>
+        <subfield code="0">(IDREF)028224248</subfield>
+        <subfield code="2">idref</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/concepts/TOPIC"
+    data = marc21.do(marc21json)
+    assert data.get("genreForm_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Photographie",
+                "identifiedBy": {"type": "IdRef", "value": "028224248"},
+            }
+        },
+    ]
+    assert data.get("genreForm") is None
+
+
+@mock.patch("biblion.modules.documents.dojson.contrib.marc21tojson.slsp.model.get_mef_link")
+def test_marc21_to_subjects_gnd_routing(mock_get_mef_link):
+    """Test that GND subjects always go to subjects field, not subjects_imported."""
+    # Test 1: GND subject WITHOUT MEF link should go to subjects
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Computer science</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Computer science",
+            }
+        }
+    ]
+    assert data.get("subjects_imported") is None
+
+    # Test 2: GND subject WITH MEF link should go to subjects
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Mathematics</subfield>
+        <subfield code="0">(DE-588)123456789</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/concepts/gnd/123456789"
+    data = marc21.do(marc21json)
+    assert data.get("subjects") == [{"entity": {"$ref": "https://test.rero.ch/api/concepts/gnd/123456789"}}]
+    assert data.get("subjects_imported") is None
+
+    # Test 3: RERO subject should go to subjects_imported
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Physics</subfield>
+        <subfield code="2">rero</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Physics",
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+    # Test 4: IDREF subject should go to subjects_imported
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Chemistry</subfield>
+        <subfield code="2">idref</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Chemistry",
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+    # Test 5: Mixed GND and non-GND subjects should be routed correctly
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Biology</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Geology</subfield>
+        <subfield code="2">rero</subfield>
+      </datafield>
+      <datafield tag="650" ind1=" " ind2="0">
+        <subfield code="a">Astronomy</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Biology",
+            }
+        }
+    ]
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Geology",
+            }
+        },
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Astronomy",
+                "source": "LCSH",
+            }
+        },
+    ]
+
+    # Test 6: 655 with gnd-content (treated as gnd) should go to genreForm
+    marc21xml = """
+    <record>
+      <datafield tag="655" ind1=" " ind2="7">
+        <subfield code="a">Documentary</subfield>
+        <subfield code="2">gnd-content</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("genreForm") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Documentary",
+            }
+        }
+    ]
+    assert data.get("genreForm_imported") is None
+
+    # Test 7: LCSH subject (indicator 2=0) should go to subjects_imported
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="0">
+        <subfield code="a">Astronomy</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Astronomy",
+                "source": "LCSH",
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+    # Test 8: MeSH subject (indicator 2=2) should go to subjects_imported
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="2">
+        <subfield code="a">Neurology</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Neurology",
+                "source": "MeSH",
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+    # Test 9: GND Person subject WITHOUT MEF link
+    marc21xml = """
+    <record>
+      <datafield tag="600" ind1=" " ind2="7">
+        <subfield code="a">Einstein, Albert</subfield>
+        <subfield code="d">1879-1955</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = None
+    data = marc21.do(marc21json)
+    assert data.get("subjects") == [
+        {
+            "entity": {
+                "type": "bf:Person",
+                "authorized_access_point": "Einstein, Albert 1879-1955",
+            }
+        }
+    ]
+    assert data.get("subjects_imported") is None
+
+    # Test 10: GND Place subject WITH MEF link
+    marc21xml = """
+    <record>
+      <datafield tag="651" ind1=" " ind2="7">
+        <subfield code="a">Berlin</subfield>
+        <subfield code="0">(DE-588)4005728-8</subfield>
+        <subfield code="2">gnd</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://test.rero.ch/api/places/gnd/4005728-8"
+    data = marc21.do(marc21json)
+    assert data.get("subjects") == [{"entity": {"$ref": "https://test.rero.ch/api/places/gnd/4005728-8"}}]
+    assert data.get("subjects_imported") is None
+
+    # Test 11: RERO subject with $0 should NOT use $ref, should use
+    # authorized_access_point + identifiedBy
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Physics</subfield>
+        <subfield code="0">(RERO)A012345678</subfield>
+        <subfield code="2">rero</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://mef.rero.ch/api/concepts/rero/A012345678"
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Physics",
+                "identifiedBy": {"type": "RERO", "value": "A012345678"},
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+    # Test 12: IDREF subject with $0 should NOT use $ref, should use
+    # authorized_access_point + identifiedBy
+    marc21xml = """
+    <record>
+      <datafield tag="650" ind1=" " ind2="7">
+        <subfield code="a">Chemistry</subfield>
+        <subfield code="0">(IDREF)027390548</subfield>
+        <subfield code="2">idref</subfield>
+      </datafield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    mock_get_mef_link.return_value = "https://mef.rero.ch/api/concepts/idref/027390548"
+    data = marc21.do(marc21json)
+    assert data.get("subjects_imported") == [
+        {
+            "entity": {
+                "type": "bf:Topic",
+                "authorized_access_point": "Chemistry",
+                "identifiedBy": {"type": "IdRef", "value": "027390548"},
+            }
+        }
+    ]
+    assert data.get("subjects") is None
+
+
+def test_marc21_to_pid():
+    """Test PID extraction from field 001 with BIBLION prefix."""
+    marc21xml = """
+    <record>
+      <controlfield tag="001">BIBLION:12345</controlfield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("pid") == "12345"
+
+
+def test_marc21_to_pid_non_rero_prefix_ignored():
+    """Test that 001 values without BIBLION prefix produce no pid."""
+    marc21xml = """
+    <record>
+      <controlfield tag="001">ALMA:99999</controlfield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data.get("pid") is None
+
+
+@pytest.mark.parametrize(
+    "char,expected",
+    [
+        ("1", DocumentFictionType.Fiction.value),
+        ("d", DocumentFictionType.Fiction.value),
+        ("f", DocumentFictionType.Fiction.value),
+        ("j", DocumentFictionType.Fiction.value),
+        ("p", DocumentFictionType.Fiction.value),
+        ("0", DocumentFictionType.NonFiction.value),
+        ("e", DocumentFictionType.NonFiction.value),
+        ("h", DocumentFictionType.NonFiction.value),
+        ("i", DocumentFictionType.NonFiction.value),
+        ("s", DocumentFictionType.NonFiction.value),
+        (" ", DocumentFictionType.Unspecified.value),
+    ],
+)
+def test_marc21_to_fiction_statement(char, expected):
+    """Test fiction_statement extraction from 008 position 33."""
+    marc21xml = f"""
+    <record>
+      <controlfield tag="008">160315s2015    cc ||| |  ||||00| {char}|chi d</controlfield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data["fiction_statement"] == expected
+
+
+def test_marc21_to_fiction_statement_short_008():
+    """Test that a short 008 field (no position 33) defaults to Unspecified."""
+    marc21xml = """
+    <record>
+      <controlfield tag="008">160315</controlfield>
+    </record>
+    """
+    marc21json = create_record(marc21xml)
+    data = marc21.do(marc21json)
+    assert data["fiction_statement"] == DocumentFictionType.Unspecified.value
