@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Document mapping tests."""
+
+from copy import deepcopy
+from unittest import mock
+
+from elasticsearch_dsl.query import MultiMatch
+
+from biblion.modules.documents.api import Document, DocumentsSearch
+from tests.utils import get_mapping, mock_response
+
+
+@mock.patch("requests.Session.get")
+def test_document_mapping(
+    mock_contributions_mef_get,
+    search,
+    db,
+    org_martigny,
+    document_data_ref,
+    item_lib_martigny,
+    entity_person_response_data,
+):
+    """Test document search index mapping."""
+    search = DocumentsSearch()
+    mapping = get_mapping(search.Meta.index)
+    assert mapping
+    data = deepcopy(document_data_ref)
+    mock_contributions_mef_get.return_value = mock_response(json_data=entity_person_response_data)
+    Document.create(data, dbcommit=True, reindex=True, delete_pid=True)
+    assert mapping == get_mapping(search.Meta.index)
+
+
+def test_document_search_mapping(app, document_records):
+    """Test document search mapping."""
+    search = DocumentsSearch()
+
+    count = search.query("query_string", query="reine Berthe").count()
+    assert count == 2
+
+    count = search.query("query_string", query="maison").count()
+    assert count == 1
+
+    count = search.query("query_string", query="Körper").count()
+    assert count == 1
+
+    count = search.query("query_string", query="Chamber Secrets").count()
+    assert count == 1
+
+    query = MultiMatch(query="Chamber of Secrets", fields=["title.mainTitle.value"])
+    count = search.query(query).count()
+    assert count == 1
+
+    count = search.query("query_string", query="9782823855890").count()
+    assert count == 1
+
+    count = search.query("query_string", query="2823855890").count()
+    assert count == 1
