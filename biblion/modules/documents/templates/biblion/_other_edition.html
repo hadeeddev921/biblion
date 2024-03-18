@@ -1,0 +1,39 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% if data %}
+  {% if header %}
+    <div>
+    <span class="font-weight-bold">{{ fieldLabel }}</span>
+    {% for edition in data %}
+      {%- if '$ref' in edition %}
+        {% set document = edition | get_record_by_ref %}
+        {% set document_title =  document.title | main_title_text %}
+        <a href="/{{ viewcode }}/documents/{{ document.pid }}">{{ document_title[0]._text }}</a>
+      {%- else %}
+        {{ edition.label }}
+      {% endif %}
+      {%- if not loop.last %}; {% endif %}
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="col-3 font-weight-bold">{{ fieldLabel }}</div>
+      <div class="col-9">
+        <ul class="list-unstyled">
+        {% for edition in data %}
+          <li>
+          {% if '$ref' in edition %}
+            {% set document = edition | get_record_by_ref %}
+            {% set document_title =  document.title | main_title_text %}
+            <a href="/{{ viewcode }}/documents/{{ document.pid }}">{{ document_title[0]._text }}</a>
+          {% else %}
+            {{ edition.label }}
+          {% endif %}
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}

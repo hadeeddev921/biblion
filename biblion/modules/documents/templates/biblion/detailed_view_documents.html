@@ -1,0 +1,320 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends 'biblion/page.html' %}
+{%- set title = _('Document')  ~ ' | ' ~ _(config.THEME_SITENAME) %}
+{% from 'biblion/macros/macro.html' import div, dict_values, div_list, dl, dl_row, dl_dict, dl_list, div_json %}
+
+{% set isbn = record|get_first_isbn %}
+
+{%- block css %}
+  {{ super() }}
+  {% if viewcode | babeltheque_enabled_view and isbn is not none  %}
+  {{ webpack['babeltheque.css'] }}
+  {% endif %}
+{%- endblock css %}
+
+{%- block body %}
+<header class="d-flex align-items-center py-2">
+    <div class="flex-grow-1">
+      <a href="javascript:history.back()">
+        <i class="fa-solid fa-arrow-left"></i> {{ _('Back') }}
+      </a>
+    </div>
+    {% if current_librarian %}
+    <div>
+      <a
+        class="btn btn-outline-secondary"
+        href="/professional/records/documents/detail/{{ record.pid }}"
+      >
+        <i class="fa-solid fa-file-lines"></i>
+        {{ _('See in pro interface') }}
+      </a>
+    </div>
+    {% endif %}
+</header>
+<div class="row">
+  {%- set icon_name = record | document_main_type(false) %}
+  {%- set covert_art = record | get_cover_art %}
+  <figure id="thumbnail" class="figure-img col-sm-2 d-sm-block figure text-center">
+    <img class="img-fluid img-thumbnail thumb"
+      src="{% if covert_art %}{{ covert_art }}{% else %}{{ url_for('static', filename='images/icon_%s.svg' % icon_name) }}{% endif %}">
+    <figcaption class="figure-caption mt-2">
+      <ul class="list-unstyled mb-1">
+        {% for document_type in record | document_types %}
+          <li>{{ document_type }}</li>
+        {% endfor %}
+      </ul>
+    </figcaption>
+  </figure>
+  <div class="col-sm-10">
+    <h2>
+      {{ record.title | create_title_text }}
+    </h2>
+    <!-- TITLE_ALTERNATE_GRAPHIC -->
+    {% for alternate_graphic in record.title | create_title_alternate_graphic %}
+      <h3>
+        {{ alternate_graphic }}
+      </h3>
+    {% endfor %}
+    <!-- CONTRIBUTION -->
+    {% if record.contribution %}
+      {{ div(record.contribution | contribution_format(current_i18n.language, viewcode, true)) }}
+    {% endif %}
+
+    <!-- PUBLICATION ACTIVITY: PUBLICATION -->
+    {% if record.provisionActivity %}
+      {% set provisions = record.provisionActivity | provision_activity | provision_activity_publication %}
+      {% for key, provisions in provisions.items() %}
+        <ul class="list-unstyled mb-0">
+          {% for provision in provisions %}
+            <li>{{ provision.value }}</li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% endif %}
+
+    <!-- EXTENT -->
+    {% if record.extent %}
+      <div>{{ record.extent }}</div>
+    {% endif %}
+
+    <!-- DURATION -->
+    {% if record.duration %}
+      <div>
+        {{ _('Duration') }}: {{ record.duration | join(', ') }}
+      </div>
+    {% endif %}
+
+    <!-- EDITION STATEMENT-->
+    {% if record.editionStatement %}
+    {{ div_list(record.editionStatement|edition_format) }}
+    {% endif %}
+
+    <!-- FREQUENCY -->
+    {% if record.frequency %}
+      <div>
+        <span class="font-weight-bold">{{ _('Frequency') }}</span>:
+        {% for freq in record.frequency %}
+          {{ freq.label }}
+          {% if freq.date %}({{ freq.date }}){% endif %}{% if not loop.last %}; {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- IS PART OF -->
+    {% if record.partOf %}
+      {% for partOf in record.partOf %}
+        {% set data = partOf|part_of_format %}
+        <div class="row">
+          <dt class="col-auto">
+            {{ data.label }}
+          </dt>
+          <dd class="col-sm-10 col-md-10 mb-0">
+            <div class="row">
+              <a href="{{ url_for('invenio_records_ui.doc', viewcode=viewcode, pid_value=data.document_pid) }}">{{ data.title }}</a>
+              {% if data.numbering|length > 0 %}
+              <span>;</span>
+              <ul class="list-unstyled biblion-person mb-0 ml-1">
+                {% for element in data.numbering %}
+                  <li>{{ element }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
+          </dd>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- ISSUED WITH -->
+    {% with fieldLabel=_('Issued with'), data=record.issuedWith, header=true %}
+      {% include 'biblion/_other_edition.html' %}
+    {% endwith %}
+
+    <!-- PRECEDED BY -->
+    {% with fieldLabel=_('Preceded by'), data=record.precededBy, header=true %}
+      {% include 'biblion/_other_edition.html' %}
+    {% endwith %}
+
+    <!-- SUCCEEDED BY -->
+    {% with fieldLabel=_('Succeeded by'), data=record.succeededBy, header=true %}
+      {% include 'biblion/_other_edition.html' %}
+    {% endwith %}
+
+    <!-- SUPPLEMENT TO -->
+    {% with fieldLabel=_('Supplement to'), data=record.supplementTo, header=true %}
+      {% include 'biblion/_other_edition.html' %}
+    {% endwith %}
+
+    <!-- REPRODUCTION OF -->
+    {% with fieldLabel=_('Reproduction of'), data=record.reproductionOf, header=true %}
+      {% include 'biblion/_other_edition.html' %}
+    {% endwith %}
+
+    <!-- ELECTRONIC LOCATOR (Other accesses, types in filters) -->
+    {% if record.electronicLocator %}
+      {% set resources = record | get_other_accesses %}
+      {% if resources | length > 0 %}
+        <ul class="list-unstyled mb-0">
+        {% for resource in resources %}
+          <li>
+            <a target="_blank" href="{{ resource.url }}">
+              <i class="fa-solid fa-link"></i> {{ _(resource.type) }}
+              {% if resource.content %}
+                : {{ resource.content }}
+              {% endif %}
+            </a>
+            {% if resource.public_note %}({{ resource.public_note }}){% endif %}
+          </li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+
+    <!-- SUMMARY -->
+    {% if record.summary %}
+    <div class="pt-2">
+      {% for sum in record.summary %}
+        {% for data in sum.label %}
+          <div>
+            <!-- {% if data.language %}
+              <span class="badge badge-secondary">
+                {{ _('lang_script_' + data.language) }}
+              </span>
+            {% endif %} -->
+            {% if data.value | length > 400 %}
+              <span data-show-more="{{ data.value | escape | nl2br | safe }}">
+                {{ data.value | nl2br | safe | truncate(400) }}
+              </span>
+              <a href="#" class="show-more">{{ _('Show more') }}&hellip;</a>
+            {% else %}
+              {{ data.value | nl2br | safe }}
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- SUBJECTS TERM -->
+    {% if record.subjects %}
+      <div class="pt-2">
+      {% for subject in record.subjects %}
+        <span class="badge badge-secondary my-0" title="{{ _(subject.type) }}">
+          {% if 'entity' in subject %}
+            {% set type, value, label = subject.entity | doc_entity_label(language=current_i18n.language) %}
+            {% if 'textual' == type %}
+              {% set query = 'subjects.entity.authorized_access_point_' ~ current_i18n.language ~ ':"' ~ value ~ '"' %}
+            {% elif type in ['local', 'remote'] %}
+              {% set query = 'subjects.entity.pids.' ~ type ~ ':' ~ value %}
+            {% endif %}
+            <i class="fa-solid fa-tag"></i>
+            {% if query %}
+              <a class="text-white" href="{{ url_for('biblion.search', viewcode=viewcode, recordType='documents', q=query, simple=0) }}">{{ label }}</a>
+            {% else %}
+              {{ label }}
+            {% endif %}
+          {% endif %}
+        </span>
+      {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- GENRE FORM -->
+    {% if 'genreForm' in record %}
+      <div class="pt-2">
+        {% for genreForm in record.genreForm %}
+          {% if 'entity' in genreForm %}
+          {% set type, value, label = genreForm.entity | doc_entity_label(language=current_i18n.language) %}
+          {% if 'textual' == type %}
+            {% set query = 'genreForm.entity.authorized_access_point_' ~ current_i18n.language ~ ':"' ~ value ~ '"' %}
+          {% elif type in ['local', 'remote'] %}
+            {% set query = 'genreForm.entity.pids.' ~ type ~ ':' ~ value %}
+          {% endif %}
+          <span class="mr-1">
+            <i class="fa-solid fa-tag"></i>
+            {% if query %}
+              <a href="{{ url_for('biblion.search', viewcode=viewcode, recordType='documents', q=query, simple=0) }}">{{ label }}</a>
+            {% else %}
+              {{ label }}
+            {% endif %}
+          </span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- LINKED DOCUMENTS -->
+    {% if linked_documents_count and linked_documents_count > 0 %}
+      <a
+        class="btn btn-sm btn-outline-primary mt-3"
+        href="{{ url_for('biblion.search', viewcode=viewcode, recordType='documents', q='partOf.document.pid:' ~ record.pid, simple=0) }}"
+      >
+        <i class="fa-solid fa-list" aria-hidden="true"></i>
+        {{ linked_documents_count }}
+        {% if linked_documents_count < 2 %}
+        {{ _('article/volume') }}
+        {% else %}
+        {{ _('articles/volumes') }}
+        {% endif %}
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% if viewcode | babeltheque_enabled_view and isbn is not none %}
+    <!-- BABELTHEQUE -->
+    <input id="BW_id_isbn" class="d-none" value="{{ isbn }}"></input>
+    <!-- Hidden on XS and SM screens -->
+    <div class="babelio-block d-none d-md-flex d-lg-flex d-xl-flex d-xxl-flex">
+      <div id="BW_suggestions"></div>
+      <div id="BW_etiquettes"></div>
+    </div>
+  {% endif %}
+
+{%- block record_body %}
+<section>
+  <article class="mt-4">
+    <div class="rero-ils-ui">
+      <public-search-document
+        documentpid="{{ record.pid }}"
+        showinfo="{{(viewcode | babeltheque_enabled_view and isbn is not none)| string | lower}}"
+        viewcode="{{ viewcode }}"
+      >
+        {% if viewcode | babeltheque_enabled_view and isbn is not none %}
+        <!-- More info will be displayed by the Angular app so that it doesn't load before it -->
+        <more-info style="display:none">
+          <!-- BABELTHEQUE -->
+          <aside class="mt-3">Babelio</aside>
+          <div class="babelio-block">
+            <div>
+              <div id="BW_critiques"></div>
+              <div id="BW_notes">{{ _('No additional information yet.') }}</div>
+            </div>
+            <div id="BW_citations"></div>
+            <div id="BW_critiques_pro"></div>
+            <div id="BW_prix_litt"></div>
+          </div>
+          <div id="BW_bio_auteur"></div>
+          <div class="babelio-block mt-3">
+            <div id="BW_videos"></div>
+            <div id="BW_podcasts"></div>
+          </div>
+        </more-info>
+        {% endif %}
+    </public-search-document>
+    </div>
+  </article>
+</section>
+{%- endblock record_body %}
+
+{%- endblock body %}
+
+{%- block javascript %}
+  {{ super() }}
+  {{ angular_assets('@rero/rero-ils-ui/dist/public-holdings-items/browser', 'modulepreload') }}
+  {{ angular_assets('@rero/rero-ils-ui/dist/public-holdings-items/browser', 'js') }}
+  {% if viewcode | babeltheque_enabled_view and isbn is not none %}
+    <script type="text/javascript" src="https://www.babelio.com/bw_330.js"></script>
+  {% endif %}
+{% endblock javascript %}

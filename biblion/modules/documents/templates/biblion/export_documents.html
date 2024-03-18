@@ -1,0 +1,14 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends "biblion/detailed_view_documents.html" %}
+{%- set canonical_url = url_for('invenio_records_ui.doc', viewcode=viewcode, pid_value=pid.pid_value) %}
+
+{% block record_body %}
+  <section class="mt-4">
+    <h3 itemprop="name">{{ format_title }} Export</h3>
+     <article class="card bg-light mb-4">
+      <pre class="mb-0 p-2 text-muted">{{ data|safe }}</pre>
+    </article>
+  </section>
+{% endblock record_body %}
