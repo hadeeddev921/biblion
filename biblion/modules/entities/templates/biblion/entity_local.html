@@ -1,0 +1,49 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% from 'biblion/macros/entity.html' import dl, dl_bool, dl_permalink_by_source %}
+
+{% extends 'biblion/page.html' %}
+{%- set title = _('Author/Subject') ~ ' | Biblion' %}
+
+{% set pid = record.pid %}
+
+{%- block body %}
+<header class="row">
+  <div class="col-10">
+    <h1 class="mb-0">
+      <i class="{{ record['type'] | entity_icon }}" title="{{ _(record['type']) }}" aria-hidden="true"></i>
+      {{ record.authorized_access_point }}
+    </h1>
+    <small>{{ _('LOCAL ID') }}: {{ pid }}</small>
+  </div>
+  <div class="col-2 pt-2">
+    {% include 'biblion/_search_link.html' %}
+  </div>
+</header>
+<dl class="row mt-4">
+  {% if record['type'] == 'bf:Organisation' %}
+  {% include 'biblion/_local_organisation.html' %}
+  {% elif record['type'] == 'bf:Person' %}
+  {% include 'biblion/_local_person.html' %}
+  {% elif record['type'] == 'bf:Place' %}
+  {% include 'biblion/_local_place.html' %}
+  {% elif record['type'] == 'bf:Temporal' %}
+  {% include 'biblion/_local_temporal.html' %}
+  {% elif record['type'] == 'bf:Topic' %}
+  {% include 'biblion/_local_topic.html' %}
+  {% elif record['type'] == 'bf:Work' %}
+  {% include 'biblion/_local_work.html' %}
+  {% endif %}
+
+  <!-- Common fields for all types -->
+  {{ dl(_('Source catalog'), record.source_catalog) }}
+  {% if record.identifier %}
+  <dt class="col-md-3 col-lg-3 biblion-term mb-1">{{ _('Identifier') }}</dt>
+  <dd class="col-md-9 col-lg-9 mb-1">
+    {{ _(record.identifier.type) }} - {{ record.identifier.value }}
+    {% if record.identifier.source %}({{ record.identifier.source }}){% endif %}
+  </dd>
+  {% endif %}
+</dl>
+{%- endblock body %}

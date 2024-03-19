@@ -1,0 +1,20 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<!-- DATE OF ESTABLISHMENT -->
+{{ dl(_('Date establishment'), data.date_of_establishment) }}
+<!-- DATE OF TERMINATION -->
+{{ dl(_('Death termination'), data.date_of_termination) }}
+<!-- LANGUAGE -->
+{% if data.language %}
+  {{ dl(_('Language'), data.language|translate('lang_')) }}
+{% endif %}
+<!-- COUNTRY ASSOCIATED -->
+{% if data.country_associated %}
+  {{ dl(_('Associated country'), data.country_associated|translate('country_')) }}
+{% endif %}
+<!-- AUTHORIZED ACCESS POINT -->
+{{ dl(_('Authorized access point'), data.authorized_access_point) }}
+<!-- VARIANT NAME -->
+{{ dl(_('Variant access point'), data.variant_access_point) }}
+

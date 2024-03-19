@@ -1,0 +1,27 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<!-- DATE OF BIRTH -->
+{% if data.date_of_birth %}
+  {{ dl(_('Birth date'), data.date_of_birth) }}
+{% endif %}
+<!-- DATE OF DEATH -->
+{% if data.date_of_death %}
+  {{ dl(_('Death date'), data.date_of_death) }}
+{% endif %}
+<!-- LANGUAGE -->
+{% if data.language %}
+  {{ dl(_('Language'), data.language|translate('lang_')) }}
+{% endif %}
+<!-- GENDER -->
+{{ dl(_('Gender'), data.gender) }}
+<!-- BIBLIOGRAPHICAL INFORMATION -->
+{% if data.biographical_information %}
+{{ dl(_('Biographical information'), data.biographical_information | join('\n') | urlActive('_blank') | nl2br | safe ) }}
+{% endif %}
+<!-- NAME -->
+{{ dl(_('Name'), data.name) }}
+<!-- VARIANT ACCESS POINT -->
+{{ dl(_('Variant access point'), data.variant_access_point) }}
+<!-- AUTHORIZED ACCESS POINT -->
+{{ dl(_('Authorized access point'), data.authorized_access_point) }}
