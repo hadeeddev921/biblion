@@ -1,0 +1,173 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Click command-line utilities."""
+
+from contextlib import contextmanager
+
+import click
+from flask.cli import with_appcontext
+
+from .replace import ReplaceIdentifiedBy
+from .sync import SyncEntity, SyncLocked, sync_lock
+
+
+@contextmanager
+def _write_lock(dry_run, force):
+    """Hold the synchronization lock for a command that writes.
+
+    A dry run writes nothing, it runs without the lock.
+
+    :param dry_run: the command runs in dry run mode.
+    :param force: take the lock over when another run holds it.
+    :raises click.ClickException: if another synchronization is running.
+    """
+    if dry_run:
+        yield
+        return
+    try:
+        with sync_lock(force=force):
+            yield
+    except SyncLocked as err:
+        raise click.ClickException(f"{err}: retry later, or pass --force if it died") from err
+
+
+@click.group()
+def entity():
+    """Entity management commands."""
+
+
+@entity.command()
+@click.option("-q", "--query", default="*")
+@click.option("-n", "--dry-run", is_flag=True, default=False)
+@click.option("-d", "--from-last-date", is_flag=True, default=False)
+@click.option("-v", "--verbose", count=True, default=0)
+@click.option("-l", "--log-dir", default=None)
+@click.option("-f", "--from-date", type=click.DateTime(formats=["%Y-%m-%d"]), default=None)
+@click.option("-m", "--in-memory", is_flag=True, default=False)
+@click.option("--force", is_flag=True, default=False, help="Run even if another synchronization holds the lock.")
+@with_appcontext
+def sync(query, dry_run, from_last_date, verbose, log_dir, from_date, in_memory, force):
+    """Updated the MEF records and the linked documents."""
+    with _write_lock(dry_run, force):
+        sync_entity = SyncEntity(dry_run=dry_run, verbose=verbose, log_dir=log_dir, from_last_date=from_last_date)
+        if verbose:
+            sync_entity.sync(query, from_date)
+            return
+        sync_entity.start_sync()
+        pids, total = sync_entity.get_entities_pids(query, from_date)
+        if in_memory:
+            pids = list(pids)
+        n_updated = 0
+        doc_updated = set()
+        err_pids = []
+        try:
+            with click.progressbar(pids, length=total) as bar:
+                for pid in bar:
+                    current_doc_updated, updated, error = sync_entity.sync_record(pid)
+                    doc_updated.update(current_doc_updated)
+                    if updated:
+                        n_updated += 1
+                    if error:
+                        err_pids.append(pid)
+        except Exception:
+            # a failing MEF endpoint aborts the whole run: record what has been
+            # collected so far, then let the error surface.
+            sync_entity.end_sync(len(doc_updated), n_updated, err_pids, completed=False)
+            raise
+        n_doc_updated = len(doc_updated)
+        sync_entity.end_sync(n_doc_updated, n_updated, err_pids)
+        if err_pids:
+            click.secho(f"ERROR: MEF pids: {err_pids}", fg="red")
+
+
+@entity.command()
+@click.option("-q", "--query", default="*")
+@click.option("-n", "--dry-run", is_flag=True, default=False)
+@click.option("-v", "--verbose", count=True, default=0)
+@click.option("-l", "--log-dir", default=None)
+@click.option("--force", is_flag=True, default=False, help="Run even if another synchronization holds the lock.")
+@with_appcontext
+def clean(query, dry_run, verbose, log_dir, force):
+    """Removes MEF records that are not linked to documents."""
+    with _write_lock(dry_run, force):
+        sync_entity = SyncEntity(dry_run=dry_run, verbose=verbose, log_dir=log_dir)
+        if verbose:
+            sync_entity.remove_unused(query)
+            return
+        sync_entity.start_clean()
+        pids, total = sync_entity.get_entities_pids(query)
+        n_removed = 0
+        err_pids = []
+        with click.progressbar(pids, length=total) as bar:
+            for pid in bar:
+                try:
+                    n_removed += int(sync_entity.remove_unused_record(pid))
+                except Exception:
+                    err_pids.append(pid)
+
+        click.secho(f"{n_removed} removed MEF records", fg="green")
+        if err_pids:
+            click.secho(f"ERROR: MEF pids: {err_pids}", fg="red")
+
+
+@entity.command()
+@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-v", "--verbose", count=True, default=0)
+@with_appcontext
+def sync_errors(clear, verbose):
+    """Removes errors in the cache information."""
+    errors = SyncEntity.get_errors()
+    if verbose:
+        click.echo(f"Errors MEF pids: {errors}")
+    if clear:
+        SyncEntity.clear_errors()
+        click.secho(f"Removed {len(errors)} errors", fg="yellow")
+
+
+@entity.command("replace-identified-by")
+@click.option("-f", "--field", multiple=True, default=None)
+@click.option("-n", "--dry-run", is_flag=True, default=False)
+@click.option("-v", "--verbose", count=True, default=0)
+@click.option("-l", "--log-dir", default=None)
+@with_appcontext
+def replace_identified_by_cli(field, dry_run, verbose, log_dir):
+    """Replace local identifiedBy entities with MEF $ref links.
+
+    Runs :class:`ReplaceIdentifiedBy` over each requested field (all fields by
+    default) and prints a per-field summary: changed, not found, RERO only,
+    type mismatch and type-not-allowed counts. With -v, also lists the
+    offending identifiers.
+    Use -n/--dry-run to report without modifying any document.
+    """
+    for parent in field or ReplaceIdentifiedBy.fields:
+        replace_identified_by = ReplaceIdentifiedBy(field=parent, verbose=verbose, dry_run=dry_run, log_dir=log_dir)
+        changed, not_found, rero_only = replace_identified_by.run()
+        type_mismatch = sum(len(values) for values in replace_identified_by.type_mismatch.values())
+        type_not_allowed = sum(len(values) for values in replace_identified_by.type_not_allowed.values())
+        click.secho(
+            f"{parent:<12} | Changed: {changed} | Not found: {not_found} | RERO only: {rero_only} | "
+            f"Type mismatch: {type_mismatch} | Type not allowed: {type_not_allowed}",
+            fg="green",
+        )
+        if verbose:
+            if replace_identified_by.not_found:
+                click.secho("Not found:", fg="yellow")
+                for etype, values in replace_identified_by.not_found.items():
+                    for pid, data in values.items():
+                        click.echo(f"\t{etype} {pid}: {data}")
+            if replace_identified_by.rero_only:
+                click.secho("RERO only:", fg="yellow")
+                for etype, values in replace_identified_by.rero_only.items():
+                    for pid, data in values.items():
+                        click.echo(f"\t{etype} {pid}: {data}")
+            if replace_identified_by.type_mismatch:
+                click.secho("Type mismatch:", fg="yellow")
+                for etype, values in replace_identified_by.type_mismatch.items():
+                    for pid, data in values.items():
+                        click.echo(f"\t{etype} {pid}: {data}")
+            if replace_identified_by.type_not_allowed:
+                click.secho("Type not allowed:", fg="red")
+                for etype, values in replace_identified_by.type_not_allowed.items():
+                    for pid, data in values.items():
+                        click.echo(f"\t{etype} {pid}: {data}")
