@@ -1,0 +1,1108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Holdings",
+  "description": "Describes a set of items linked to a document and belonging to a library.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "holdings_type",
+    "circulation_category",
+    "organisation",
+    "library",
+    "location",
+    "document"
+  ],
+  "propertiesOrder": [
+    "location",
+    "circulation_category",
+    "call_number",
+    "second_call_number",
+    "holdings_type",
+    "enumerationAndChronology",
+    "acquisition_status",
+    "patterns",
+    "vendor",
+    "client_id",
+    "order_reference",
+    "supplementaryContent",
+    "index",
+    "missing_issues",
+    "issue_binding",
+    "acquisition_method",
+    "acquisition_expected_end_date",
+    "general_retention_policy",
+    "completeness",
+    "composite_copy_report",
+    "notes",
+    "_masked"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "default": "https://bib.rero.ch/schemas/holdings/holding-v0.0.1.json",
+      "minLength": 9
+    },
+    "pid": {
+      "title": "Persistant identifier",
+      "type": "string",
+      "minLength": 1
+    },
+    "call_number": {
+      "title": "Call number",
+      "type": "string"
+    },
+    "second_call_number": {
+      "title": "Second call number",
+      "type": "string",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "circulation_category": {
+      "title": "Circulation type",
+      "type": "object",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Circulation category URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/item_types/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "remoteOptions": {
+                  "type": "item_types"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "location": {
+      "title": "Location",
+      "type": "object",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Location URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/locations/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "fieldMap": "location"
+              }
+            }
+          }
+        }
+      }
+    },
+    "document": {
+      "title": "Parent document",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Parent document URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/documents/.*?$"
+        }
+      }
+    },
+    "electronic_location": {
+      "title": "Electronic locations",
+      "description": "Information needed to locate and access to an electronic resource.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Electronic location",
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "uri": {
+            "title": "URI",
+            "type": "string",
+            "format": "uri",
+            "pattern": "^(ftps?|https?)://.*$",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "validation": {
+                    "messages": {
+                      "patternMessage": "This URL is invalid."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "holdings_type": {
+      "title": "Type",
+      "type": "string",
+      "default": "serial",
+      "enum": [
+        "standard",
+        "electronic",
+        "serial"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true
+          }
+        }
+      }
+    },
+    "patterns": {
+      "title": "Predictions",
+      "type": "object",
+      "required": [
+        "values",
+        "template",
+        "frequency",
+        "next_expected_date"
+      ],
+      "propertiesOrder": [
+        "language",
+        "template",
+        "frequency",
+        "next_expected_date",
+        "values"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "template": {
+          "title": "Template",
+          "description": "This template define how a prediction is displayed. i.e. year 2020; vol.1, iss. 4. It should contains the variable field between {{}} with the corresponding pattern and level name.",
+          "type": "string",
+          "minLength": 3,
+          "pattern": ".*?\\{\\{.*?\\}\\}.*?",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "validation": {
+                  "messages": {
+                    "patternMessage": "Should contains at least one variable between {{ }}."
+                  }
+                },
+                "placeholder": "Example: Vol. {{numbering.volume}}, {{expected_date.year}}"
+              }
+            }
+          }
+        },
+        "frequency": {
+          "title": "Frequency",
+          "type": "string",
+          "enum": [
+            "rdafr:1001",
+            "rdafr:1002",
+            "rdafr:1003",
+            "rdafr:1004",
+            "rdafr:1005",
+            "rdafr:1006",
+            "rdafr:1007",
+            "rdafr:1008",
+            "rdafr:1009",
+            "rdafr:1010",
+            "rdafr:1011",
+            "rdafr:1012",
+            "rdafr:1013",
+            "rdafr:1014",
+            "rdafr:1015"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "options": [
+                  {
+                    "label": "rdafr:1013",
+                    "value": "rdafr:1013"
+                  },
+                  {
+                    "label": "rdafr:1014",
+                    "value": "rdafr:1014"
+                  },
+                  {
+                    "label": "rdafr:1007",
+                    "value": "rdafr:1007"
+                  },
+                  {
+                    "label": "rdafr:1003",
+                    "value": "rdafr:1003"
+                  },
+                  {
+                    "label": "rdafr:1001",
+                    "value": "rdafr:1001"
+                  },
+                  {
+                    "label": "rdafr:1008",
+                    "value": "rdafr:1008"
+                  },
+                  {
+                    "label": "rdafr:1010",
+                    "value": "rdafr:1010"
+                  },
+                  {
+                    "label": "rdafr:1012",
+                    "value": "rdafr:1012"
+                  },
+                  {
+                    "label": "rdafr:1009",
+                    "value": "rdafr:1009"
+                  },
+                  {
+                    "label": "rdafr:1005",
+                    "value": "rdafr:1005"
+                  },
+                  {
+                    "label": "rdafr:1006",
+                    "value": "rdafr:1006"
+                  },
+                  {
+                    "label": "rdafr:1002",
+                    "value": "rdafr:1002"
+                  },
+                  {
+                    "label": "rdafr:1011",
+                    "value": "rdafr:1011"
+                  },
+                  {
+                    "label": "rdafr:1015",
+                    "value": "rdafr:1015"
+                  },
+                  {
+                    "label": "rdafr:1004",
+                    "value": "rdafr:1004"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "next_expected_date": {
+          "type": "string",
+          "format": "date",
+          "title": "The expected date for the next issue",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "validationMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "values": {
+          "title": "Prediction patterns",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Prediction pattern",
+            "type": "object",
+            "required": [
+              "name",
+              "levels"
+            ],
+            "propertiesOrder": [
+              "name",
+              "levels"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "type": "string",
+                "description": "It should be used in the display template. i.e. chronology, enumeration.",
+                "minLength": 1,
+                "widget": {
+                  "formlyConfig": {
+                    "props": {
+                      "placeholder": "Example: numbering"
+                    }
+                  }
+                }
+              },
+              "levels": {
+                "title": "Chronology levels",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "title": "Chronology level",
+                  "type": "object",
+                  "oneOf": [
+                    {
+                      "title": "Number based prediction",
+                      "required": [
+                        "number_name"
+                      ],
+                      "propertiesOrder": [
+                        "number_name",
+                        "starting_value",
+                        "completion_value",
+                        "next_value"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "number_name": {
+                          "title": "Name",
+                          "type": "string",
+                          "description": "It should be used in the display template. i.e. year, month, volume, issue, etc.",
+                          "minLength": 1,
+                          "widget": {
+                            "formlyConfig": {
+                              "props": {
+                                "placeholder": "Example: volume"
+                              }
+                            }
+                          }
+                        },
+                        "starting_value": {
+                          "title": "Starting value",
+                          "description": "First value of the sequence.",
+                          "type": "integer",
+                          "minimum": 1,
+                          "widget": {
+                            "formlyConfig": {
+                              "props": {
+                                "placeholder": "Example: 1"
+                              }
+                            }
+                          }
+                        },
+                        "completion_value": {
+                          "title": "Completion of the values",
+                          "description": "Last value of the sequence. If it is not defined the sequence will continue until the infinity.",
+                          "type": "integer",
+                          "minimum": 1,
+                          "widget": {
+                            "formlyConfig": {
+                              "props": {
+                                "placeholder": "Example: 12"
+                              }
+                            }
+                          }
+                        },
+                        "next_value": {
+                          "title": "Next predicted value",
+                          "description": "Can be used to correct the next current prediction.",
+                          "type": "integer",
+                          "minimum": 1,
+                          "widget": {
+                            "formlyConfig": {
+                              "props": {
+                                "placeholder": "Example: 3"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "title": "List based prediction (used for seasons, months...)",
+                      "required": [
+                        "list_name",
+                        "mapping_values"
+                      ],
+                      "propertiesOrder": [
+                        "list_name",
+                        "mapping_values",
+                        "next_value"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "list_name": {
+                          "title": "Name",
+                          "description": "It should be used in the display template. i.e. year, month, volume, issue.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "mapping_values": {
+                          "title": "Values",
+                          "type": "array",
+                          "uniqueItems": true,
+                          "minItems": 1,
+                          "items": {
+                            "title": "Value",
+                            "description": "Use a value instead of a number. i.e. january, 2nd, quarter.",
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "next_value": {
+                          "title": "Next predicted value",
+                          "description": "Can be used to correct the next current prediction. The value is the current position of the value in the list.",
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "max_number_of_claims": {
+          "title": "Maximum number of claims",
+          "description": "After this number, no further claims will be sent. 0 means that no claims will be sent.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "days_before_first_claim": {
+          "title": "Number of days before 1st claim",
+          "description": "If the item is not received, this defines the number of days from the expected date after which it is claimed.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "days_before_next_claim": {
+          "title": "Number of days before next claims",
+          "description": "If the item is not received, this defines the number of days from the last claim date after which it is claimed again.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "language": {
+          "title": "Language",
+          "type": "string",
+          "$ref": "https://bib.rero.ch/schemas/common/languages-v0.0.1.json#/language"
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "vendor": {
+      "title": "Vendor",
+      "type": "object",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Vendor URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/vendors/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "placeholder": "Choose a vendor",
+                "remoteOptions": {
+                  "type": "vendors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "client_id": {
+      "title": "Client ID",
+      "description": "The client reference ID at the vendor.",
+      "type": "string",
+      "minLength": 2,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "order_reference": {
+      "title": "Order reference",
+      "description": "The vendor order reference.",
+      "type": "string",
+      "minLength": 2,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "enumerationAndChronology": {
+      "title": "Collection",
+      "description": "Textual description of the basic bibliographic unit of the holding.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "type": "textarea",
+          "props": {
+            "rows": 2
+          }
+        }
+      }
+    },
+    "supplementaryContent": {
+      "title": "Supplements",
+      "description": "Textual description of supplementary contents (special issues, etc.).",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "index": {
+      "title": "Indexes",
+      "description": "Textual description of the indexes.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "missing_issues": {
+      "title": "Missing issues",
+      "description": "Textual description of the missing issues.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "issue_binding": {
+      "title": "Number of issues to be bound together",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "general_note",
+              "staff_note",
+              "conservation_note",
+              "reception_note",
+              "claim_note",
+              "routing_note",
+              "binding_note",
+              "acquisition_note",
+              "access_note"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "general_note",
+                      "value": "general_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    },
+                    {
+                      "label": "conservation_note",
+                      "value": "conservation_note"
+                    },
+                    {
+                      "label": "reception_note",
+                      "value": "reception_note"
+                    },
+                    {
+                      "label": "claim_note",
+                      "value": "claim_note"
+                    },
+                    {
+                      "label": "routing_note",
+                      "value": "routing_note"
+                    },
+                    {
+                      "label": "binding_note",
+                      "value": "binding_note"
+                    },
+                    {
+                      "label": "acquisition_note",
+                      "value": "acquisition_note"
+                    },
+                    {
+                      "label": "access_note",
+                      "value": "access_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 10000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "rows": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            },
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "acquisition_status": {
+      "title": "Acquisition status",
+      "type": "string",
+      "default": "currently_received",
+      "enum": [
+        "unknown",
+        "other_receipt_or_acquisition_status",
+        "received_and_complete_or_ceased",
+        "on_order",
+        "currently_received",
+        "not_currently_received"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "expressions": {
+            "props.required": "model && model.holdings_type === 'serial'"
+          },
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "not_currently_received",
+                "value": "not_currently_received"
+              },
+              {
+                "label": "currently_received",
+                "value": "currently_received"
+              },
+              {
+                "label": "received_and_complete_or_ceased",
+                "value": "received_and_complete_or_ceased"
+              },
+              {
+                "label": "on_order",
+                "value": "on_order"
+              },
+              {
+                "label": "other_receipt_or_acquisition_status",
+                "value": "other_receipt_or_acquisition_status"
+              },
+              {
+                "label": "unknown",
+                "value": "unknown"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "acquisition_method": {
+      "title": "Acquisition method",
+      "type": "string",
+      "enum": [
+        "deposit",
+        "cooperative_or_consortial_purchase",
+        "exchange",
+        "free",
+        "gift",
+        "legal_deposit",
+        "membership",
+        "non_library_purchase",
+        "purchase",
+        "lease",
+        "unknown",
+        "other_method_of_acquisition"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "deposit",
+                "value": "deposit"
+              },
+              {
+                "label": "cooperative_or_consortial_purchase",
+                "value": "cooperative_or_consortial_purchase"
+              },
+              {
+                "label": "exchange",
+                "value": "exchange"
+              },
+              {
+                "label": "free",
+                "value": "free"
+              },
+              {
+                "label": "gift",
+                "value": "gift"
+              },
+              {
+                "label": "legal_deposit",
+                "value": "legal_deposit"
+              },
+              {
+                "label": "membership",
+                "value": "membership"
+              },
+              {
+                "label": "non_library_purchase",
+                "value": "non_library_purchase"
+              },
+              {
+                "label": "purchase",
+                "value": "purchase"
+              },
+              {
+                "label": "lease",
+                "value": "lease"
+              },
+              {
+                "label": "unknown",
+                "value": "unknown"
+              },
+              {
+                "label": "other_method_of_acquisition",
+                "value": "other_method_of_acquisition"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "acquisition_expected_end_date": {
+      "title": "Expected acquisition end date",
+      "description": "Indicate an intent to cancel, the effective date of a cancellation, or the date of the last expected part of a multipart or serial item.",
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "wrappers": [
+            "form-field"
+          ],
+          "props": {
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD)."
+              }
+            },
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "general_retention_policy": {
+      "title": "General retention policy",
+      "type": "string",
+      "enum": [
+        "unknown",
+        "other_general_retention_policy",
+        "retained_except_as_replaced_by_updates",
+        "sample_issue_retained",
+        "retained_until_replaced_by_microform",
+        "retained_until_replaced_by_cumulation_replacement_volume_or_revision",
+        "retained_for_a_limited_period",
+        "not_retained",
+        "permanently_retained"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "unknown",
+                "value": "unknown"
+              },
+              {
+                "label": "other_general_retention_policy",
+                "value": "other_general_retention_policy"
+              },
+              {
+                "label": "retained_except_as_replaced_by_updates",
+                "value": "retained_except_as_replaced_by_updates"
+              },
+              {
+                "label": "sample_issue_retained",
+                "value": "sample_issue_retained"
+              },
+              {
+                "label": "retained_until_replaced_by_microform",
+                "value": "retained_until_replaced_by_microform"
+              },
+              {
+                "label": "retained_until_replaced_by_cumulation_replacement_volume_or_revision",
+                "value": "retained_until_replaced_by_cumulation_replacement_volume_or_revision"
+              },
+              {
+                "label": "retained_for_a_limited_period",
+                "value": "retained_for_a_limited_period"
+              },
+              {
+                "label": "not_retained",
+                "value": "not_retained"
+              },
+              {
+                "label": "permanently_retained",
+                "value": "permanently_retained"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "completeness": {
+      "title": "Completeness",
+      "description": "Estimation of the general extent of the holdings for a multipart.",
+      "type": "string",
+      "enum": [
+        "other",
+        "complete",
+        "incomplete",
+        "scattered",
+        "not_applicable"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "other",
+                "value": "other"
+              },
+              {
+                "label": "complete",
+                "value": "complete"
+              },
+              {
+                "label": "incomplete",
+                "value": "incomplete"
+              },
+              {
+                "label": "scattered",
+                "value": "scattered"
+              },
+              {
+                "label": "not_applicable",
+                "value": "not_applicable"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "composite_copy_report": {
+      "title": "Separate or composite copy report",
+      "description": "A separate copy report contains holdings information for one copy/subscription of a serial. If the holdings describes more than one copy/subscription, choose composite.",
+      "type": "string",
+      "enum": [
+        "separate",
+        "composite"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "separate",
+                "value": "separate"
+              },
+              {
+                "label": "composite",
+                "value": "composite"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "_masked": {
+      "title": "Masked",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
