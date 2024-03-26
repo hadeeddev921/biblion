@@ -1,0 +1,213 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "items_count": {
+        "type": "integer"
+      },
+      "public_items_count": {
+        "type": "integer"
+      },
+      "call_number": {
+        "type": "text"
+      },
+      "second_call_number": {
+        "type": "text"
+      },
+      "circulation_category": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "location": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "document": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "electronic_location": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "keyword"
+          },
+          "source": {
+            "type": "keyword"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "holdings_type": {
+        "type": "text",
+        "analyzer": "custom_keyword"
+      },
+      "patterns": {
+        "properties": {
+          "template": {
+            "type": "keyword"
+          },
+          "frequency": {
+            "type": "keyword"
+          },
+          "next_expected_date": {
+            "type": "date"
+          },
+          "values": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              },
+              "levels": {
+                "properties": {
+                  "number_name": {
+                    "type": "keyword"
+                  },
+                  "list_name": {
+                    "type": "keyword"
+                  },
+                  "starting_value": {
+                    "type": "integer"
+                  },
+                  "next_value": {
+                    "type": "integer"
+                  },
+                  "completion_value": {
+                    "type": "integer"
+                  },
+                  "mapping_values": {
+                    "type": "keyword"
+                  }
+                }
+              }
+            }
+          },
+          "max_number_of_claims": {
+            "type": "integer"
+          },
+          "days_before_first_claim": {
+            "type": "integer"
+          },
+          "days_before_next_claim": {
+            "type": "integer"
+          },
+          "language": {
+            "type": "keyword"
+          }
+        }
+      },
+      "vendor": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "client_id": {
+        "type": "keyword"
+      },
+      "order_reference": {
+        "type": "keyword"
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
+      "enumerationAndChronology": {
+        "type": "keyword"
+      },
+      "supplementaryContent": {
+        "type": "keyword"
+      },
+      "index": {
+        "type": "keyword"
+      },
+      "missing_issues": {
+        "type": "keyword"
+      },
+      "issue_binding": {
+        "type": "keyword"
+      },
+      "acquisition_status": {
+        "type": "keyword"
+      },
+      "acquisition_method": {
+        "type": "keyword"
+      },
+      "acquisition_expected_end_date": {
+        "type": "date"
+      },
+      "general_retention_policy": {
+        "type": "keyword"
+      },
+      "completeness": {
+        "type": "keyword"
+      },
+      "composite_copy_report": {
+        "type": "keyword"
+      },
+      "_masked": {
+        "type": "boolean"
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
