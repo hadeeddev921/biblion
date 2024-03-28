@@ -1,0 +1,818 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Item",
+  "description": "Describes a physical or online object linked to a holdings/document.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "organisation",
+    "library",
+    "type",
+    "document",
+    "status"
+  ],
+  "propertiesOrder": [
+    "barcode",
+    "call_number",
+    "second_call_number",
+    "enumerationAndChronology",
+    "item_type",
+    "temporary_item_type",
+    "location",
+    "temporary_location",
+    "type",
+    "url",
+    "pac_code",
+    "status",
+    "issue",
+    "price",
+    "notes",
+    "acquisition_date",
+    "_masked"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "description": "Schema to validate item records against.",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/items/item-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Item ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "barcode": {
+      "title": "Barcode",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "focus": true,
+          "props": {
+            "labelClasses": "ui:col-span-2 text-right",
+            "doNotSubmitOnEnter": true,
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {}
+              },
+              "messages": {
+                "alreadyTakenMessage": "This barcode is already taken."
+              }
+            },
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "call_number": {
+      "title": "Call number",
+      "type": "string",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "labelClasses": "ui:col-span-2 text-right",
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "second_call_number": {
+      "title": "Second call number",
+      "type": "string",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "labelClasses": "ui:col-span-2 text-right",
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "enumerationAndChronology": {
+      "title": "Unit",
+      "type": "string",
+      "minLength": 1,
+      "description": "Numbering or other enumeration and dates associated with the issue or item.",
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "model && model.type === 'issue'"
+          },
+          "props": {
+            "labelClasses": "ui:col-span-2 text-right px-0",
+            "navigation": {
+              "essential": true
+            },
+            "placeholder": "Example: Volume 1"
+          }
+        }
+      }
+    },
+    "location": {
+      "title": "Location",
+      "type": "object",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Location URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/locations/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "fieldMap": "location"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "field?.parent?.model?.type !== 'issue'",
+            "hide": "field?.parent?.model?.type === 'issue'"
+          }
+        }
+      }
+    },
+    "document": {
+      "title": "Document",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Document URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/documents/.+?$",
+          "default": "https://bib.rero.ch/api/documents/"
+        }
+      }
+    },
+    "item_type": {
+      "title": "Item type",
+      "type": "object",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Item Type URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/item_types/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "remoteOptions": {
+                  "type": "item_types"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "field?.parent?.model?.type !== 'issue'",
+            "hide": "field?.parent?.model?.type === 'issue'"
+          }
+        }
+      }
+    },
+    "temporary_item_type": {
+      "title": "Temporary item type",
+      "description": "Applies a temporary item type which overrides the default one temporarily.",
+      "type": "object",
+      "propertiesOrder": [
+        "$ref",
+        "end_date"
+      ],
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Item Type URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/item_types/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "remoteOptions": {
+                  "type": "item_types"
+                }
+              }
+            }
+          }
+        },
+        "end_date": {
+          "title": "Deletion date",
+          "description": "Date on which this temporary field should be deleted automatically.",
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "temporary_location": {
+      "title": "Temporary location",
+      "additionalProperties": false,
+      "type": "object",
+      "propertiesOrder": [
+        "$ref",
+        "end_date"
+      ],
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Location URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/locations/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "fieldMap": "location"
+              }
+            }
+          }
+        },
+        "end_date": {
+          "title": "Deletion date",
+          "description": "Date on which this temporary field should be deleted automatically.",
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "type": {
+      "title": "Database type of item",
+      "description": "Defines how this item is managed and in the application.",
+      "type": "string",
+      "enum": [
+        "standard",
+        "issue",
+        "provisional"
+      ],
+      "default": "standard",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true
+          }
+        }
+      }
+    },
+    "issue": {
+      "title": "Issue",
+      "type": "object",
+      "required": [
+        "expected_date",
+        "regular",
+        "status"
+      ],
+      "propertiesOrder": [
+        "received_date",
+        "expected_date",
+        "sort_date",
+        "regular",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "title": "Issue status",
+          "type": "string",
+          "default": "received",
+          "enum": [
+            "received",
+            "late",
+            "deleted",
+            "expected"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "type": "select",
+              "props": {
+                "sort": true,
+                "options": [
+                  {
+                    "label": "received",
+                    "value": "received"
+                  },
+                  {
+                    "label": "late",
+                    "value": "late"
+                  },
+                  {
+                    "label": "deleted",
+                    "value": "deleted"
+                  },
+                  {
+                    "label": "expected",
+                    "value": "expected"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "status_date": {
+          "format": "date-time",
+          "title": "Status date",
+          "type": "string"
+        },
+        "received_date": {
+          "format": "date",
+          "title": "Date of reception",
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "validationMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "expressions": {
+                "props.required": "field?.parent?.model?.status === 'received'",
+                "hide": "field?.parent?.model?.status !== 'received'"
+              },
+              "wrappers": [
+                "form-field"
+              ],
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "expected_date": {
+          "format": "date",
+          "title": "Expected date",
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "validationMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sort_date": {
+          "format": "date",
+          "title": "Sorting date",
+          "description": "Date used to sort the issue from the holdings item list. If empty, the issue expected date will be used as sort key.",
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "validationMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+          "widget": {
+            "formlyConfig": {
+              "type": "datePicker",
+              "props": {
+                "validation": {
+                  "messages": {
+                    "pattern": "Should be in the ISO 8601, YYYY-MM-DD."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "regular": {
+          "title": "Regularity",
+          "type": "boolean",
+          "default": true,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "alwaysHidden": true
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "hide": "field?.parent?.model?.type !== 'issue'"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "title": "Circulation status",
+      "default": "on_shelf",
+      "readOnly": true,
+      "enum": [
+        "on_shelf",
+        "on_loan",
+        "missing",
+        "in_transit",
+        "at_desk",
+        "excluded"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "alwaysHidden": true,
+            "sort": true,
+            "options": [
+              {
+                "label": "on_shelf",
+                "value": "on_shelf"
+              },
+              {
+                "label": "on_loan",
+                "value": "on_loan"
+              },
+              {
+                "label": "missing",
+                "value": "missing"
+              },
+              {
+                "label": "in_transit",
+                "value": "in_transit"
+              },
+              {
+                "label": "at_desk",
+                "value": "at_desk"
+              },
+              {
+                "label": "excluded",
+                "value": "excluded"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "holding": {
+      "title": "Holding",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Holding URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/holdings/.+?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "acquisition_note",
+              "binding_note",
+              "checkin_note",
+              "checkout_note",
+              "condition_note",
+              "general_note",
+              "patrimonial_note",
+              "provenance_note",
+              "staff_note"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "acquisition_note",
+                      "value": "acquisition_note"
+                    },
+                    {
+                      "label": "binding_note",
+                      "value": "binding_note"
+                    },
+                    {
+                      "label": "checkin_note",
+                      "value": "checkin_note"
+                    },
+                    {
+                      "label": "checkout_note",
+                      "value": "checkout_note"
+                    },
+                    {
+                      "label": "condition_note",
+                      "value": "condition_note"
+                    },
+                    {
+                      "label": "general_note",
+                      "value": "general_note"
+                    },
+                    {
+                      "label": "patrimonial_note",
+                      "value": "patrimonial_note"
+                    },
+                    {
+                      "label": "provenance_note",
+                      "value": "provenance_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                  "rows": 3
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            },
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "acquisition_date": {
+      "format": "date",
+      "title": "Acquisition date",
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "validationMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "hideLabel": true,
+            "defaultValueExpression": "new Date().toISOString().split('T')[0]",
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "url": {
+      "type": "string",
+      "title": "URL",
+      "format": "uri",
+      "pattern": "^(rtsp?|ftp?|http[s]?)://.*$",
+      "minLength": 7,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "messages": {
+                "patternMessage": "This URL is invalid."
+              }
+            },
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "pac_code": {
+      "title": "PAC code",
+      "description": "Preservation and conservation policy.",
+      "type": "string",
+      "enum": [
+        "0_frozen_collection",
+        "1_reserved",
+        "2_controlled_consumption",
+        "3_consumable",
+        "4_disposable"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "4_disposable",
+                "value": "4_disposable"
+              },
+              {
+                "label": "3_consumable",
+                "value": "3_consumable"
+              },
+              {
+                "label": "2_controlled_consumption",
+                "value": "2_controlled_consumption"
+              },
+              {
+                "label": "1_reserved",
+                "value": "1_reserved"
+              },
+              {
+                "label": "0_frozen_collection",
+                "value": "0_frozen_collection"
+              }
+            ],
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "price": {
+      "title": "Price",
+      "type": "number",
+      "minimum": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "legacy_checkout_count": {
+      "title": "Number of checkouts from previous system",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "_masked": {
+      "title": "Masked",
+      "type": "boolean",
+      "description": "A masked item is visible in the professional interface, but not in the public interface.",
+      "default": false,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "harvested": {
+      "title": "Harvested",
+      "description": "Item is harvested or not, will disable record edition or similar.",
+      "type": "boolean"
+    }
+  }
+}
