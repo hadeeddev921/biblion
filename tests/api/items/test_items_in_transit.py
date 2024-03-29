@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests items in-transit."""
+
+from invenio_accounts.testutils import login_user_via_session
+
+from biblion.modules.items.api import Item
+from biblion.modules.items.models import ItemStatus
+from biblion.modules.loans.models import LoanAction
+from tests.utils import postdata
+
+
+def test_items_in_transit_between_libraries(
+    client,
+    librarian_martigny,
+    librarian_saxon,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    loc_public_saxon,
+    item_lib_martigny,
+    json_header,
+    circulation_policies,
+):
+    """Test item in-transit scenarios."""
+    login_user_via_session(client, librarian_martigny.user)
+    # checkout the item at location A
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_lib_martigny.pid,
+            "patron_pid": patron_martigny.pid,
+            "transaction_location_pid": loc_public_saxon.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    assert Item.get_record_by_pid(item_lib_martigny.pid).get("status") == ItemStatus.ON_LOAN
+    item_data = data.get("metadata")
+    actions = data.get("action_applied")
+    assert item_data.get("status") == ItemStatus.ON_LOAN
+    loan_pid = actions[LoanAction.CHECKOUT].get("pid")
+
+    # checkin the item at location B
+    res, data = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_lib_martigny.pid,
+            "pid": loan_pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    item_data = data.get("metadata")
+    item = Item.get_record_by_pid(item_data.get("pid"))
+    assert item.get("status") == ItemStatus.ON_SHELF

@@ -1,0 +1,1216 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests REST API items."""
+
+import json
+from copy import deepcopy
+from datetime import UTC, datetime
+from unittest import mock
+
+import ciso8601
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+from invenio_db import db
+from invenio_pidstore.models import PersistentIdentifier
+
+from biblion.modules.circ_policies.api import CircPoliciesSearch
+from biblion.modules.holdings.api import Holding
+from biblion.modules.items.api import Item, ItemsSearch
+from biblion.modules.items.models import ItemIssueStatus, ItemNoteTypes, ItemStatus
+from biblion.modules.loans.api import Loan
+from biblion.modules.loans.models import LoanAction, LoanState
+from biblion.modules.loans.utils import get_extension_params
+from biblion.modules.utils import get_ref_for_pid
+from tests.utils import VerifyRecordPermissionPatch, get_json, postdata
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_orphean_pids(
+    client,
+    document,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny_data_tmp,
+    json_header,
+):
+    """Test record retrieval."""
+    item_data = item_lib_martigny_data_tmp
+    item_data.pop("pid", None)
+    item_data["foo"] = "foo"
+    n_item_pids = PersistentIdentifier.query.filter_by(pid_type="item").count()
+    n_holdings = Holding.count()
+    res, _ = postdata(client, "invenio_records_rest.item_list", item_data)
+    # close the session as it is shared with the client
+    db.session.close()
+    assert res.status_code == 400
+    # no holding has been created
+    assert Holding.count() == n_holdings
+    # no orphean pids
+    assert PersistentIdentifier.query.filter_by(pid_type="item").count() == n_item_pids
+
+
+def test_items_permissions(client, item_lib_martigny, patron_martigny, json_header):
+    """Test record retrieval."""
+    item_url = url_for("invenio_records_rest.item_item", pid_value="item1")
+
+    res = client.get(item_url)
+    assert res.status_code == 200
+
+    res, _ = postdata(client, "invenio_records_rest.item_list", {})
+    assert res.status_code == 401
+
+    res = client.put(
+        url_for("invenio_records_rest.item_item", pid_value="item1"),
+        data={},
+        headers=json_header,
+    )
+
+    res = client.delete(item_url)
+    assert res.status_code == 401
+
+    views = {
+        "api_item.checkout": 403,
+        "api_item.checkin": 403,
+        "api_item.cancel_item_request": 404,  # auth. OK but send bad data
+        "api_item.validate_request": 403,
+        "api_item.receive": 403,
+        "api_item.return_missing": 403,
+        "api_item.extend_loan": 404,  # auth. OK but send bad data
+        "api_item.librarian_request": 403,
+        "api_item.patron_request": 404,  # auth. OK but send bad data
+    }
+    for view in views:
+        res, _ = postdata(client, view, {})
+        assert res.status_code == 401
+    res = client.get(url_for("api_item.requested_loans", library_pid="test"), data={})
+    assert res.status_code == 401
+    login_user_via_session(client, patron_martigny.user)
+    for view, status in views.items():
+        res, _ = postdata(client, view, {})
+        assert res.status_code == status
+    res = client.get(url_for("api_item.requested_loans", library_pid="test"), data={})
+    assert res.status_code == 403
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_items_post_put_delete(
+    client,
+    document,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny_data,
+    json_header,
+):
+    """Test record retrieval."""
+    # Create record / POST
+    item_url = url_for("invenio_records_rest.item_item", pid_value="1")
+    list_url = url_for("invenio_records_rest.item_list", q="pid:1")
+
+    # test when item has no barcode
+    item_record_with_no_barcode = deepcopy(item_lib_martigny_data)
+    item_record_with_no_barcode["pid"] = "pid"
+    del item_record_with_no_barcode["barcode"]
+    res, data = postdata(client, "invenio_records_rest.item_list", item_record_with_no_barcode)
+    assert res.status_code == 201
+    item_barcode = data["metadata"]["barcode"]
+    assert item_barcode.startswith("f-")
+    # test updating an item with no barcode, keeps the old barcode
+    created_item = Item.get_record_by_pid("pid")
+    assert created_item.pid == "pid"
+    item_to_update = deepcopy(created_item)
+    del item_to_update["barcode"]
+    updated_item = created_item.update(data=item_to_update, dbcommit=True, reindex=True)
+    assert updated_item["barcode"].startswith("f-")
+
+    # test replacing an item with no barcode, regenerates a new barcode
+    item_to_replace = deepcopy(updated_item)
+    del item_to_replace["barcode"]
+    replaced_item = created_item.replace(data=item_to_replace, dbcommit=True, reindex=True)
+    assert replaced_item["barcode"].startswith("f-")
+
+    # test when item has a dirty barcode
+    item_lib_martigny_data["pid"] = "1"
+    item_lib_martigny_data["barcode"] = "123456"
+    item_record_with_dirty_barcode = deepcopy(item_lib_martigny_data)
+
+    barcode = item_record_with_dirty_barcode.get("barcode")
+    item_record_with_dirty_barcode["barcode"] = f" {barcode} "
+    res, data = postdata(client, "invenio_records_rest.item_list", item_record_with_dirty_barcode)
+    assert res.status_code == 201
+
+    # Check that the returned record matches the given data
+    assert data["metadata"] == item_lib_martigny_data
+
+    res = client.get(item_url)
+    assert res.status_code == 200
+
+    data = get_json(res)
+    assert item_lib_martigny_data == data["metadata"]
+
+    # Update record/PUT
+    data = item_lib_martigny_data
+    data["call_number"] = "Test Name"
+    res = client.put(item_url, data=json.dumps(data), headers=json_header)
+    assert res.status_code == 200
+    # assert res.headers['ETag'] != f'"{librarie.revision_id}"'
+
+    # Check that the returned record matches the given data
+    data = get_json(res)
+    assert data["metadata"]["call_number"] == "Test Name"
+
+    res = client.get(item_url)
+    assert res.status_code == 200
+
+    data = get_json(res)
+    assert data["metadata"]["call_number"] == "Test Name"
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+
+    data = get_json(res)["hits"]["hits"][0]
+    assert data["metadata"]["call_number"] == "Test Name"
+
+    # Delete record/DELETE
+    res = client.delete(item_url)
+    assert res.status_code == 204
+    res = client.get(item_url)
+    assert res.status_code == 410
+
+    # Reset fixtures
+    item_url = url_for("invenio_records_rest.item_item", pid_value="pid")
+    res = client.delete(item_url)
+    assert res.status_code == 204
+
+
+def test_checkout_default_policy(
+    client,
+    lib_martigny,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circulation_policies,
+):
+    """Test circ policy parameters."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+
+    from biblion.modules.circ_policies.api import CircPolicy
+
+    circ_policy = CircPolicy.provide_circ_policy(item.organisation_pid, item.library_pid, "ptty1", "itty1")
+
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+    actions = data.get("action_applied")
+    loan = actions[LoanAction.CHECKOUT]
+    end_date = loan.get("end_date")
+    start_date = loan.get("start_date")
+    checkout_duration = (ciso8601.parse_datetime(end_date) - ciso8601.parse_datetime(start_date)).days
+
+    assert checkout_duration >= circ_policy.get("checkout_duration")
+
+    # checkin
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan.get("pid"),
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_checkout_library_level_policy(
+    client,
+    lib_martigny,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circ_policy_short_martigny,
+):
+    """Test circ policy parameters."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+    actions = data.get("action_applied")
+    loan = actions[LoanAction.CHECKOUT]
+    end_date = loan.get("end_date")
+    start_date = loan.get("start_date")
+    checkout_duration = (ciso8601.parse_datetime(end_date) - ciso8601.parse_datetime(start_date)).days
+    assert checkout_duration >= circ_policy_short_martigny.get("checkout_duration")
+
+    # checkin
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan.get("pid"),
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_checkout_organisation_policy(
+    client,
+    lib_martigny,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circ_policy_short_martigny,
+):
+    """Test circ policy parameters."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+    actions = data.get("action_applied")
+    loan = actions[LoanAction.CHECKOUT]
+    end_date = loan.get("end_date")
+    start_date = loan.get("start_date")
+    checkout_duration = (ciso8601.parse_datetime(end_date) - ciso8601.parse_datetime(start_date)).days
+    assert checkout_duration >= circ_policy_short_martigny.get("checkout_duration")
+
+    # checkin
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan.get("pid"),
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_items_receive(
+    client,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    loc_restricted_martigny,
+    item_lib_martigny,
+    json_header,
+    circulation_policies,
+):
+    """Test item receive."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+    assert not item.patron_has_an_active_loan_on_item(patron_martigny)
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    item_data = data.get("metadata")
+    actions = data.get("action_applied")
+    assert item_data.get("status") == ItemStatus.ON_LOAN
+    assert actions.get(LoanAction.CHECKOUT)
+    assert item.patron_has_an_active_loan_on_item(patron_martigny)
+    loan_pid = actions[LoanAction.CHECKOUT].get("pid")
+
+    # checkin
+    res, data = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan_pid,
+            "transaction_location_pid": loc_restricted_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    item_data = data.get("metadata")
+    actions = data.get("action_applied")
+    assert item_data.get("status") == ItemStatus.ON_SHELF
+    assert actions.get(LoanAction.CHECKIN)
+
+
+def test_items_no_extend(
+    client,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circ_policy_short_martigny,
+):
+    """Test items when no renewals is possible."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    actions = data.get("action_applied")
+    loan_pid = actions[LoanAction.CHECKOUT].get("pid")
+    assert not item.get_extension_count()
+
+    circ_policy_short_martigny["number_renewals"] = 0
+
+    circ_policy_short_martigny.update(data=circ_policy_short_martigny, dbcommit=True, reindex=True)
+    CircPoliciesSearch.flush_and_refresh()
+
+    # extend loan
+    res, _ = postdata(
+        client,
+        "api_item.extend_loan",
+        {
+            "item_pid": item_pid,
+            "pid": loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+
+    assert res.status_code == 403
+
+    circ_policy_short_martigny["number_renewals"] = 1
+
+    circ_policy_short_martigny.update(data=circ_policy_short_martigny, dbcommit=True, reindex=True)
+    CircPoliciesSearch.flush_and_refresh()
+
+    # checkin
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_items_deny_requests(
+    client,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    lib_martigny,
+    item_lib_martigny,
+    json_header,
+    circ_policy_short_martigny,
+):
+    """Test items when requests are denied."""
+    location = loc_public_martigny
+    circ_policy_short_martigny["allow_requests"] = False
+    circ_policy_short_martigny.update(data=circ_policy_short_martigny, dbcommit=True, reindex=True)
+    CircPoliciesSearch.flush_and_refresh()
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron = patron_martigny
+    patron_pid = patron.pid
+
+    # request
+    res, _ = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": item_pid,
+            "pickup_location_pid": location.pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 403
+
+    # test can request because of a circulation policy does not allow request
+    res = client.get(
+        url_for(
+            "api_item.can_request",
+            item_pid=item_pid,
+            library_pid=lib_martigny.pid,
+            patron_barcode=patron.patron.get("barcode"),
+        )
+    )
+    assert res.status_code == 200
+    data = get_json(res)
+    assert not data.get("can_request")
+
+    circ_policy_short_martigny["allow_requests"] = True
+    circ_policy_short_martigny.update(data=circ_policy_short_martigny, dbcommit=True, reindex=True)
+    CircPoliciesSearch.flush_and_refresh()
+    assert circ_policy_short_martigny.get("allow_requests")
+
+
+def test_extend_possible_actions(
+    client,
+    item_lib_martigny,
+    loc_public_martigny,
+    librarian_martigny,
+    patron_martigny,
+    circ_policy_short_martigny,
+):
+    """Extend action changes according to params of cipo."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    patron_pid = patron_martigny.pid
+    res, _ = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item.pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+
+    # check the item is now in patron loaned item
+    res = client.get(url_for("api_item.loans", patron_pid=patron_pid))
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+    hit = data.get("hits").get("hits")[0].get("item")
+    assert hit.get("barcode") == item.get("barcode")
+
+    # check the item can be checked-in
+    res = client.get(url_for("api_item.item", item_barcode=item.get("barcode")))
+    assert res.status_code == 200
+    data = get_json(res)
+    actions = data.get("metadata").get("item").get("actions", [])
+    assert "checkin" in actions
+
+    from biblion.modules.circ_policies.api import CircPolicy
+
+    circ_policy = CircPolicy.provide_circ_policy(item.organisation_pid, item.library_pid, "ptty1", "itty1")
+    circ_policy["number_renewals"] = 0
+    circ_policy.update(circ_policy, dbcommit=True, reindex=True)
+    res = client.get(url_for("api_item.item", item_barcode=item.get("barcode")))
+    assert res.status_code == 200
+    data = get_json(res)
+    actions = data.get("metadata").get("item").get("actions", [])
+    assert "extend_loan" not in actions
+    assert "checkin" in actions
+
+    # reset used objects
+    loan_pid = data.get("metadata").get("loan").get("pid")
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item.pid,
+            "pid": loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    circ_policy["number_renewals"] = 1
+    circ_policy.update(circ_policy, dbcommit=True, reindex=True)
+    assert circ_policy["number_renewals"] == 1
+
+
+def test_items_extend_end_date(
+    client,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circ_policy_short_martigny,
+):
+    """Test correct renewal due date for items."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    item_pid = item.pid
+    patron_pid = patron_martigny.pid
+
+    # checkout
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item_pid,
+            "patron_pid": patron_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    actions = data.get("action_applied")
+    loan_pid = actions[LoanAction.CHECKOUT].get("pid")
+    loan = Loan.get_record_by_pid(loan_pid)
+    assert not item.get_extension_count()
+
+    renewal_duration_policy = circ_policy_short_martigny["renewal_duration"]
+    renewal_duration = get_extension_params(loan=loan, parameter_name="duration_default")
+    assert renewal_duration_policy <= renewal_duration.days
+
+    # Update loan end_date to allow direct renewal
+    loan["end_date"] = loan["start_date"]
+    loan.update(loan, dbcommit=True, reindex=True)
+
+    # extend loan
+    res, data = postdata(
+        client,
+        "api_item.extend_loan",
+        {
+            "item_pid": item_pid,
+            "pid": loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+
+    assert res.status_code == 200
+
+    # Compare expected loan date with processed one
+    # first get loan UTC date
+    actions = data.get("action_applied")
+    loan_pid = actions[LoanAction.EXTEND].get("pid")
+    loan = Loan.get_record_by_pid(loan_pid)
+    loan_date = loan.get("end_date")
+    # then process a date with current UTC date + renewal
+    current_date = datetime.now(UTC)
+    calc_date = current_date + renewal_duration
+    # finally the comparison should give the same date (in UTC)!
+    assert calc_date.strftime("%Y-%m-%d") == ciso8601.parse_datetime(loan_date).astimezone(UTC).strftime("%Y-%m-%d")
+
+    # checkin
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item_pid,
+            "pid": loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_multiple_loans_on_item_error(
+    client,
+    patron_martigny,
+    patron2_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    json_header,
+    circulation_policies,
+    loc_public_fully,
+    librarian_martigny,
+):
+    """Test MultipleLoansOnItemError."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    checked_patron = patron2_martigny.pid
+    requested_patron = patron_martigny.pid
+    location = loc_public_martigny
+    # checkout to checked_patron
+    res, data = postdata(
+        client,
+        "api_item.checkout",
+        {
+            "item_pid": item.pid,
+            "patron_pid": checked_patron,
+            "transaction_location_pid": location.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    assert Item.get_record_by_pid(item.pid).get("status") == ItemStatus.ON_LOAN
+    item_data = data.get("metadata")
+    actions = data.get("action_applied")
+    assert item_data.get("status") == ItemStatus.ON_LOAN
+    assert actions.get(LoanAction.CHECKOUT)
+    loan_pid = actions[LoanAction.CHECKOUT].get("pid")
+    item = Item.get_record_by_pid(item.pid)
+
+    # request by requested patron to pick at another location
+    res, data = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": item.pid,
+            "pickup_location_pid": loc_public_fully.pid,
+            "patron_pid": requested_patron,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    item_data = data.get("metadata")
+    actions = data.get("action_applied")
+    assert item_data.get("status") == ItemStatus.ON_LOAN
+    assert actions.get(LoanAction.REQUEST)
+    req_loan_pid = actions[LoanAction.REQUEST].get("pid")
+    item = Item.get_record_by_pid(item.pid)
+
+    # checkin at the request location
+    res, data = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item.pid,
+            "pid": loan_pid,
+            "transaction_location_pid": loc_public_fully.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    # test the returned three actions
+    loans = data.get("action_applied")
+    checked_in_loan = loans.get(LoanAction.CHECKIN)
+    cancelled_loan = loans.get(LoanAction.CANCEL)
+    validated_loan = loans.get(LoanAction.VALIDATE)
+    assert checked_in_loan.get("pid") == cancelled_loan.get("pid")
+    assert validated_loan.get("pid") == req_loan_pid
+
+    assert Loan.get_record_by_pid(loan_pid).get("state") == "CANCELLED"
+    new_loan = Loan.get_record_by_pid(req_loan_pid)
+    assert new_loan.get("state") == "ITEM_AT_DESK"
+    assert Item.get_record_by_pid(item.pid).get("status") == ItemStatus.AT_DESK
+    # cancel request: the item is at desk in an external library, it has to go
+    # back to its owning library
+    res, _ = postdata(
+        client,
+        "api_item.cancel_item_request",
+        {
+            "item_pid": item.pid,
+            "pid": req_loan_pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    assert Item.get_record_by_pid(item.pid).get("status") == ItemStatus.IN_TRANSIT
+
+    # receive the item at its owning library
+    res, _ = postdata(
+        client,
+        "api_item.checkin",
+        {
+            "item_pid": item.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    assert Item.get_record_by_pid(item.pid).get("status") == ItemStatus.ON_SHELF
+
+
+def test_filtered_items_get(
+    client,
+    librarian_martigny,
+    item_lib_martigny,
+    item_lib_saxon,
+    item_lib_fully,
+    item_lib_sion,
+    patron_sion,
+):
+    """Test items filter by organisation."""
+    # Librarian Martigny
+    login_user_via_session(client, librarian_martigny.user)
+    list_url = url_for("invenio_records_rest.item_list")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 4
+
+    # Patron Sion
+    login_user_via_session(client, patron_sion.user)
+    list_url = url_for("invenio_records_rest.item_list", view="org2")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+
+def test_local_fields_items_get(
+    client,
+    librarian_martigny,
+    item_lib_martigny,
+    item_lib_fully,
+    local_field_3_martigny,
+):
+    """Test items filter by local_fields."""
+    # Librarian Martigny
+    login_user_via_session(client, librarian_martigny.user)
+    list_url = url_for("invenio_records_rest.item_list", q="local_fields.fields.field_1:testfield1")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+    list_url = url_for("invenio_records_rest.item_list", q="local_fields.fields.field_1:testfield2")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 0
+
+
+def test_items_notes(client, librarian_martigny, item_lib_martigny, json_header):
+    """Test items notes."""
+    item = item_lib_martigny
+    login_user_via_session(client, librarian_martigny.user)
+
+    # at start the items have one note
+    assert len(item.notes) == 1
+
+    # set one public & one staff note
+    item["notes"] = [
+        {"type": ItemNoteTypes.GENERAL, "content": "Public note"},
+        {"type": ItemNoteTypes.STAFF, "content": "Staff note"},
+    ]
+    res = client.put(
+        url_for("invenio_records_rest.item_item", pid_value=item.pid),
+        data=json.dumps(item),
+        headers=json_header,
+    )
+    assert res.status_code == 200
+
+    # add a second public note -- This should fail because we can only have one
+    # note of each type for an item
+    item["notes"].append({"type": ItemNoteTypes.GENERAL, "content": "Second public note"})
+    res = client.put(
+        url_for("invenio_records_rest.item_item", pid_value=item.pid),
+        data=json.dumps(item),
+        headers=json_header,
+    )
+    assert get_json(res) == {
+        "status": 400,
+        "message": "Validation error: Cannot have multiple notes of the same type..",
+    }
+    item["notes"] = item.notes[:-1]
+
+    # get a specific type of notes
+    #  --> public : should return a note
+    #  --> checkin : should return nothing
+    #  --> dummy : should never return something !
+    assert item.get_note(ItemNoteTypes.GENERAL)
+    assert item.get_note(ItemNoteTypes.CHECKIN) is None
+    assert item.get_note("dummy") is None
+
+
+def test_requested_loans_to_validate(
+    client,
+    librarian_martigny,
+    librarian_sion,
+    loc_public_martigny,
+    loc_restricted_martigny,
+    item_type_standard_martigny,
+    item2_lib_martigny,
+    json_header,
+    item_type_missing_martigny,
+    patron_martigny,
+    circulation_policies,
+):
+    """Test requested loans to validate."""
+    holding_pid = item2_lib_martigny.holding_pid
+    holding = Holding.get_record_by_pid(holding_pid)
+    original_item = deepcopy(item2_lib_martigny)
+    original_holding = deepcopy(holding)
+
+    # switch `call_number` between item and holding, and add a
+    # 'temporary_item_type' to item to increase the code coverage. Don't
+    # forget to reset data before leaving method.
+    holding_pid = item2_lib_martigny.holding_pid
+    holding = Holding.get_record_by_pid(holding_pid)
+    holding["call_number"] = item2_lib_martigny.pop("call_number", None)
+    item2_lib_martigny["item_type"] = {"$ref": get_ref_for_pid("itty", item_type_missing_martigny.pid)}
+    item2_lib_martigny["temporary_item_type"] = {"$ref": get_ref_for_pid("itty", item_type_standard_martigny.pid)}
+    item2_lib_martigny["temporary_location"] = {"$ref": get_ref_for_pid("loc", loc_restricted_martigny.pid)}
+
+    holding.update(holding, dbcommit=True, reindex=True)
+    item2_lib_martigny.update(item2_lib_martigny, dbcommit=True, reindex=True)
+
+    library_pid = librarian_martigny.replace_refs()["libraries"][0]["pid"]
+
+    login_user_via_session(client, librarian_martigny.user)
+    res, _ = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": item2_lib_martigny.pid,
+            "patron_pid": patron_martigny.pid,
+            "pickup_location_pid": loc_public_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+    res = client.get(url_for("api_item.requested_loans", library_pid=library_pid))
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+    requested_loan = data["hits"]["hits"][0]
+    assert item2_lib_martigny.pid == requested_loan["item"]["pid"]
+    assert item2_lib_martigny.pid == requested_loan["loan"]["item_pid"]["value"]
+    assert requested_loan["loan"]["state"] == LoanState.PENDING
+    assert patron_martigny.pid == requested_loan["loan"]["patron_pid"]
+
+    assert requested_loan["item"]["temporary_location"]["name"]
+
+    # a librarian of another organisation cannot read these requests
+    login_user_via_session(client, librarian_sion.user)
+    res = client.get(url_for("api_item.requested_loans", library_pid=library_pid))
+    assert res.status_code == 403
+
+    # RESET - the item
+    del item2_lib_martigny["temporary_item_type"]
+    del item2_lib_martigny["temporary_location"]
+    holding.update(original_holding, dbcommit=True, reindex=True)
+    item2_lib_martigny.update(original_item, dbcommit=True, reindex=True)
+
+
+def test_requested_loans_to_validate_unreceived_issue(
+    client,
+    librarian_martigny,
+    loc_public_martigny,
+    patron_martigny,
+    circulation_policies,
+    holding_lib_martigny_w_patterns,
+    json_header,
+):
+    """A pending request on a not-yet-received issue is hidden, then shown once received."""
+    issue = holding_lib_martigny_w_patterns.create_regular_issue(
+        status=ItemIssueStatus.LATE, dbcommit=True, reindex=True
+    )
+    library_pid = librarian_martigny.replace_refs()["libraries"][0]["pid"]
+
+    login_user_via_session(client, librarian_martigny.user)
+    res, _ = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": issue.pid,
+            "patron_pid": patron_martigny.pid,
+            "pickup_location_pid": loc_public_martigny.pid,
+            "transaction_user_pid": librarian_martigny.pid,
+            "transaction_location_pid": loc_public_martigny.pid,
+        },
+    )
+    assert res.status_code == 200
+
+    # not received yet -> must NOT appear in the list
+    res = client.get(url_for("api_item.requested_loans", library_pid=library_pid))
+    data = get_json(res)
+    pids = [hit["item"]["pid"] for hit in data["hits"]["hits"]]
+    assert issue.pid not in pids
+
+    # mark it received -> must now appear in the list
+    issue["issue"]["status"] = ItemIssueStatus.RECEIVED
+    issue.update(issue, dbcommit=True, reindex=True)
+    res = client.get(url_for("api_item.requested_loans", library_pid=library_pid))
+    data = get_json(res)
+    pids = [hit["item"]["pid"] for hit in data["hits"]["hits"]]
+    assert issue.pid in pids
+
+    # clean up - this issue was created outside of a fixture
+    issue.delete(force=True, dbcommit=True, delindex=True)
+
+
+def test_patron_request(
+    client,
+    patron_martigny,
+    loc_public_martigny,
+    item_lib_martigny,
+    circulation_policies,
+):
+    """Test patron request."""
+    login_user_via_session(client, patron_martigny.user)
+
+    res, data = postdata(
+        client,
+        "api_item.patron_request",
+        {"item_pid": item_lib_martigny.pid, "pickup_location_pid": loc_public_martigny.pid},
+    )
+    assert res.status_code == 200
+    loan_pid = data.get("action_applied")[LoanAction.REQUEST].get("pid")
+    params = {
+        "pid": loan_pid,
+        "transaction_location_pid": loc_public_martigny.pid,
+        "transaction_user_pid": patron_martigny.pid,
+    }
+    item_lib_martigny.cancel_item_request(**params)
+
+
+def test_requests_with_different_locations(
+    client,
+    patron_martigny,
+    librarian_saxon,
+    loc_public_saxon,
+    loc_public_martigny,
+    item_lib_martigny,
+    circulation_policies,
+    lib_saxon,
+):
+    """Test patron and librarian request with different locations."""
+    login_user_via_session(client, patron_martigny.user)
+    loc_public_saxon["allow_request"] = False
+    loc_public_saxon.update(loc_public_saxon, True, True)
+    res, data = postdata(
+        client,
+        "api_item.patron_request",
+        {"item_pid": item_lib_martigny.pid, "pickup_location_pid": loc_public_saxon.pid},
+    )
+    assert res.status_code == 200
+
+    loan_pid = data.get("action_applied")[LoanAction.REQUEST].get("pid")
+    params = {
+        "pid": loan_pid,
+        "transaction_location_pid": loc_public_martigny.pid,
+        "transaction_user_pid": patron_martigny.pid,
+    }
+    item_lib_martigny.cancel_item_request(**params)
+
+    login_user_via_session(client, librarian_saxon.user)
+    res, data = postdata(
+        client,
+        "api_item.librarian_request",
+        {
+            "item_pid": item_lib_martigny.pid,
+            "patron_pid": patron_martigny.pid,
+            "pickup_location_pid": loc_public_martigny.pid,
+            "transaction_library_pid": lib_saxon.pid,
+            "transaction_user_pid": librarian_saxon.pid,
+        },
+    )
+    assert res.status_code == 200
+
+    loan_pid = data.get("action_applied")[LoanAction.REQUEST].get("pid")
+    params = {
+        "pid": loan_pid,
+        "transaction_location_pid": loc_public_saxon.pid,
+        "transaction_user_pid": librarian_saxon.pid,
+    }
+    item_lib_martigny.cancel_item_request(**params)
+
+    loc_public_saxon["allow_request"] = True
+    loc_public_saxon.update(loc_public_saxon, True, True)
+
+
+def test_item_possible_actions(client, item_lib_martigny, librarian_martigny, patron_martigny, circulation_policies):
+    """Possible action changes according to params of cipo."""
+    login_user_via_session(client, librarian_martigny.user)
+    item = item_lib_martigny
+    patron_pid = patron_martigny.pid
+    res = client.get(url_for("api_item.item", item_barcode=item.get("barcode"), patron_pid=patron_pid))
+    data = get_json(res)
+    assert res.status_code == 200
+
+    actions = data.get("metadata").get("item").get("actions")
+    assert "checkout" in actions
+
+    from biblion.modules.circ_policies.api import CircPolicy
+
+    circ_policy = CircPolicy.provide_circ_policy(item.organisation_pid, item.library_pid, "ptty1", "itty1")
+
+    original_checkout_duration = circ_policy.get("checkout_duration")
+    if original_checkout_duration is not None:
+        del circ_policy["checkout_duration"]
+    circ_policy.update(circ_policy, dbcommit=True, reindex=True)
+    res = client.get(url_for("api_item.item", item_barcode=item.get("barcode"), patron_pid=patron_pid))
+    assert res.status_code == 200
+    data = get_json(res)
+
+    actions = data.get("metadata").get("item").get("actions")
+    assert "checkout" not in actions
+
+    if original_checkout_duration is not None:
+        circ_policy["checkout_duration"] = original_checkout_duration
+    circ_policy.update(circ_policy, dbcommit=True, reindex=True)
+    assert circ_policy.can_checkout
+
+
+def test_items_facets(
+    client,
+    librarian_martigny,
+    biblion_json_header,
+    item_lib_martigny,  # on shelf
+    item_lib_fully,  # on loan
+):
+    """Test record retrieval."""
+    login_user_via_session(client, librarian_martigny.user)
+    list_url = url_for("invenio_records_rest.item_list")
+    response = client.get(list_url, headers=biblion_json_header)
+    assert response.status_code == 200
+    facet_names = [
+        "document_type",
+        "item_type",
+        "library",
+        "location",
+        "status",
+        "temporary_item_type",
+        "temporary_location",
+        "vendor",
+        "claims_count",
+        "claims_date",
+        "current_requests",
+    ]
+    assert all(name in response.json["aggregations"] for name in facet_names)
+
+
+def test_items_rest_api_sort(client, item_lib_martigny, item_lib_fully, biblion_json_header, roles):
+    """Test sorting option on `Item` REST API endpoints."""
+    item_lib_fully["second_call_number"] = "second_call_number"
+    item_lib_fully.update(item_lib_fully, dbcommit=True, reindex=True)
+    ItemsSearch.flush_and_refresh()
+
+    # STEP 1 :: Sort on 'call_number'
+    #   * Ensure sort on `call_number` is possible
+    #   * Ensure `call_number.raw` search field contains correct value
+    url = url_for("invenio_records_rest.item_list", sort="call_number")
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    data = response.json
+    first_hit = data["hits"]["hits"][0]["metadata"]
+    assert first_hit["call_number"] == item_lib_martigny["call_number"]
+
+    url = url_for(
+        "invenio_records_rest.item_list",
+        q=f"call_number.raw:{item_lib_martigny['call_number']}",
+    )
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    assert response.json["hits"]["total"] == 1
+
+    # STEP 2 :: Sort on 'second_call_number'
+    #   * Ensure sort `second_call_number` is possible
+    #   * Ensure `second_call_number.raw` search field contains correct value
+    url = url_for("invenio_records_rest.item_list", sort="second_call_number")
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    data = response.json
+    first_hit = data["hits"]["hits"][0]["metadata"]
+    assert first_hit["second_call_number"] == item_lib_fully["second_call_number"]
+
+    url = url_for(
+        "invenio_records_rest.item_list",
+        q=f'second_call_number.raw:"{item_lib_fully["second_call_number"]}"',
+    )
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    assert response.json["hits"]["total"] == 1
+    url = url_for(
+        "invenio_records_rest.item_list",
+        q=f'second_call_number.raw:"{item_lib_fully["second_call_number"]} "',
+    )
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    assert response.json["hits"]["total"] == 0
+
+    # Reset fixtures
+    del item_lib_fully["second_call_number"]
+    item_lib_fully.update(item_lib_fully, dbcommit=True, reindex=True)
+
+
+def test_item_field_mapping(client, item_lib_martigny, biblion_json_header, roles):
+    """Test for fields definition."""
+    item = deepcopy(dict(item_lib_martigny))
+
+    item_lib_martigny["barcode"] = "10000001350"
+    item_lib_martigny["enumerationAndChronology"] = "no 69 mars 2022"
+    item_lib_martigny.update(item_lib_martigny, dbcommit=True, reindex=True)
+    ItemsSearch.flush_and_refresh()
+
+    # Field enumerationAndChronology
+    url = url_for("invenio_records_rest.item_list", q="enumerationAndChronology.analyzed:*20*")
+    response = client.get(url, headers=biblion_json_header)
+    assert response.status_code == 200
+    assert response.json["hits"]["total"] == 1
+
+    # Reset fixtures
+    item_lib_martigny.replace(item, dbcommit=True, reindex=True)
+    ItemsSearch.flush_and_refresh()
