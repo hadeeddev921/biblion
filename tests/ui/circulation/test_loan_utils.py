@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests loan utils methods."""
+
+import pytest
+from invenio_circulation.errors import CirculationException
+
+from biblion.modules.items.utils import item_pid_to_object
+from biblion.modules.loans.api import (
+    Loan,
+    get_last_transaction_loc_for_item,
+    get_loans_by_patron_pid,
+)
+from biblion.modules.loans.models import LoanState
+from biblion.modules.loans.utils import can_be_requested
+from biblion.modules.locations.api import LocationsSearch
+from tests.utils import item_record_to_a_specific_loan_state
+
+
+def test_loan_utils(
+    client,
+    patron_martigny,
+    patron2_martigny,
+    circulation_policies,
+    item_lib_martigny,
+    librarian_martigny,
+    loc_public_martigny,
+):
+    """Test loan utils methods."""
+    loan_metadata = dict(item_lib_martigny)
+    loan_metadata["item_pid"] = item_pid_to_object(item_lib_martigny.pid)
+    if "patron_pid" not in loan_metadata:
+        loan_metadata["patron_pid"] = patron_martigny.pid
+    # Create "virtual" Loan (not registered)
+    loan = Loan(loan_metadata)
+    # test that loan can successfully move to the pending state
+    assert can_be_requested(loan)
+
+    # test that loan without an item may not move to the pending state
+    del loan["item_pid"]
+    with pytest.raises(Exception):  # noqa: B017 - the circulation callbacks raise various types
+        assert can_be_requested(loan)
+
+    # test a pending loan will be attached at the right organisation and
+    # will not be considered as an active loan
+    params = {
+        "patron_pid": patron2_martigny.pid,
+        "transaction_location_pid": loc_public_martigny.pid,
+        "transaction_user_pid": librarian_martigny.pid,
+        "pickup_location_pid": loc_public_martigny.pid,
+    }
+    item, loan_pending_martigny = item_record_to_a_specific_loan_state(
+        item=item_lib_martigny,
+        loan_state=LoanState.PENDING,
+        params=params,
+        copy_item=True,
+    )
+
+    assert loan_pending_martigny.patron_pid == patron2_martigny.pid
+    assert not loan_pending_martigny.is_active
+    assert loan_pending_martigny.organisation_pid
+
+    # test required parameters for get_loans_by_patron_pid
+    with pytest.raises(TypeError):
+        assert get_loans_by_patron_pid()
+    assert get_loans_by_patron_pid(patron2_martigny.pid)
+
+    # test required parameters for get_last_transaction_loc_for_item
+    with pytest.raises(TypeError):
+        assert get_last_transaction_loc_for_item()
+
+    # test the allow request at the location level
+    loc_public_martigny["allow_request"] = False
+    loc_public_martigny.update(loc_public_martigny, dbcommit=True, reindex=True)
+    LocationsSearch.flush_and_refresh()
+    new_loan = {
+        "patron_pid": patron_martigny.pid,
+        "transaction_location_pid": loc_public_martigny.pid,
+        "transaction_user_pid": librarian_martigny.pid,
+        "pickup_location_pid": loc_public_martigny.pid,
+    }
+    with pytest.raises(CirculationException):
+        item, loan_pending_martigny = item_record_to_a_specific_loan_state(
+            item=item_lib_martigny,
+            loan_state=LoanState.PENDING,
+            params=params,
+            copy_item=True,
+        )
+
+    loc_public_martigny["allow_request"] = True
+    loc_public_martigny.update(loc_public_martigny, dbcommit=True, reindex=True)
+    LocationsSearch.flush_and_refresh()
+    item, loan_pending_martigny = item_record_to_a_specific_loan_state(
+        item=item_lib_martigny,
+        loan_state=LoanState.PENDING,
+        params=params,
+        copy_item=True,
+    )
+    assert loan_pending_martigny["state"] == LoanState.PENDING
