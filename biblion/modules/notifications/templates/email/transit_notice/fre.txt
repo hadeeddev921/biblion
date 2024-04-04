@@ -1,0 +1,13 @@
+Avis de transit
+
+{% for loan in loans %}
+Date: {{ loan.creation_date }}
+Titre: {{ loan.document.title_text }}
+Code-barres: {{ loan.document.barcode }}
+{%- if loan.document.call_numbers %}
+Cote: {{ loan.document.call_numbers | join(' | ') }}
+{%- endif %}
+Origine: {{ loan.transaction_library.name }}
+Destination: {{ loan.document.library_name }}: {{ loan.document.location_name }}
+
+{% endfor %}

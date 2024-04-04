@@ -1,0 +1,13 @@
+Transitmeldung
+
+{% for loan in loans %}
+Datum: {{ loan.creation_date }}
+Titel: {{ loan.document.title_text }}
+Strichcode: {{ loan.document.barcode }}
+{%- if loan.document.call_numbers %}
+Signatur: {{ loan.document.call_numbers | join(' | ') }}
+{%- endif %}
+Herkunft: {{ loan.transaction_library.name }}
+Ziel: {{ loan.document.library_name }}: {{ loan.document.location_name }}
+
+{% endfor %}
