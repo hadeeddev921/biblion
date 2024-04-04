@@ -1,0 +1,108 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "reminder_counter": {
+        "type": "integer"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "creation_date": {
+        "type": "date"
+      },
+      "process_date": {
+        "type": "date"
+      },
+      "notification_sent": {
+        "type": "boolean"
+      },
+      "notification_type": {
+        "type": "keyword"
+      },
+      "effective_recipients": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "address": {
+            "type": "keyword"
+          }
+        }
+      },
+      "context": {
+        "properties": {
+          "loan": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          },
+          "reminder_counter": {
+            "type": "integer"
+          },
+          "number": {
+            "type": "integer"
+          },
+          "order": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          },
+          "item": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          },
+          "recipients": {
+            "properties": {
+              "type": {
+                "type": "keyword"
+              },
+              "address": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
