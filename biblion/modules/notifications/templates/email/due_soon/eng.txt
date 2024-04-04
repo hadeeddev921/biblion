@@ -1,0 +1,18 @@
+Expiry notice
+{%- include('email/_patron_address.txt') %}
+Dear patron,
+
+The loan period of following documents is expiring:
+
+{%- for loan in loans %}
+
+Title : {{ loan.document.title_text }}
+Due date: {{ loan.end_date }}
+{%- endfor %}
+
+You can consult your account and extend the loan period of your documents at: {{ patron.profile_url }}
+
+Best regards
+
+{{ library.name }}
+{{ library.address }}
