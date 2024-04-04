@@ -1,0 +1,7 @@
+{%- if include_patron_address %}
+{{ patron.first_name }} {{ patron.last_name }}
+{% if patron.address.street %}{{ patron.address.street }}{% endif %}
+{% if patron.address.postal_code %}{{ patron.address.postal_code }}{% endif %} {% if patron.address.city %}{{ patron.address.city }}{% endif %}
+{% if patron.address.country %}{{ _('country_'+patron.address.country) }}{% endif %}
+
+{% endif -%}

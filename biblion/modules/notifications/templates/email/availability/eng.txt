@@ -1,0 +1,25 @@
+Invitation to pick up a document
+{%- include('email/_patron_address.txt') %}
+Dear patron,
+
+The document you requested is now available. You can pick it up at the loan desk of the library mentioned below.
+{%- for loan in loans %}
+
+Title: {{ loan.document.title_text }}
+Pick up location: {{ loan.pickup_name }}
+Barcode: {{ loan.document.barcode }}
+{%- if loan.document.call_numbers %}
+Call number: {{ loan.document.call_numbers | join(' / ') }}
+{%- endif %}
+{%- if loan.pickup_until %}
+To pick up until: {{ loan.pickup_until.strftime('%d/%m/%Y') }}
+{%- endif %}
+{%- endfor %}
+
+Should the document not be picked up within the given period, it will be made available for other people.
+You can consult your account and extend the loan period of your documents at: {{ patron.profile_url }}
+
+Best regards
+
+{{ library.name }}
+{{ library.address }}

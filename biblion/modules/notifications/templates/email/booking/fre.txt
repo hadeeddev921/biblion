@@ -1,0 +1,20 @@
+Réservation{%- if loans[0].in_transit %} (avec transit){%- endif %}
+
+{% for loan in loans -%}
+Date: {{ loan.creation_date }}
+Titre: {{ loan.document.title_text }}
+Code-barres: {{ loan.document.barcode }}
+Localisation: {{ loan.document.library_name }} / {{ loan.document.location_name }}
+{%- if loan.document.call_numbers %}
+Cote: {{ loan.document.call_numbers | join(' | ') }}
+{%- endif %}
+Type d'exemplaire: {{loan.document.item_type}}
+{%- if loan.document.temporary_item_type %}
+Type d'exemplaire temporaire: {{ loan.document.temporary_item_type }}
+{%- endif %}
+
+Lieu de retrait: {{ loan.pickup_name }}
+Lecteur: {{ loan.patron.first_name }} {{ loan.patron.last_name }}
+{%- if loan.patron.barcode %} - {{ loan.patron.barcode | join(', ') }}{%- endif %}
+
+{% endfor %}

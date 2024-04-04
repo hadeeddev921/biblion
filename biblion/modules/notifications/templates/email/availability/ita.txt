@@ -1,0 +1,25 @@
+Invito a ritirare un documento
+{%- include('email/_patron_address.txt') %}
+Cara lettrice, caro lettore,
+
+Il documento che Lei ha domandato è ora disponibile. Lei può ritirarlo al servizio prestiti della biblioteca sotto indicata.
+{%- for loan in loans %}
+
+Titolo: {{ loan.document.title_text }}
+Codice a barre: {{ loan.document.barcode }}
+{%- if loan.document.call_numbers %}
+Segnatura: {{ loan.document.call_numbers | join(' / ') }}
+{%- endif %}
+Punto di ritiro: {{ loan.pickup_name }}
+{%- if loan.pickup_until %}
+Ritirare entro: {{ loan.pickup_until.strftime('%d/%m/%Y') }}
+{%- endif %}
+{%- endfor %}
+
+Se il documento non è ritirato entro detto termine, esso sarà rimesso in circolazione per altre persone.
+Lei può consultare il Suo conto et prorogare la durata di prestito dei Suoi documenti al seguente indirizzo: {{ patron.profile_url }}
+
+Cordiali saluti
+
+{{ library.name }}
+{{ library.address }}

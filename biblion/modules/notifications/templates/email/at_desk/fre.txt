@@ -1,0 +1,17 @@
+Exemplaire au bureau de prêt
+
+{% for loan in loans -%}
+Date: {{ loan.creation_date }}
+Titre: {{ loan.document.title_text }}
+Code-barres: {{ loan.document.barcode }}
+Localisation: {{ loan.document.library_name }} / {{ loan.document.location_name }}
+{%- if loan.document.call_numbers %}
+Cote: {{ loan.document.call_numbers | join(' | ') }}
+{%- endif %}
+
+Lieu de retrait: {{ loan.pickup_name }}
+Lecteur: {{ loan.patron.first_name }} {{ loan.patron.last_name }}
+{%- if loan.patron.barcode %} - {{ loan.patron.barcode | join(', ') }}{%- endif %}
+Expiration de la demande: {{ loan.request_expire_date }}
+
+{% endfor %}
