@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Notification logs API."""
+
+from biblion.modules.operation_logs.api import OperationLog
+from biblion.modules.operation_logs.logs.api import SpecificOperationLog
+
+from ..models import RecipientType
+
+
+class NotificationOperationLog(OperationLog, SpecificOperationLog):
+    """Operation log for notification."""
+
+    @classmethod
+    def create(cls, data, id_=None, index_refresh="false", **kwargs):
+        """Create a new record instance and store it in search index.
+
+        :param data: Dict with the notification metadata.
+        :param id_: Specify a UUID to use for the new record, instead of
+                    automatically generated.
+        :param refresh: If `true` then refresh the affected shards to make
+            this operation visible to search, if `wait_for` then wait for a
+            refresh to make this operation visible to search, if `false`
+            (the default) then do nothing with refreshes.
+            Valid choices: true, false, wait_for
+        :returns: A new :class:`Record` instance.
+        """
+        if not (loan := getattr(data, "loan", None)):
+            return None
+
+        # If i have no recipients, assign a default value
+        # because the "recipients" json schema required at least one item.
+        if not (recipients := data.get_recipients(RecipientType.TO)):
+            recipients = ["no-recipient-email"]
+        log = {
+            "record": {"value": data.get("pid"), "type": "notif"},
+            "operation": "create",
+            "date": data["creation_date"],
+            "loan": {
+                "pid": loan.pid,
+                "trigger": loan["trigger"],
+                "override_flag": False,
+                "transaction_channel": "system",
+                "transaction_location": {
+                    "pid": loan.transaction_location_pid,
+                    "name": cls._get_location_name(loan.transaction_location_pid),
+                },
+                "pickup_location": {
+                    "pid": loan.pickup_location_pid,
+                    "name": cls._get_location_name(loan.pickup_location_pid),
+                },
+                "patron": cls._get_patron_data(loan.patron),
+                "item": cls._get_item_data(loan.item),
+            },
+            "user_name": "system",
+            "notification": {
+                "pid": data.pid,
+                "type": data["notification_type"],
+                "date": data["creation_date"],
+                "sender_library_pid": data.library_pid,
+                "recipients": recipients,
+            },
+        }
+        reminder_counter = data.get("context", {}).get("reminder_counter")
+        # if the reminder_counter == 0, we need to take it as well
+        if reminder_counter is not None:
+            log["notification"]["reminder_counter"] = reminder_counter
+
+        return super().create(log, index_refresh=index_refresh)
