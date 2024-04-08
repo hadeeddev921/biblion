@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Utils tests."""
+
+
+# TODO: create test for the circulation transaction history
