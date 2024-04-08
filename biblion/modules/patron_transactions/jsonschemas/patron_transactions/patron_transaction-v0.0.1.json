@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Patron transaction",
+  "description": "Amount to be charged to a patron, generated manually or by a circulation operation.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "creation_date",
+    "status",
+    "type",
+    "patron"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/patron_transactions/patron_transaction-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Patron transaction ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "creation_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Patron transaction creation date"
+    },
+    "note": {
+      "title": "Patron transaction note",
+      "type": "string",
+      "minLength": 3
+    },
+    "status": {
+      "title": "Status",
+      "type": "string",
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "default": "open",
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true
+          }
+        }
+      }
+    },
+    "type": {
+      "title": "Patron transaction type",
+      "type": "string",
+      "enum": [
+        "overdue",
+        "photocopy",
+        "subscription",
+        "lost",
+        "damaged",
+        "interlibrary_loan",
+        "other"
+      ],
+      "default": "overdue",
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "overdue",
+                "value": "overdue"
+              },
+              {
+                "label": "photocopy",
+                "value": "photocopy"
+              },
+              {
+                "label": "subscription",
+                "value": "subscription"
+              },
+              {
+                "label": "lost",
+                "value": "lost"
+              },
+              {
+                "label": "damaged",
+                "value": "damaged"
+              },
+              {
+                "label": "interlibrary_loan",
+                "value": "interlibrary_loan"
+              },
+              {
+                "label": "other",
+                "value": "other"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "patron": {
+      "title": "Patron",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Patron URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/patrons/.*?$"
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "notification": {
+      "title": "Notification",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Notification URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/notifications/.*?$"
+        }
+      }
+    },
+    "loan": {
+      "title": "Loan",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Loan URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/loans/.*?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "total_amount": {
+      "type": "number",
+      "minimum": 0,
+      "title": "Total calculated amount of the patron transaction"
+    }
+  }
+}
