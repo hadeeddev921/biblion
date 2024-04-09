@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Patron transaction event",
+  "description": "Creation, payment or cancellation of a fee amount.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "creation_date",
+    "parent",
+    "type"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/patron_transaction_events/patron_transaction_event-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Patron transaction event ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "parent": {
+      "title": "Parent patron transaction",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Patron transaction URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/patron_transactions/.*?$"
+        }
+      }
+    },
+    "creation_date": {
+      "title": "Creation date",
+      "type": "string",
+      "format": "date-time"
+    },
+    "amount": {
+      "title": "Amount",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "steps": {
+      "title": "Steps",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 8
+          },
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "timestamp",
+          "amount"
+        ]
+      }
+    },
+    "type": {
+      "title": "Type",
+      "type": "string"
+    },
+    "subtype": {
+      "title": "Subtype",
+      "type": "string"
+    },
+    "note": {
+      "title": "Note",
+      "type": "string",
+      "minLength": 3
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "operator": {
+      "title": "Operator",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Operator patron URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/patrons/.*?$"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/fee"
+    },
+    {
+      "$ref": "#/definitions/payment"
+    },
+    {
+      "$ref": "#/definitions/dispute"
+    },
+    {
+      "$ref": "#/definitions/cancel"
+    }
+  ],
+  "definitions": {
+    "fee": {
+      "properties": {
+        "type": {
+          "enum": [
+            "fee"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "options": [
+                  {
+                    "label": "fee",
+                    "value": "fee"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "subtype": {
+          "enum": [
+            "overdue",
+            "damaged",
+            "lost",
+            "other"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "options": [
+                  {
+                    "label": "overdue",
+                    "value": "overdue"
+                  },
+                  {
+                    "label": "damaged",
+                    "value": "damaged"
+                  },
+                  {
+                    "label": "lost",
+                    "value": "lost"
+                  },
+                  {
+                    "label": "other",
+                    "value": "other"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "subtype",
+        "amount"
+      ]
+    },
+    "payment": {
+      "properties": {
+        "type": {
+          "enum": [
+            "payment"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "options": [
+                  {
+                    "label": "payment",
+                    "value": "payment"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "subtype": {
+          "enum": [
+            "cash",
+            "invoice",
+            "debit_card",
+            "credit_card",
+            "paypal"
+          ],
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "options": [
+                  {
+                    "label": "cash",
+                    "value": "cash"
+                  },
+                  {
+                    "label": "invoice",
+                    "value": "invoice"
+                  },
+                  {
+                    "label": "debit_card",
+                    "value": "debit_card"
+                  },
+                  {
+                    "label": "credit_card",
+                    "value": "credit_card"
+                  },
+                  {
+                    "label": "paypal",
+                    "value": "paypal"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "subtype",
+        "operator",
+        "amount"
+      ]
+    },
+    "dispute": {
+      "properties": {
+        "type": {
+          "enum": [
+            "dispute"
+          ]
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "options": [
+                {
+                  "label": "dispute",
+                  "value": "dispute"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "operator",
+        "note"
+      ]
+    },
+    "cancel": {
+      "properties": {
+        "type": {
+          "enum": [
+            "cancel"
+          ]
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "options": [
+                {
+                  "label": "cancel",
+                  "value": "cancel"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "operator",
+        "amount",
+        "note"
+      ]
+    }
+  }
+}
