@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Patron transaction event Record tests."""
+
+from copy import deepcopy
+
+import pytest
+from jsonschema.exceptions import ValidationError
+
+from biblion.modules.patron_transaction_events.api import PatronTransactionEvent
+from biblion.modules.patron_transactions.api import (
+    patron_transaction_id_fetcher as fetcher,
+)
+
+
+def test_patron_transaction_event_properties(
+    patron_transaction_overdue_event_martigny, patron_transaction_overdue_martigny
+):
+    """Test patron transaction event properties."""
+    pttr = patron_transaction_overdue_martigny
+    ptre = patron_transaction_overdue_event_martigny
+    events = PatronTransactionEvent.get_events_by_transaction_id(pttr.pid)
+    assert ptre.pid in [hit.pid for hit in events]
+    assert ptre.parent_pid == pttr.pid
+    assert PatronTransactionEvent.get_initial_amount_transaction_event(pttr.pid) == pttr.total_amount
+
+
+def test_patron_transaction_event_create(db, search_clear, patron_transaction_overdue_event_martigny):
+    """Test patron transaction event creation."""
+    patron_event = deepcopy(patron_transaction_overdue_event_martigny)
+    patron_event["type"] = "no_type"
+    with pytest.raises(ValidationError):
+        PatronTransactionEvent.create(patron_event, delete_pid=True)
+    db.session.rollback()
+    # Check amount is multiple of 0.01
+    patron_event["type"] = "fee"
+    patron_event["amount"] = 2.23333
+    with pytest.raises(ValidationError) as err:
+        PatronTransactionEvent.create(patron_event, delete_pid=True)
+    assert "must be multiple of 0.01" in str(err)
+    db.session.rollback()
+
+    next_pid = PatronTransactionEvent.provider.identifier.next()
+    patron_event["amount"] = 2.2
+    record = PatronTransactionEvent.create(patron_event, delete_pid=True)
+    next_pid += 1
+    assert record == patron_event
+    assert record.get("pid") == str(next_pid)
+    assert record.get("amount") == 2.20
+
+    pttr = PatronTransactionEvent.get_record_by_pid(str(next_pid))
+    assert pttr == patron_event
+
+    fetched_pid = fetcher(pttr.id, pttr)
+    assert fetched_pid.pid_value == str(next_pid)
+    assert fetched_pid.pid_type == "pttr"
+
+
+def test_patron_transaction_event_can_delete(patron_transaction_overdue_event_martigny):
+    """Test can delete."""
+    can, reasons = patron_transaction_overdue_event_martigny.can_delete
+    assert can
+    assert reasons == {}
