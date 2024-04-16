@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Click command-line interface for ill_request record management."""
+
+import json
+import random
+
+import click
+from flask.cli import with_appcontext
+
+from biblion.modules.ill_requests.api import ILLRequest
+from biblion.modules.locations.api import Location
+from biblion.modules.patrons.api import Patron
+from biblion.modules.utils import get_ref_for_pid
+
+
+@click.command("create_ill_requests")
+@click.option("-f", "--requests_file", "input_file", help="Request input file")
+@with_appcontext
+def create_ill_requests(input_file):
+    """Create ILL request for each organisation."""
+    locations = get_locations()
+    patron_pids = {}
+
+    with open(input_file, encoding="utf-8") as request_file:
+        requests = json.load(request_file)
+        for request_data in requests:
+            for organisation_pid, location_pid in locations.items():
+                if "pid" in request_data:
+                    del request_data["pid"]
+                if organisation_pid not in patron_pids:
+                    patron_pids[organisation_pid] = [
+                        pid
+                        for pid in Patron.get_all_pids_for_organisation(organisation_pid)
+                        if Patron.get_record_by_pid(pid).is_patron
+                    ]
+                patron_pid = random.choice(patron_pids[organisation_pid])
+                request_data["patron"] = {"$ref": get_ref_for_pid("patrons", patron_pid)}
+                request_data["pickup_location"] = {"$ref": get_ref_for_pid("locations", location_pid)}
+                request = ILLRequest.create(request_data, dbcommit=True, reindex=True)
+                click.echo(f"\tRequest: #{request.pid}  \tfor org#{request.organisation_pid}")
+
+
+def get_locations():
+    """Get one pickup_location for each organisation.
+
+    :return: A dict of locations pids by organisation
+    """
+    location_data = {}
+    for pid in Location.get_pickup_location_pids(is_ill_pickup=True):
+        record = Location.get_record_by_pid(pid)
+        if record.organisation_pid not in location_data:
+            location_data[record.organisation_pid] = pid
+    return location_data
