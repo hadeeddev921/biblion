@@ -1,0 +1,458 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ILL request",
+  "description": "Request data, including references to a patron and to a pick-up location.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "document",
+    "found_in",
+    "patron",
+    "pickup_location",
+    "status",
+    "loan_status",
+    "copy",
+    "pages",
+    "notes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "status",
+    "loan_status",
+    "patron",
+    "pickup_location",
+    "copy",
+    "document"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "title": "Schema",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schema/ill-requests/ill-request-v0.0.1.json"
+    },
+    "pid": {
+      "type": "string",
+      "title": "ILL request ID",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "title": "Request status",
+      "description": "Request processing info for professionnals.",
+      "enum": [
+        "pending",
+        "validated",
+        "denied",
+        "closed"
+      ],
+      "default": "pending",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "options": [
+              {
+                "value": "pending",
+                "label": "pending"
+              },
+              {
+                "value": "validated",
+                "label": "validated"
+              },
+              {
+                "value": "denied",
+                "label": "denied"
+              },
+              {
+                "value": "closed",
+                "label": "closed"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "copy": {
+      "type": "boolean",
+      "title": "Copy",
+      "description": "Define if the request is for a copy or an actual document.",
+      "default": false
+    },
+    "patron": {
+      "type": "object",
+      "title": "Patron",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "type": "string",
+          "title": "Patron URI",
+          "pattern": "^https://bib.rero.ch/api/patrons/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "type": "remoteAutoComplete",
+              "props": {
+                "hideLabel": true,
+                "validation": {
+                  "messages": {
+                    "patternMessage": "Should be in the following format: https://bib.rero.ch/api/patrons/<PID>."
+                  }
+                },
+                "queryOptions": {
+                  "type": "patrons"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "loan_status": {
+      "type": "string",
+      "title": "Loan state",
+      "description": "Information about the loan displayed to patrons.",
+      "enum": [
+        "PENDING",
+        "ITEM_AT_DESK",
+        "ITEM_ON_LOAN",
+        "ITEM_RETURNED",
+        "CANCELLED"
+      ],
+      "default": "PENDING",
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "options": [
+              {
+                "value": "PENDING",
+                "label": "PENDING"
+              },
+              {
+                "value": "ITEM_AT_DESK",
+                "label": "ITEM_AT_DESK"
+              },
+              {
+                "value": "ITEM_ON_LOAN",
+                "label": "ITEM_ON_LOAN"
+              },
+              {
+                "value": "ITEM_RETURNED",
+                "label": "ITEM_RETURNED"
+              },
+              {
+                "value": "CANCELLED",
+                "label": "CANCELLED"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "pickup_location": {
+      "type": "object",
+      "title": "Pickup location",
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "type": "string",
+          "title": "Pickup location URI",
+          "pattern": "^https://bib.rero.ch/api/locations/.+?$",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "hideLabel": true,
+                "remoteOptions": {
+                  "type": "locations",
+                  "query": "is_ill_pickup:true",
+                  "labelField": "ill_pickup_name"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "title": "Document information",
+      "required": [
+        "title"
+      ],
+      "propertiesOrder": [
+        "title",
+        "authors",
+        "publisher",
+        "year",
+        "identifier",
+        "source"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "minLength": 3,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-8"
+              }
+            }
+          }
+        },
+        "authors": {
+          "type": "string",
+          "title": "Authors",
+          "minLength": 3,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4"
+              }
+            }
+          }
+        },
+        "publisher": {
+          "type": "string",
+          "title": "Publisher",
+          "minLength": 3,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+              }
+            }
+          }
+        },
+        "year": {
+          "type": "string",
+          "title": "Year",
+          "minLength": 1,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-2"
+              }
+            }
+          }
+        },
+        "identifier": {
+          "type": "string",
+          "title": "Identifier",
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                "doNotSubmitOnEnter": true
+              }
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "title": "Source",
+          "propertiesOrder": [
+            "journal_title",
+            "volume",
+            "number"
+          ],
+          "properties": {
+            "journal_title": {
+              "type": "string",
+              "title": "Journal title",
+              "minLength": 3,
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+                  }
+                }
+              }
+            },
+            "volume": {
+              "type": "string",
+              "title": "Volume",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:col-span-12 ui:md:col-span-3"
+                  }
+                }
+              }
+            },
+            "number": {
+              "type": "string",
+              "title": "Number",
+              "widget": {
+                "formlyConfig": {
+                  "props": {
+                    "itemCssClass": "ui:col-span-12 ui:md:col-span-3"
+                  }
+                }
+              }
+            }
+          },
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12",
+                "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "string",
+      "title": "Pages",
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "props.required": "model?.copy === true",
+            "hide": "model?.copy === false"
+          }
+        }
+      }
+    },
+    "found_in": {
+      "type": "object",
+      "title": "Found in",
+      "propertiesOrder": [
+        "source",
+        "url"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "title": "Source",
+          "minLength": 3,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6"
+              }
+            }
+          }
+        },
+        "url": {
+          "type": "string",
+          "title": "URL",
+          "placeholder": "Example: https://www.example.com/",
+          "format": "uri",
+          "pattern": "^(ftps?|https?)://.*$",
+          "minLength": 7,
+          "widget": {
+            "formlyConfig": {
+              "props": {
+                "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                "validation": {
+                  "messages": {
+                    "patternMessage": "This URL is invalid."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "title": "Notes",
+      "items": {
+        "type": "object",
+        "title": "Note",
+        "additionalProperties": false,
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "public_note",
+              "staff_note"
+            ],
+            "default": "public_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "public_note",
+                      "value": "public_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 3,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-8",
+                  "rows": 3
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
