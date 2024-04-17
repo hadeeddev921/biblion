@@ -1,0 +1,457 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Vendor",
+  "description": "Agent who can receive and fulfill document/acquisition orders.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "name",
+    "website",
+    "communication_language",
+    "currency",
+    "vat_rate",
+    "contacts",
+    "notes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "currency",
+    "vat_rate",
+    "organisation",
+    "communication_language"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/vendors/vendor-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Vendor ID",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "focus": true,
+          "props": {
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {
+                  "term": "name.raw"
+                }
+              },
+              "messages": {
+                "alreadyTakenMessage": "This name is already taken."
+              }
+            }
+          }
+        }
+      }
+    },
+    "website": {
+      "title": "Website",
+      "type": "string",
+      "format": "uri",
+      "pattern": "^(ftps?|https?)://.*$",
+      "minLength": 4,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "addonLeft": [
+              "<i class=\"fa-solid fa-globe\"></i>"
+            ],
+            "validation": {
+              "messages": {
+                "patternMessage": "This URL is invalid."
+              }
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "order_note",
+              "claim_note",
+              "return_note",
+              "invoice_note",
+              "payment_note",
+              "receipt_note",
+              "credit_note",
+              "staff_note",
+              "general_note"
+            ],
+            "default": "general_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "order_note",
+                      "value": "order_note"
+                    },
+                    {
+                      "label": "claim_note",
+                      "value": "claim_note"
+                    },
+                    {
+                      "label": "return_note",
+                      "value": "return_note"
+                    },
+                    {
+                      "label": "invoice_note",
+                      "value": "invoice_note"
+                    },
+                    {
+                      "label": "payment_note",
+                      "value": "payment_note"
+                    },
+                    {
+                      "label": "receipt_note",
+                      "value": "receipt_note"
+                    },
+                    {
+                      "label": "credit_note",
+                      "value": "credit_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    },
+                    {
+                      "label": "general_note",
+                      "value": "general_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-8",
+                  "rows": 3
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed."
+              }
+            }
+          }
+        }
+      }
+    },
+    "communication_language": {
+      "title": "Communication language",
+      "description": "Selected language will be used in all notifications sent to this vendor.",
+      "type": "string",
+      "enum": [
+        "fre",
+        "eng",
+        "ita",
+        "ger",
+        "spa"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "itemCssClass": "ui:md:w-3/12",
+            "sort": true,
+            "options": [
+              {
+                "value": "fre",
+                "label": "lang_fre"
+              },
+              {
+                "value": "eng",
+                "label": "lang_eng"
+              },
+              {
+                "value": "ita",
+                "label": "lang_ita"
+              },
+              {
+                "value": "ger",
+                "label": "lang_ger"
+              },
+              {
+                "value": "spa",
+                "label": "lang_spa"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "contacts": {
+      "title": "Contacts",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Contact",
+        "type": "object",
+        "propertiesOrder": [
+          "type",
+          "email",
+          "contact_person",
+          "street",
+          "postal_code",
+          "city",
+          "country",
+          "phone"
+        ],
+        "required": [
+          "type",
+          "city"
+        ],
+        "properties": {
+          "type": {
+            "title": "Contact type",
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "default",
+              "order",
+              "serial"
+            ],
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-6",
+                  "sort": true,
+                  "options": [
+                    {
+                      "value": "default",
+                      "label": "Default contact"
+                    },
+                    {
+                      "value": "order",
+                      "label": "Order contact"
+                    },
+                    {
+                      "value": "serial",
+                      "label": "Serial contact"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "contact_person": {
+            "title": "Contact person",
+            "type": "string",
+            "minLength": 4,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12",
+                  "addonLeft": [
+                    "<i class=\"fa-solid fa-user\"></i>"
+                  ]
+                }
+              }
+            }
+          },
+          "street": {
+            "title": "Street and number",
+            "type": "string",
+            "minLength": 4,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12",
+                  "rows": 2
+                }
+              }
+            }
+          },
+          "postal_code": {
+            "title": "Postal code",
+            "type": "string",
+            "minLength": 4,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-3"
+                }
+              }
+            }
+          },
+          "city": {
+            "title": "City",
+            "type": "string",
+            "minLength": 2,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-5"
+                }
+              }
+            }
+          },
+          "country": {
+            "title": "Country",
+            "type": "string",
+            "minLength": 2,
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                  "addonLeft": [
+                    "<i class=\"fa-solid fa-earth-europe\"></i>"
+                  ]
+                }
+              }
+            }
+          },
+          "phone": {
+            "title": "Phone number",
+            "type": "string",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12",
+                  "addonLeft": [
+                    "<i class=\"fa-solid fa-phone\"></i>"
+                  ]
+                }
+              }
+            }
+          },
+          "email": {
+            "title": "Email",
+            "type": "string",
+            "format": "email",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "itemCssClass": "ui:col-span-12",
+                  "addonLeft": [
+                    "<i class=\"fa-solid fa-at\"></i>"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one contact per type is allowed."
+              }
+            }
+          }
+        }
+      }
+    },
+    "currency": {
+      "$ref": "https://bib.rero.ch/schemas/common/currency-v0.0.1.json#/currency"
+    },
+    "vat_rate": {
+      "title": "VAT rate",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:md:w-2/12"
+          }
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
