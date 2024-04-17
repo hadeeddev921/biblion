@@ -1,0 +1,101 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          },
+          "sort": {
+            "type": "keyword",
+            "normalizer": "sort_normalizer"
+          }
+        }
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
+      "website": {
+        "type": "keyword"
+      },
+      "currency": {
+        "type": "keyword"
+      },
+      "communication_language": {
+        "type": "keyword"
+      },
+      "vat_rate": {
+        "type": "keyword"
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "contacts": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "contact_person": {
+            "type": "text"
+          },
+          "city": {
+            "type": "text"
+          },
+          "country": {
+            "type": "text"
+          },
+          "email": {
+            "type": "keyword",
+            "fields": {
+              "analyzed": {
+                "type": "text",
+                "analyzer": "custom_keyword"
+              }
+            }
+          },
+          "home_phone": {
+            "type": "keyword"
+          },
+          "phone": {
+            "type": "keyword"
+          },
+          "postal_code": {
+            "type": "keyword"
+          },
+          "street": {
+            "type": "text"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
