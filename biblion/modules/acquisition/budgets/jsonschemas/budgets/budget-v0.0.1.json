@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Budget",
+  "description": "Financial year.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "name",
+    "start_date",
+    "end_date",
+    "is_active"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "start_date",
+    "end_date"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/budgets/budget-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Budget ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "title": "Budget name",
+      "description": "Name of the budget.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "focus": true,
+          "props": {
+            "validation": {
+              "validators": {
+                "valueAlreadyExists": {
+                  "term": "name"
+                }
+              },
+              "messages": {
+                "alreadyTakenMessage": "This name is already taken."
+              }
+            }
+          }
+        }
+      }
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD)."
+              }
+            }
+          }
+        }
+      }
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD)."
+              }
+            }
+          }
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "True if not rolled over yet",
+      "default": false
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
