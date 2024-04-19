@@ -1,0 +1,137 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""API for manipulating budgets."""
+
+import contextlib
+from functools import partial
+
+from elasticsearch import NotFoundError
+
+from biblion.modules.acquisition.acq_accounts.api import AcqAccount, AcqAccountsSearch
+from biblion.modules.acquisition.api import AcquisitionIlsRecord
+from biblion.modules.api import IlsRecordsIndexer, IlsRecordsSearch
+from biblion.modules.fetchers import id_fetcher
+from biblion.modules.minters import id_minter
+from biblion.modules.organisations.api import Organisation
+from biblion.modules.providers import Provider
+from biblion.modules.utils import sorted_pids
+
+from .models import BudgetIdentifier, BudgetMetadata
+
+# provider
+BudgetProvider = type("BudgetProvider", (Provider,), {"identifier": BudgetIdentifier, "pid_type": "budg"})
+# minter
+budget_id_minter = partial(id_minter, provider=BudgetProvider)
+# fetcher
+budget_id_fetcher = partial(id_fetcher, provider=BudgetProvider)
+
+
+class BudgetsSearch(IlsRecordsSearch):
+    """BudgetsSearch."""
+
+    class Meta:
+        """Search only on budget index."""
+
+        index = "budgets"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+
+class Budget(AcquisitionIlsRecord):
+    """Budget class."""
+
+    minter = budget_id_minter
+    fetcher = budget_id_fetcher
+    provider = BudgetProvider
+    model_cls = BudgetMetadata
+    pids_exist_check = {"required": {"org": "organisation"}}
+
+    @property
+    def name(self):
+        """Shortcut for budget name."""
+        return self.get("name")
+
+    @property
+    def is_active(self):
+        """Check if the budget should be considered as active."""
+        return self.get("is_active", False)
+
+    def get_related_accounts(self):
+        """Get account related to this budget.
+
+        :rtype: an `AcqAccount` generator
+        """
+        query = AcqAccountsSearch().filter("term", budget__pid=self.pid).source(False)
+        for hit in query.scan():
+            yield AcqAccount.get_record(hit.meta.id)
+
+    def get_links_to_me(self, get_pids=False):
+        """Record links.
+
+        :param get_pids: if True list of linked pids
+                         if False count of linked records
+        """
+        links = {}
+        query = AcqAccountsSearch().filter("term", budget__pid=self.pid)
+        acq_accounts = sorted_pids(query) if get_pids else query.count()
+        if acq_accounts:
+            links["acq_accounts"] = acq_accounts
+        return links
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete record."""
+        cannot_delete = {}
+        # Note: not possible to delete records attached to rolled_over budget.
+        if not self.is_active:
+            cannot_delete["links"] = {"rolled_over": True}
+            return cannot_delete
+        if others := self.reasons_to_keep():
+            cannot_delete["others"] = others
+        if links := self.get_links_to_me():
+            cannot_delete["links"] = links
+        return cannot_delete
+
+    def reasons_to_keep(self):
+        """Reasons aside from record_links to keep a budget."""
+        others = {}
+        organisation = Organisation.get_record_by_pid(self.organisation_pid)
+        if organisation.get("current_budget_pid") == self.pid:
+            others["is_default"] = True
+        return others
+
+
+class BudgetsIndexer(IlsRecordsIndexer):
+    """Indexing documents in search index."""
+
+    record_cls = Budget
+
+    def index(self, record):
+        """Indexing an budget record."""
+        BudgetsIndexer._check_is_active_changed(record)
+        return super().index(record)
+
+    def bulk_index(self, record_id_iterator):
+        """Bulk index records.
+
+        :param record_id_iterator: Iterator yielding record UUIDs.
+        """
+        super().bulk_index(record_id_iterator, doc_type="budg")
+
+    @classmethod
+    def _check_is_active_changed(cls, record):
+        """Detect is `is_active` field changed.
+
+        In this case, we need to reindex related accounts to set them as
+        inactive into the AcqAccount search index.
+
+        :param record: the record to index.
+        """
+        with contextlib.suppress(NotFoundError):
+            original_record = BudgetsSearch().get_record_by_pid(record.pid)
+            if record.is_active != original_record["is_active"]:
+                for account in record.get_related_accounts():
+                    account.reindex()
