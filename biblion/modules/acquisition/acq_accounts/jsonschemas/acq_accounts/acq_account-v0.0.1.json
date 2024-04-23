@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Acquisition account",
+  "description": "Budget category to which an amount can be allocated.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "name",
+    "number",
+    "parent",
+    "allocated_amount",
+    "encumbrance_exceedance",
+    "expenditure_exceedance"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "name",
+    "allocated_amount",
+    "budget",
+    "library"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/acq_accounts/acq_account-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Account ID",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Common name of the acquisition account.",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "focus": true
+        }
+      }
+    },
+    "number": {
+      "title": "Account number",
+      "description": "Reference account number in accounting system.",
+      "type": "string",
+      "minLength": 1
+    },
+    "allocated_amount": {
+      "title": "Allocated amount",
+      "description": "The amount allocated for the acquisition account.",
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "fieldMap": "amount",
+            "itemCssClass": "ui:md:w-3/12"
+          }
+        }
+      }
+    },
+    "encumbrance_exceedance": {
+      "title": "Encumbrance exceedance",
+      "description": "The exceedance percentage of account amount that linked pending orders can reach.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "addonRight": [
+              "%"
+            ],
+            "itemCssClass": "ui:md:w-2/12"
+          }
+        }
+      }
+    },
+    "expenditure_exceedance": {
+      "title": "Expenditure exceedance",
+      "description": "The exceedance percentage of account amount than linked paid invoices can reach.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "addonRight": [
+              "%"
+            ],
+            "itemCssClass": "ui:md:w-2/12"
+          }
+        }
+      }
+    },
+    "parent": {
+      "title": "Parent account",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Account URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/acq_accounts/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "type": "account-select",
+              "props": {
+                "hideLabel": true,
+                "filterChildren": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "budget": {
+      "title": "Budget",
+      "type": "object",
+      "description": "The acquisition account belongs to which budget.",
+      "properties": {
+        "$ref": {
+          "title": "Budget URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/budgets/.*?$"
+        }
+      },
+      "required": [
+        "$ref"
+      ]
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
