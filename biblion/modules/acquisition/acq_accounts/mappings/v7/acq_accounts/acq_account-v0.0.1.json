@@ -1,0 +1,149 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "number": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "allocated_amount": {
+        "type": "float"
+      },
+      "remaining_balance": {
+        "properties": {
+          "self": {
+            "type": "float"
+          },
+          "total": {
+            "type": "float"
+          }
+        }
+      },
+      "distribution": {
+        "type": "float"
+      },
+      "encumbrance_exceedance": {
+        "properties": {
+          "value": {
+            "type": "float"
+          },
+          "amount": {
+            "type": "float"
+          }
+        }
+      },
+      "expenditure_exceedance": {
+        "properties": {
+          "value": {
+            "type": "float"
+          },
+          "amount": {
+            "type": "float"
+          }
+        }
+      },
+      "encumbrance_amount": {
+        "properties": {
+          "children": {
+            "type": "float"
+          },
+          "self": {
+            "type": "float"
+          },
+          "total": {
+            "type": "float"
+          }
+        }
+      },
+      "expenditure_amount": {
+        "properties": {
+          "children": {
+            "type": "float"
+          },
+          "self": {
+            "type": "float"
+          },
+          "total": {
+            "type": "float"
+          }
+        }
+      },
+      "is_parent": {
+        "type": "boolean"
+      },
+      "is_active": {
+        "type": "boolean"
+      },
+      "depth": {
+        "type": "integer"
+      },
+      "parent": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "budget": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
