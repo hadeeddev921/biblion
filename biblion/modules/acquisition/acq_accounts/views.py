@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Blueprint used for acquuisition account API."""
+
+from flask import Blueprint, jsonify, request
+
+from biblion.modules.decorators import check_logged_as_librarian, jsonify_error
+
+from .api import AcqAccount
+
+api_blueprint = Blueprint("api_acq_account", __name__, url_prefix="/acq_accounts")
+
+
+@api_blueprint.route("/transfer_funds", methods=["GET"])
+@check_logged_as_librarian
+@jsonify_error
+def transfer_funds():
+    """HTTP GET request to transfer funds between accounts.
+
+    USAGE : /api/acq_accounts/transfer_funds?source=<from>&target=<until>
+            &amount=<amount>
+
+    parameters:
+      * source: the source account PID.
+      * target: the target account PID.
+      * amount: the amount to transfer between both accounts.
+
+    :return HTTP 200: if the transfer is well done
+    :return HTTP 400: the transfer can't be done. Check error message to know
+                      the reason.
+    :return HTTP 401: Unauthorized
+    """
+    # Get argument values from query string :
+    #   * source: source account pid. Account must exists and active.
+    #   * target: target account pid. Account must exists and active.
+    #   * amount: the amount to transfer. Must be a positive number.
+    for arg_name in ["source", "target", "amount"]:
+        if arg_name not in request.args:
+            raise KeyError(f"'{arg_name}' argument is required !")
+    source_acq = AcqAccount.get_record_by_pid(request.args["source"])
+    if source_acq is None:
+        raise ValueError("Unable to load source account.")
+    if not source_acq.is_active:
+        raise ValueError("Source account isn't active.")
+    target_acq = AcqAccount.get_record_by_pid(request.args["target"])
+    if target_acq is None:
+        raise ValueError("Unable to load target account.")
+    if not target_acq.is_active:
+        raise ValueError("Target account isn't active.")
+    amount = float(request.args["amount"])
+    if amount < 0:
+        raise ValueError("'amount' should be a positive number.")
+
+    # Execute the transfer between source and target account.
+    source_acq.transfer_fund(target_acq, amount)
+    return jsonify({})
