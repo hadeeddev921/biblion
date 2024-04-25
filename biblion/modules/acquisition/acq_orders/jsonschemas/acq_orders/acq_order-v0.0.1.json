@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Acquisition order",
+  "description": "Enquiry sent to a vendor, consisting of lines referring to documents.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "vendor",
+    "reference",
+    "order_date",
+    "notes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "vendor",
+    "library"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "default": "https://bib.rero.ch/schemas/acq_orders/acq_order-v0.0.1.json",
+      "pattern": "^https://bib.rero.ch/schemas/acq_orders/acq_order-v([0-9]+?\\.){3}json$"
+    },
+    "pid": {
+      "title": "AcqOrder ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "reference": {
+      "title": "Reference",
+      "type": "string",
+      "minLength": 3
+    },
+    "currency": {
+      "$ref": "https://bib.rero.ch/schemas/common/currency-v0.0.1.json#/currency"
+    },
+    "order_date": {
+      "title": "Order date",
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "expressions": {
+            "hide": "true"
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "staff_note",
+              "vendor_note"
+            ],
+            "default": "staff_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-4",
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "vendor_note",
+                      "value": "vendor_note"
+                    },
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "itemCssClass": "ui:col-span-12 ui:md:col-span-8",
+                  "rows": 3
+                }
+              }
+            }
+          }
+        },
+        "widget": {
+          "formlyConfig": {
+            "props": {
+              "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            }
+          }
+        }
+      }
+    },
+    "vendor": {
+      "title": "Vendor",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Vendor URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/vendors/.*?$",
+          "widget": {
+            "formlyConfig": {
+              "focus": true,
+              "props": {
+                "hideLabel": true,
+                "remoteOptions": {
+                  "type": "vendors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "previousVersion": {
+      "title": "Previous version",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Acquisition order URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/acq_orders/.*?$"
+        }
+      }
+    }
+  }
+}
