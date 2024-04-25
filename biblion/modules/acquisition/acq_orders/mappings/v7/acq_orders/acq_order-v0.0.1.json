@@ -1,0 +1,190 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "vendor": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "budget": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "previousVersion": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "reference": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword",
+            "ignore_above": 256
+          },
+          "sort": {
+            "type": "keyword",
+            "normalizer": "sort_normalizer",
+            "ignore_above": 256
+          }
+        }
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "currency": {
+        "type": "keyword"
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          },
+          "source": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "receipts": {
+        "properties": {
+          "reference": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          },
+          "receipt_date": {
+            "type": "date"
+          }
+        }
+      },
+      "order_date": {
+        "type": "date"
+      },
+      "order_lines": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "keyword"
+          },
+          "document": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "title": {
+                "type": "text"
+              },
+              "identifiers": {
+                "type": "text",
+                "analyzer": "identifier-analyzer"
+              }
+            }
+          },
+          "account": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              },
+              "number": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "account_statement": {
+        "properties": {
+          "provisional": {
+            "properties": {
+              "total_amount": {
+                "type": "float"
+              },
+              "quantity": {
+                "type": "integer"
+              }
+            }
+          },
+          "expenditure": {
+            "properties": {
+              "total_amount": {
+                "type": "float"
+              },
+              "quantity": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
