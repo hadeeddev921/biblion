@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Acquisition Order record extensions."""
+
+from invenio_records.extensions import RecordExtension
+
+from biblion.modules.utils import extracted_data_from_ref
+
+
+class AcquisitionOrderExtension(RecordExtension):
+    """Defines the methods needed by an extension."""
+
+    def pre_dump(self, record, data, dumper=None):
+        """Called before a record is dumped.
+
+        :param record: the record metadata.
+        :param data: the dumped data dictionary.
+        :param dumper: the record dumper.
+        """
+        record["account_statement"] = record.get_account_statement()
+        record["status"] = record.status
+
+    def pre_load(self, data, loader=None):
+        """Called before a record is loaded.
+
+        :param data: the data to load.
+        :param loader: the record loader.
+        """
+        data.pop("account_statement", None)
+        data.pop("status", None)
+
+    def pre_delete(self, record, force=False):
+        """Called before a record is deleted.
+
+        :param record: the record metadata.
+        :param force: force the deleting of the record.
+        """
+        # For pending orders, we are allowed to delete all of its
+        # line orders without further checks.
+        # there is no need to check if it is a pending order or not because
+        # the can_delete is already execute in the method self.delete
+        for line in record.get_order_lines():
+            line.delete(force=force, delindex=True)
+
+
+class AcquisitionOrderCompleteDataExtension(RecordExtension):
+    """Complete data about an acquisition order."""
+
+    @staticmethod
+    def populate_currency(record):
+        """Add vendor currency to order data."""
+        if vendor := record.get("vendor"):
+            vendor = extracted_data_from_ref(vendor, data="record")
+            record["currency"] = vendor.get("currency")
+
+    # TODO : This hook doesn't work as expected now.
+    #   The record is well updated with currency key, but this key isn't store
+    #   into the database json blob record
+    # def pre_create(self, record):
+    #     """Called Called before a record is created.
+    #
+    #     :param record: the record metadata.
+    #     """
+    #     # The vendor currency could change over time, but when an order is
+    #     # created the currency used couldn't change if we update the vendor
+    #     # currency. So we need to store the currency into the order instead
+    #     # of just use a vendor reference.
+    #     AcquisitionOrderCompleteDataExtension.populate_currency(record)
+
+    def post_create(self, record):
+        """Called after the record is created.
+
+        If no reference is provided, use the PID as auto incremented sequence
+        to use as reference order.
+
+        :param record: the record metadata.
+        """
+        if not record.get("reference"):
+            record["reference"] = f"ORDER-{record.pid}"
+            record.update(record, dbcommit=True, reindex=True)
+
+    def pre_commit(self, record):
+        """Called before a record is committed.
+
+        :param record: the record metadata.
+        """
+        # If we update the vendor, we need to change the order currency.
+        original_record = record.__class__.get_record_by_pid(record.pid)
+        if original_record and original_record.vendor_pid != record.vendor_pid:
+            AcquisitionOrderCompleteDataExtension.populate_currency(record)
