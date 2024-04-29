@@ -1,0 +1,339 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""API for manipulating Acquisition Order Line."""
+
+from copy import deepcopy
+from functools import partial
+
+from flask_babel import gettext as _
+
+from biblion.modules.acquisition.api import AcquisitionIlsRecord
+from biblion.modules.api import IlsRecordsIndexer, IlsRecordsSearch
+from biblion.modules.fetchers import id_fetcher
+from biblion.modules.minters import id_minter
+from biblion.modules.providers import Provider
+from biblion.modules.utils import extracted_data_from_ref, get_ref_for_pid, sorted_pids
+
+from .extensions import AcqOrderLineValidationExtension
+from .models import AcqOrderLineIdentifier, AcqOrderLineMetadata, AcqOrderLineStatus
+
+# provider
+AcqOrderLineProvider = type(
+    "AcqOrderLineProvider",
+    (Provider,),
+    {"identifier": AcqOrderLineIdentifier, "pid_type": "acol"},
+)
+# minter
+acq_order_line_id_minter = partial(id_minter, provider=AcqOrderLineProvider)
+# fetcher
+acq_order_line_id_fetcher = partial(id_fetcher, provider=AcqOrderLineProvider)
+
+
+class AcqOrderLinesSearch(IlsRecordsSearch):
+    """Acquisition Order Line Search."""
+
+    class Meta:
+        """Search only on Acquisition Order Line index."""
+
+        index = "acq_order_lines"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+
+class AcqOrderLine(AcquisitionIlsRecord):
+    """Acquisition Order Line class."""
+
+    minter = acq_order_line_id_minter
+    fetcher = acq_order_line_id_fetcher
+    provider = AcqOrderLineProvider
+    model_cls = AcqOrderLineMetadata
+    pids_exist_check = {
+        "required": {"doc": "document", "acac": "acq_account", "acor": "acq_order"},
+        "not_required": {"org": "organisation"},
+    }
+
+    _extensions = [AcqOrderLineValidationExtension()]
+
+    # API METHODS =============================================================
+    #   Overriding the `IlsRecord` default behavior for create and update
+    #   Invenio API methods.
+
+    def extended_validation(self, **kwargs):
+        """Add additional record validation.
+
+        :return: ``True`` if valid, otherwise an error message string when:
+            - the notes array has several notes of the same type;
+            - an update leaves the line active (not cancelled) while its
+              document has been deleted;
+            - the related order status forbids the operation: a line may be
+              created only on a PENDING or CANCELLED order, and updated also on
+              an ORDERED or PARTIALLY_RECEIVED one (plus RECEIVED when the
+              update cancels the line).
+        """
+        # NOTES fields testing
+        note_types = [note.get("type") for note in self.get("notes", [])]
+        if len(note_types) != len(set(note_types)):
+            return _("Cannot have multiple notes of the same type.")
+        # Deleted-document guard: a document may be deleted once all its order
+        # lines reach a terminal status (RECEIVED or CANCELLED). Prevent any
+        # subsequent update that would re-activate the line (remove or unset
+        # `is_cancelled`) while the document no longer exists.
+        if self.updated and not self.get("is_cancelled") and not self.document:
+            return _("Cannot save an active order line for a deleted document.")
+        from biblion.modules.acquisition.acq_orders.api import AcqOrder
+        from biblion.modules.acquisition.acq_orders.models import AcqOrderStatus
+
+        order_status = AcqOrder.get_status_by_pid(self.order_pid)
+        valid_statuses = [
+            AcqOrderStatus.CANCELLED,
+            AcqOrderStatus.PENDING,
+        ]
+        if self.updated:
+            valid_statuses += [
+                AcqOrderStatus.ORDERED,
+                AcqOrderStatus.PARTIALLY_RECEIVED,
+            ]
+            # Cancelling a line is always valid, even when it makes the order
+            # fully received (e.g. cancelling its last non-received line). The
+            # REST layer commits and reindexes the record, then re-validates it,
+            # so the order may already report RECEIVED by the time we get here.
+            # The permission (checked once, on the prior status) is the real
+            # gate; a direct cancel on an already-received order is blocked there.
+            # This overlap between validators/permissions will be addressed in a future refactor.
+            if self.get("is_cancelled"):
+                valid_statuses.append(AcqOrderStatus.RECEIVED)
+        if order_status not in valid_statuses:
+            return _("Cannot save an order line for an order with a wrong status.")
+        return True
+
+    @classmethod
+    def create(cls, data, id_=None, delete_pid=False, dbcommit=True, reindex=True, **kwargs):
+        """Create Acquisition Order Line record."""
+        # TODO : should be used into `pre_create` hook extensions but seems not
+        #        work as expected.
+        cls._build_additional_refs(data)
+        cls._build_total_amount(data)
+        return super().create(data, id_, delete_pid, dbcommit, reindex, **kwargs)
+
+    def update(self, data, commit=True, dbcommit=True, reindex=True):
+        """Update Acquisition Order Line record."""
+        # TODO :: try to find a better way to load original record.
+        original_record = self.__class__.get_record(self.id)
+
+        new_data = deepcopy(dict(self))
+        new_data |= data
+        self._build_additional_refs(new_data)
+        self._build_total_amount(new_data)
+        super().update(new_data, commit, dbcommit, reindex)
+
+        # If the related account change, then we need to reindex the original
+        # account to release encumbrance amount on this account.
+        if original_record.account_pid != self.account_pid:
+            original_record.account.reindex()
+
+        return self
+
+    @classmethod
+    def _build_additional_refs(cls, data):
+        """Build $ref for the organisation of the acquisition order."""
+        if order := extracted_data_from_ref(data.get("acq_order"), data="record"):
+            data["library"] = {"$ref": get_ref_for_pid("lib", order.library_pid)}
+            data["organisation"] = {"$ref": get_ref_for_pid("org", order.organisation_pid)}
+
+    @classmethod
+    def _build_total_amount(cls, data):
+        """Build total amount for order line."""
+        data["total_amount"] = round(data["amount"] * data["quantity"], 2)
+
+    # GETTER & SETTER =========================================================
+    #   * Define some properties as shortcut to quickly access object attrs.
+    #   * Defines some getter methods to access specific object values.
+
+    @property
+    def order_pid(self):
+        """Shortcut for acquisition order pid."""
+        return extracted_data_from_ref(self.get("acq_order"))
+
+    @property
+    def order(self):
+        """Shortcut to the order of the order line."""
+        return extracted_data_from_ref(self.get("acq_order"), data="record")
+
+    @property
+    def is_cancelled(self):
+        """Shortcut for acquisition order is_cancelled falg."""
+        return self.get("is_cancelled")
+
+    @property
+    def account_pid(self):
+        """Shortcut to the account pid related to this order line."""
+        return extracted_data_from_ref(self.get("acq_account"))
+
+    @property
+    def account(self):
+        """Shortcut to the account object related to this order line."""
+        return extracted_data_from_ref(self.get("acq_account"), data="record")
+
+    @property
+    def is_active(self):
+        """Check if the order line should be considered as active.
+
+        To know if an order line is active, we need to check the related
+        budget. This budget has an 'is_active' field.
+        """
+        return self.account.is_active
+
+    @property
+    def document_pid(self):
+        """Shortcut to the document pid related to this order line."""
+        return extracted_data_from_ref(self.get("document"))
+
+    @property
+    def document(self):
+        """Shortcut to the document object related to this order line."""
+        return extracted_data_from_ref(self.get("document"), data="record")
+
+    @property
+    def organisation_pid(self):
+        """Get organisation pid for acquisition order."""
+        return self.order.organisation_pid
+
+    @property
+    def quantity(self):
+        """Get quantity of ordered_items for a line order.
+
+        This comes from the metadata of the order line that represent the
+        number of items to order or already ordered.
+        """
+        return self.get("quantity")
+
+    @property
+    def received_quantity(self):
+        """Get quantity of received ordered_items for a order line.
+
+        The received quantity is number of quantity received for the resource
+        acq_receipt_line and for the corresponding acq_line_order.
+        """
+        from biblion.modules.acquisition.acq_receipt_lines.api import (
+            AcqReceiptLinesSearch,
+        )
+
+        search = AcqReceiptLinesSearch().filter("term", acq_order_line__pid=self.pid)
+        search.aggs.metric("sum_order_line_recieved", "sum", field="quantity")
+        results = search.execute()
+        return results.aggregations.sum_order_line_recieved.value
+
+    @property
+    def unreceived_quantity(self):
+        """Get quantity of unreceived ordered_items for a line order."""
+        return self.quantity - self.received_quantity
+
+    @property
+    def status(self):
+        """Calculate the order line status.
+
+        The status of the order line is saved only in the search index
+        and it is calculated based on the following roles:
+        * at the creation, the order line receives the `APPROVED` status
+        * if field `is_cancelled` is checked, it receives the `CANCELLED`status
+        * if some items are received but not the total, it receives
+            `PARTIALLY_RECEIVED` status
+        * if all items are received, it receives `RECEIVED` status
+        """
+        if self.is_cancelled:
+            return AcqOrderLineStatus.CANCELLED
+        status = AcqOrderLineStatus.ORDERED if self.order.get("order_date") else AcqOrderLineStatus.APPROVED
+
+        received_quantity = self.received_quantity
+        # not use the property to prevent an extra search call
+        unreceived_quantity = self.quantity - received_quantity
+        if unreceived_quantity == 0:  # fully received
+            status = AcqOrderLineStatus.RECEIVED
+        elif unreceived_quantity and unreceived_quantity != self.quantity:
+            status = AcqOrderLineStatus.PARTIALLY_RECEIVED
+        return status
+
+    @property
+    def library_pid(self):
+        """Shortcut for acquisition order library pid."""
+        return self.order.library_pid
+
+    def get_note(self, note_type):
+        """Get a specific type of note.
+
+        Only one note of each type could be created.
+        :param note_type: the note type to filter as `OrderLineNoteType` value.
+        :return the note content if exists, otherwise returns None.
+        """
+        note = [note.get("content") for note in self.get("notes", []) if note.get("type") == note_type]
+        return next(iter(note), None)
+
+    def get_links_to_me(self, get_pids=False):
+        """Record links.
+
+        :param get_pids: if True list of linked pids
+                         if False count of linked records
+        """
+        from biblion.modules.acquisition.acq_receipt_lines.api import (
+            AcqReceiptLinesSearch,
+        )
+
+        links = {}
+        query = AcqReceiptLinesSearch().filter("term", acq_order_line__pid=self.pid)
+
+        receipt_lines = sorted_pids(query) if get_pids else query.count()
+
+        if receipt_lines:
+            links["acq_receipt_lines"] = receipt_lines
+
+        return links
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete record."""
+        from biblion.modules.acquisition.acq_orders.api import AcqOrder, AcqOrderStatus
+
+        cannot_delete = {}
+        # Note: not possible to delete records attached to rolled_over budget.
+        if not self.is_active:
+            cannot_delete["links"] = {"rolled_over": True}
+            return cannot_delete
+        if links := self.get_links_to_me():
+            cannot_delete["links"] = links
+        order_status = AcqOrder.get_status_by_pid(self.order_pid)
+        if order_status not in [AcqOrderStatus.CANCELLED, AcqOrderStatus.PENDING]:
+            cannot_delete["others"] = {"order_has_active_status": True}
+        return cannot_delete
+
+
+class AcqOrderLinesIndexer(IlsRecordsIndexer):
+    """Indexing AcqOrderLine in search index."""
+
+    record_cls = AcqOrderLine
+
+    @staticmethod
+    def _reindex_related_resources(record):
+        record.order.reindex()
+        record.account.reindex()
+
+    def index(self, record):
+        """Index an AcqOrderLine and update total amount of order."""
+        return_value = super().index(record)
+        AcqOrderLinesIndexer._reindex_related_resources(record)
+        return return_value
+
+    def delete(self, record):
+        """Delete an AcqOrderLine and update total amount of order."""
+        return_value = super().delete(record)
+        AcqOrderLinesIndexer._reindex_related_resources(record)
+        return return_value
+
+    def bulk_index(self, record_id_iterator):
+        """Bulk index records.
+
+        :param record_id_iterator: Iterator yielding record UUIDs.
+        """
+        super().bulk_index(record_id_iterator, doc_type="acol")
