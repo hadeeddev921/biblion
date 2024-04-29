@@ -1,0 +1,281 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests REST API acquisition orders."""
+
+import json
+from copy import deepcopy
+from unittest import mock
+
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+
+from biblion.modules.acquisition.acq_orders.models import AcqOrderStatus
+from biblion.modules.utils import get_ref_for_pid
+from tests.api.acquisition.acq_utils import _del_resource, _make_resource
+from tests.utils import VerifyRecordPermissionPatch, get_json, postdata, to_relative_url
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_acq_orders_library_facets(client, org_martigny, acq_order_fiction_martigny, biblion_json_header):
+    """Test record retrieval."""
+    url = url_for("invenio_records_rest.acor_list", view="org1")
+    res = client.get(url, headers=biblion_json_header)
+    data = get_json(res)
+    facets = ["library", "vendor", "status", "account", "order_date"]
+    assert all(facet_name in data["aggregations"] for facet_name in facets)
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_acq_order_get(client, acq_order_fiction_martigny):
+    """Test record retrieval."""
+    item_url = url_for("invenio_records_rest.acor_item", pid_value="acor1")
+    acq_order = deepcopy(acq_order_fiction_martigny)
+    res = client.get(item_url)
+    assert res.status_code == 200
+
+    assert res.headers["ETag"] == f'"{acq_order.revision_id}"'
+
+    data = get_json(res)
+    assert acq_order.dumps() == data["metadata"]
+
+    # Check metadata
+    for k in ["created", "updated", "metadata", "links"]:
+        assert k in data
+
+    # Check self links
+    res = client.get(to_relative_url(data["links"]["self"]))
+    assert res.status_code == 200
+    assert data == get_json(res)
+    assert acq_order.dumps() == data["metadata"]
+
+    assert acq_order.get_account_statement() == data["metadata"]["account_statement"]
+
+    list_url = url_for("invenio_records_rest.acor_list", pid="acor1")
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+
+    metadata = data["hits"]["hits"][0]["metadata"]
+    # remove dynamically added fields
+    del metadata["organisation"]
+    del metadata["order_lines"]
+    del metadata["receipts"]
+    metadata.pop("budget", None)
+    assert data["hits"]["hits"][0]["metadata"] == acq_order.replace_refs()
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_acq_computed_records_are_not_cacheable(
+    client,
+    acq_order_fiction_martigny,
+    acq_order_line_fiction_martigny,
+    acq_receipt_fiction_martigny,
+    acq_receipt_line_1_fiction_martigny,
+    acq_account_fiction_martigny,
+):
+    """Test acquisition item responses with related data disable caching.
+
+    Their body and ETag depend on related records (financial totals,
+    statuses, budget state), so a conditional 304 would serve a stale body
+    and a stale ETag (the latter breaking the editor's If-Match on save).
+    The responses must be `no-store` while keeping the ETag for updates.
+    """
+    for endpoint, record in [
+        ("invenio_records_rest.acor_item", acq_order_fiction_martigny),
+        ("invenio_records_rest.acol_item", acq_order_line_fiction_martigny),
+        ("invenio_records_rest.acre_item", acq_receipt_fiction_martigny),
+        ("invenio_records_rest.acrl_item", acq_receipt_line_1_fiction_martigny),
+        ("invenio_records_rest.acac_item", acq_account_fiction_martigny),
+    ]:
+        res = client.get(url_for(endpoint, pid_value=record.pid))
+        assert res.status_code == 200
+        assert res.headers["Cache-Control"] == "no-store"
+        assert "ETag" in res.headers
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_acq_orders_post_put_delete(
+    client,
+    org_martigny,
+    vendor2_martigny,
+    acq_order_fiction_saxon,
+    acq_order_fiction_saxon_data,
+    json_header,
+):
+    """Test record retrieval."""
+    # Create record / POST
+    acq_order_fiction_saxon_data.pop("pid", None)
+    res, data = postdata(client, "invenio_records_rest.acor_list", acq_order_fiction_saxon_data)
+    assert res.status_code == 201
+    # Check that the returned record matches the given data
+    assert data["metadata"].pop("account_statement") == {
+        "provisional": {"total_amount": 0, "quantity": 0},
+        "expenditure": {"total_amount": 0, "quantity": 0},
+    }
+
+    assert data["metadata"].pop("status") == AcqOrderStatus.PENDING
+    acq_order_fiction_saxon_data["pid"] = data["metadata"]["pid"]
+    assert data["metadata"] == acq_order_fiction_saxon_data
+
+    pid = data["metadata"]["pid"]
+    item_url = url_for("invenio_records_rest.acor_item", pid_value=pid)
+    list_url = url_for("invenio_records_rest.acor_list", q=f"pid:{pid}")
+
+    res = client.get(item_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["metadata"].pop("account_statement") == {
+        "provisional": {"total_amount": 0, "quantity": 0},
+        "expenditure": {"total_amount": 0, "quantity": 0},
+    }
+    assert data["metadata"].pop("status") == AcqOrderStatus.PENDING
+    assert acq_order_fiction_saxon_data == data["metadata"]
+
+    # Update record/PUT
+    api_data = acq_order_fiction_saxon_data
+    api_data["reference"] = "Test reference"
+    res = client.put(item_url, data=json.dumps(api_data), headers=json_header)
+    assert res.status_code == 200
+
+    # Check that the returned record matches the given data
+    data = get_json(res)
+    assert data["metadata"]["reference"] == "Test reference"
+
+    res = client.get(item_url)
+    assert res.status_code == 200
+
+    data = get_json(res)
+    assert data["metadata"]["reference"] == "Test reference"
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+
+    data = get_json(res)["hits"]["hits"][0]
+    assert data["metadata"]["reference"] == "Test reference"
+
+    # Delete record/DELETE
+    res = client.delete(item_url)
+    assert res.status_code == 204
+    res = client.get(item_url)
+    assert res.status_code == 410
+
+
+def test_acq_orders_can_delete(
+    client,
+    document,
+    acq_order_fiction_martigny,
+    acq_order_line_fiction_martigny,
+    acq_receipt_fiction_martigny,
+):
+    """Test can delete an acq order."""
+    can, reasons = acq_order_fiction_martigny.can_delete
+    assert not can
+    assert reasons["links"]["acq_receipts"]
+
+
+def test_filtered_acq_orders_get(
+    client,
+    librarian_martigny,
+    acq_order_fiction_martigny,
+    librarian_sion,
+    acq_order_fiction_sion,
+):
+    """Test acq accounts filter by organisation."""
+    list_url = url_for("invenio_records_rest.acor_list")
+
+    res = client.get(list_url)
+    assert res.status_code == 401
+
+    # Martigny
+    login_user_via_session(client, librarian_martigny.user)
+    list_url = url_for("invenio_records_rest.acor_list")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 2
+
+    # Sion
+    login_user_via_session(client, librarian_sion.user)
+    list_url = url_for("invenio_records_rest.acor_list")
+
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+
+def test_acq_order_history_api(
+    client,
+    vendor_martigny,
+    lib_martigny,
+    biblion_json_header,
+    librarian_martigny,
+    acq_account_fiction_martigny,
+    document,
+    budget_2020_martigny,
+):
+    """Test acquisition order history API."""
+    login_user_via_session(client, librarian_martigny.user)
+    # STEP#0 :: create order related to each other.
+    data = {
+        "vendor": {"$ref": get_ref_for_pid("vndr", vendor_martigny.pid)},
+        "library": {"$ref": get_ref_for_pid("lib", lib_martigny.pid)},
+    }
+    acor1 = _make_resource(client, "acor", data)
+    data["previousVersion"] = {"$ref": get_ref_for_pid("acor", acor1.pid)}
+    acor2 = _make_resource(client, "acor", data)
+    data["previousVersion"] = {"$ref": get_ref_for_pid("acor", acor2.pid)}
+    acor3 = _make_resource(client, "acor", data)
+
+    # add an order line to any order. This will change the order history item
+    # label ; the label should be set to order line related budget name
+    acac = acq_account_fiction_martigny
+    data = {
+        "acq_account": {"$ref": get_ref_for_pid("acac", acac.pid)},
+        "acq_order": {"$ref": get_ref_for_pid("acor", acor2.pid)},
+        "document": {"$ref": get_ref_for_pid("doc", document.pid)},
+        "quantity": 2,
+        "amount": 50,
+    }
+    acol1 = _make_resource(client, "acol", data)
+
+    # STEP#1 :: Call API and analyze response
+    #  * with unknown acquisition order --> 404
+    #  * with valid acquisition order --> valid response
+    url = url_for("api_order.order_history", order_pid="dummy")
+    res = client.get(url, headers=biblion_json_header)
+    assert res.status_code == 404
+
+    url = url_for("api_order.order_history", order_pid=acor2.pid)
+    res = client.get(url, headers=biblion_json_header)
+    data = get_json(res)
+
+    assert len(data) == 3
+    assert data[0]["$ref"] == get_ref_for_pid("acor", acor1.pid)
+    assert data[1]["$ref"] == get_ref_for_pid("acor", acor2.pid)
+    assert data[1]["label"] == budget_2020_martigny.name
+    assert data[2]["$ref"] == get_ref_for_pid("acor", acor3.pid)
+
+    # STEP#2 :: Ensure a linked order cannot be deleted
+    reasons = acor2.reasons_not_to_delete()
+    assert reasons["links"]["acq_orders"] == 1
+
+    # STEP#X :: delete created resources
+    _del_resource(client, "acol", acol1.pid)
+    _del_resource(client, "acor", acor3.pid)
+    _del_resource(client, "acor", acor2.pid)
+    _del_resource(client, "acor", acor1.pid)
