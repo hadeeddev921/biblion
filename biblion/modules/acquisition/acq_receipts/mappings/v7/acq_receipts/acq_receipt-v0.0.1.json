@@ -1,0 +1,123 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "reference": {
+        "type": "keyword"
+      },
+      "acq_order": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "total_amount": {
+        "type": "float"
+      },
+      "amount_adjustments": {
+        "type": "nested",
+        "properties": {
+          "acq_account": {
+            "properties": {
+              "type": {
+                "type": "keyword"
+              },
+              "pid": {
+                "type": "keyword"
+              }
+            }
+          },
+          "label": {
+            "type": "text"
+          },
+          "amount": {
+            "type": "float"
+          }
+        }
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
+      "receipt_lines": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          },
+          "receipt_date": {
+            "type": "date"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "document": {
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "title": {
+                "type": "text"
+              },
+              "identifiers": {
+                "type": "text",
+                "analyzer": "identifier-analyzer"
+              }
+            }
+          },
+          "amount": {
+            "type": "float"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
