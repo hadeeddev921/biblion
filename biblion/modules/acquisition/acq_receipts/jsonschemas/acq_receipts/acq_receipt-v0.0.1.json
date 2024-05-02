@@ -1,0 +1,207 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Acquisition receipt",
+  "description": "Data describing the reception of an order.",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "reference",
+    "amount_adjustments",
+    "notes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "acq_order"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "default": "https://bib.rero.ch/schemas/acq_receipts/acq_receipt-v0.0.1.json",
+      "pattern": "^https://bib.rero.ch/schemas/acq_receipts/acq_receipt-v([0-9]+?\\.){3}json$"
+    },
+    "pid": {
+      "title": "Acquisition receipt ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "acq_order": {
+      "title": "Order",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Order",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/acq_orders/.*?$"
+        }
+      }
+    },
+    "reference": {
+      "title": "Reference",
+      "type": "string",
+      "minLength": 3
+    },
+    "amount_adjustments": {
+      "title": "Additional fees, discount and credit",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Fee",
+        "propertiesOrder": [
+          "label",
+          "amount",
+          "acq_account"
+        ],
+        "required": [
+          "label",
+          "amount",
+          "acq_account"
+        ],
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string",
+            "minLength": 3
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          },
+          "acq_account": {
+            "title": "Acquisition account",
+            "type": "object",
+            "required": [
+              "$ref"
+            ],
+            "properties": {
+              "$ref": {
+                "title": "Acquisition account URI",
+                "type": "string",
+                "pattern": "^https://bib.rero.ch/api/acq_accounts/.*?$",
+                "widget": {
+                  "formlyConfig": {
+                    "type": "account-select",
+                    "hideLabel": true,
+                    "focus": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "staff_note"
+            ],
+            "default": "staff_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "rows": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            }
+          }
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
