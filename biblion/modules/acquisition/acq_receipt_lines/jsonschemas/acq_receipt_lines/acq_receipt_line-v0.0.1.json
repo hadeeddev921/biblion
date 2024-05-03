@@ -1,0 +1,253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Acquisition receipt line",
+  "description": "Data linking a rceipt to one or multiple order lines",
+  "additionalProperties": false,
+  "propertiesOrder": [
+    "quantity",
+    "amount",
+    "vat_rate",
+    "receipt_date",
+    "notes"
+  ],
+  "required": [
+    "$schema",
+    "pid",
+    "acq_receipt",
+    "quantity",
+    "amount"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "default": "https://bib.rero.ch/schemas/acq_receipt_lines/acq_receipt_line-v0.0.1.json",
+      "pattern": "^https://bib.rero.ch/schemas/acq_receipt_lines/acq_receipt_line-v([0-9]+?\\.){3}json$"
+    },
+    "pid": {
+      "title": "Acquisition receipt line ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "acq_receipt": {
+      "title": "Receipt",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Receipt",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/acq_receipts/.*?$"
+        }
+      }
+    },
+    "acq_order_line": {
+      "title": "Order line",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Order line",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/acq_order_lines/.*?$"
+        }
+      }
+    },
+    "quantity": {
+      "title": "Quantity",
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "type": "number",
+            "step": 1,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "amount": {
+      "title": "Amount",
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "step": 1,
+            "navigation": {
+              "essential": true
+            },
+            "fieldMap": "amount"
+          }
+        }
+      }
+    },
+    "vat_rate": {
+      "title": "VAT rate",
+      "type": "number",
+      "description": "percentage of VAT rate to apply on this receipt line",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "addonRight": [
+              "%"
+            ],
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "receipt_date": {
+      "title": "Receipt line date",
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD)."
+              }
+            },
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "title": "Note",
+        "propertiesOrder": [
+          "type",
+          "content"
+        ],
+        "required": [
+          "type",
+          "content"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "enum": [
+              "staff_note",
+              "receipt_note"
+            ],
+            "default": "staff_note",
+            "widget": {
+              "formlyConfig": {
+                "type": "select",
+                "props": {
+                  "sort": true,
+                  "options": [
+                    {
+                      "label": "staff_note",
+                      "value": "staff_note"
+                    },
+                    {
+                      "label": "receipt_note",
+                      "value": "receipt_note"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "maxLength": 2000,
+            "minLength": 1,
+            "widget": {
+              "formlyConfig": {
+                "type": "textarea",
+                "props": {
+                  "rows": 3
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "validation": {
+              "validators": {
+                "uniqueValueKeysInObject": {
+                  "keys": [
+                    "type"
+                  ]
+                }
+              },
+              "messages": {
+                "uniqueValueKeysInObjectMessage": "Only one note per type is allowed"
+              }
+            },
+            "hide": true,
+            "navigation": {
+              "essential": true
+            }
+          }
+        }
+      }
+    },
+    "library": {
+      "title": "Library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Library URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/libraries/.*?$"
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    }
+  }
+}
