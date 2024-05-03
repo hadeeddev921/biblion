@@ -1,0 +1,107 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "acq_receipt": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "acq_order_line": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "acq_account": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "document": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "amount": {
+        "type": "float"
+      },
+      "vat_rate": {
+        "type": "float"
+      },
+      "total_amount": {
+        "type": "float"
+      },
+      "notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "receipt_date": {
+        "type": "date"
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
+
+
