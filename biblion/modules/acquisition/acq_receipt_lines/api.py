@@ -1,0 +1,227 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""API for manipulating Acquisition Receipt Lines."""
+
+from copy import deepcopy
+from functools import partial
+
+from flask_babel import gettext as _
+from werkzeug.utils import cached_property
+
+from biblion.modules.acquisition.api import AcquisitionIlsRecord
+from biblion.modules.api import IlsRecordsIndexer, IlsRecordsSearch
+from biblion.modules.fetchers import id_fetcher
+from biblion.modules.minters import id_minter
+from biblion.modules.providers import Provider
+from biblion.modules.utils import extracted_data_from_ref, get_ref_for_pid
+
+from .extensions import (
+    AcqReceiptLineValidationExtension,
+    AcquisitionReceiptLineCompleteDataExtension,
+)
+from .models import AcqReceiptLineIdentifier, AcqReceiptLineMetadata
+
+# provider
+AcqReceiptLineProvider = type(
+    "AcqReceiptLineProvider",
+    (Provider,),
+    {"identifier": AcqReceiptLineIdentifier, "pid_type": "acrl"},
+)
+# minter
+acq_receipt_line_id_minter = partial(id_minter, provider=AcqReceiptLineProvider)
+# fetcher
+acq_receipt_line_id_fetcher = partial(id_fetcher, provider=AcqReceiptLineProvider)
+
+
+class AcqReceiptLinesSearch(IlsRecordsSearch):
+    """Acquisition Receipt Lines Search."""
+
+    class Meta:
+        """Search only on acq_receipt_lines index."""
+
+        index = "acq_receipt_lines"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+
+class AcqReceiptLine(AcquisitionIlsRecord):
+    """AcqReceiptLine class."""
+
+    minter = acq_receipt_line_id_minter
+    fetcher = acq_receipt_line_id_fetcher
+    provider = AcqReceiptLineProvider
+    model_cls = AcqReceiptLineMetadata
+
+    _extensions = [
+        AcquisitionReceiptLineCompleteDataExtension(),
+        AcqReceiptLineValidationExtension(),
+    ]
+
+    @classmethod
+    def create(cls, data, id_=None, delete_pid=False, dbcommit=True, reindex=True, **kwargs):
+        """Create Acquisition Receipt Line record."""
+        # TODO : should be used into `pre_create` hook extensions but seems not
+        #        work as expected.
+        cls._build_additional_refs(data)
+        return super().create(data, id_, delete_pid, dbcommit, reindex, **kwargs)
+
+    def extended_validation(self, **kwargs):
+        """Add additional record validation.
+
+        :return: False if
+            - the related order status disalows
+        """
+        from biblion.modules.acquisition.acq_orders.api import AcqOrder
+        from biblion.modules.acquisition.acq_orders.models import AcqOrderStatus
+
+        order_status = AcqOrder.get_status_by_pid(self.order_pid)
+        if order_status not in [
+            AcqOrderStatus.ORDERED,
+            AcqOrderStatus.PARTIALLY_RECEIVED,
+            AcqOrderStatus.RECEIVED,
+        ]:
+            return _("Cannot create a receipt with an order with a wrong status.")
+        return True
+
+    def update(self, data, commit=True, dbcommit=True, reindex=True):
+        """Update Acquisition Receipt Line record."""
+        # TODO :: try to find a better way to load original record.
+        original_record = self.__class__.get_record(self.id)
+
+        new_data = deepcopy(dict(self))
+        new_data |= data
+        self._build_additional_refs(new_data)
+        super().update(new_data, commit, dbcommit, reindex)
+
+        return self
+
+    @classmethod
+    def _build_additional_refs(cls, data):
+        """Build $ref for the organisation and library the acq receipt line."""
+        if receipt := extracted_data_from_ref(data.get("acq_receipt"), data="record"):
+            data["organisation"] = {"$ref": get_ref_for_pid("org", receipt.organisation_pid)}
+            data["library"] = {"$ref": get_ref_for_pid("lib", receipt.library_pid)}
+
+    # GETTER & SETTER =========================================================
+    #   * Define some properties as shortcut to quickly access object attrs.
+    #   * Defines some getter methods to access specific object values.
+    @cached_property
+    def receipt(self):
+        """Shortcut to the receipt of the receipt line."""
+        return extracted_data_from_ref(self.get("acq_receipt"), data="record")
+
+    @property
+    def library_pid(self):
+        """Shortcut for acquisition receipt line library pid."""
+        return extracted_data_from_ref(self.get("library"))
+
+    @property
+    def order_line_pid(self):
+        """Shortcut for related acquisition order line pid."""
+        return extracted_data_from_ref(self.get("acq_order_line"))
+
+    @cached_property
+    def order_line(self):
+        """Shortcut for related acquisition order line record."""
+        return extracted_data_from_ref(self.get("acq_order_line"), data="record")
+
+    @property
+    def order_pid(self):
+        """Shortcut for related acquisition order pid."""
+        return self.receipt.order_pid
+
+    @property
+    def is_active(self):
+        """Check if the receipt line should be considered as active.
+
+        To know if an receipt line is active, we need to check the related
+        budget. This budget has an 'is_active' field.
+        """
+        return self.order_line.is_active
+
+    @property
+    def acq_account_pid(self):
+        """Shortcut for related acquisition account pid."""
+        return self.order_line.account
+
+    @property
+    def receipt_pid(self):
+        """Shortcut for related acquisition receipt pid."""
+        return extracted_data_from_ref(self.get("acq_receipt"))
+
+    @property
+    def amount(self):
+        """Shortcut for related acquisition amount."""
+        return self.get("amount")
+
+    @property
+    def total_amount(self):
+        """Shortcut for related acquisition total_amount."""
+        vat_factor = (100 + self.get("vat_rate", 0)) / 100
+        total = self.amount * self.quantity * vat_factor
+        return round(total, 2)
+
+    @property
+    def quantity(self):
+        """Shortcut for related acquisition quantity."""
+        return self.get("quantity")
+
+    @property
+    def organisation_pid(self):
+        """Get organisation pid for acquisition receipt line."""
+        return self.receipt.organisation_pid
+
+    def get_note(self, note_type):
+        """Get a specific type of note.
+
+        Only one note of each type could be created.
+        :param note_type: the note type to filter as
+        `AcqReceiptLineNoteType` value.
+        :return the note content if exists, otherwise returns None.
+        """
+        note = [note.get("content") for note in self.get("notes", []) if note.get("type") == note_type]
+        return next(iter(note), None)
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete record."""
+        from biblion.modules.acquisition.acq_orders.api import AcqOrder, AcqOrderStatus
+
+        cannot_delete = {}
+        # Note: not possible to delete records attached to rolled_over budget.
+        if not self.is_active:
+            cannot_delete["links"] = {"rolled_over": True}
+        order_status = AcqOrder.get_status_by_pid(self.order_pid)
+        if order_status not in [
+            AcqOrderStatus.PARTIALLY_RECEIVED,
+            AcqOrderStatus.RECEIVED,
+        ]:
+            cannot_delete["others"] = {"order_not_in_reception": True}
+        return cannot_delete
+
+
+class AcqReceiptLinesIndexer(IlsRecordsIndexer):
+    """Indexing documents in search index."""
+
+    record_cls = AcqReceiptLine
+
+    def index(self, record):
+        """Index an AcqReceiptLine line record."""
+        return_value = super().index(record)
+        # The reindexing of the parent receipt will also fired the
+        # indexing of the parent order and related account
+        # TODO :: try to find a way to not reindex multiple times the order,
+        #         then the account
+        record.receipt.reindex()
+        record.order_line.reindex()
+        return return_value
+
+    def delete(self, record):
+        """Delete an AcqReceiptLine record from indexer."""
+        return_value = super().delete(record)
+        record.receipt.reindex()
+        record.order_line.reindex()
+        return return_value
