@@ -46,6 +46,61 @@ flowchart LR
 
 A typical request, for example a checkout from the professional interface, goes: Angular UI → `POST /api/item/checkout` → item view → permission check against the circulation policy → `Item`/`Loan` API (Invenio Circulation state machine) → PostgreSQL commit → Elasticsearch reindex → Celery task that sends the notification.
 
+## Project Structure
+
+```
+biblion/
+├── biblion/                     # The Python package
+│   ├── config.py                # All Invenio and Biblion settings (BIBLION_* keys)
+│   ├── modules/                 # One sub-package per resource
+│   │   ├── documents/           # Bibliographic records, MARC/UNIMARC/DC converters
+│   │   ├── holdings/  items/    # Holdings, serial patterns and physical items
+│   │   ├── loans/  circ_policies/  item_types/  patron_types/   # Circulation
+│   │   ├── patrons/  patron_transactions/  patron_transaction_events/
+│   │   ├── organisations/  libraries/  locations/   # Network structure
+│   │   ├── acquisition/  vendors/   # Orders, budgets, receipts
+│   │   ├── entities/            # Remote (MEF) and local authority entities
+│   │   ├── ill_requests/  notifications/  collections/  templates/
+│   │   ├── stats/  stats_cfg/   # Statistics and configurable reports
+│   │   ├── sru/  imports/  api_harvester/  selfcheck/   # Interoperability
+│   │   ├── operation_logs/  migrations/  deduplications/  monitoring/
+│   │   └── cli/                 # `invenio biblion …` management commands
+│   ├── dojson/                  # Shared DoJSON (MARC) conversion helpers
+│   ├── jsonschemas/  es_templates/   # Common schemas and search templates
+│   ├── theme/                   # Jinja templates, SCSS/JS assets, menus, theme views
+│   ├── translations/            # gettext catalogues (de, en, es, fr, it, nl)
+│   ├── alembic/                 # Database migrations
+│   └── oauth/                   # OAuth2 scopes
+├── data/                        # Demo fixtures loaded by scripts/setup, help wiki pages
+├── tests/                       # unit, api, ui, e2e (Playwright) and scheduler tests
+├── scripts/                     # bootstrap, setup, server, test, gen-certs, update …
+├── docker/                      # Dockerfiles/config for Elasticsearch, nginx, haproxy, uwsgi
+├── docker-compose.yml           # Development services (PostgreSQL, Redis, RabbitMQ, ES)
+├── docker-compose.full.yml      # Full stack example (web UI, API, worker, beat, lb)
+├── Dockerfile.base  Dockerfile  # Base image and application image
+├── pyproject.toml  uv.lock      # Dependencies, entry points and poe tasks
+└── .env.example                 # Environment variables template
+```
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Language | Python 3.14 | Backend code (`requires-python >=3.14,<3.15`) |
+| Framework | Invenio (invenio-app ≥ 3.0, invenio-records ≥ 4.0, invenio-records-rest ≥ 6.0.2) on Flask | Records, REST API, accounts, OAI-PMH, assets |
+| Circulation | invenio-circulation ≥ 4.0 | Loan state machine |
+| Database | PostgreSQL 17 (SQLAlchemy, Alembic) | Record storage |
+| Search | Elasticsearch OSS 7.10.2 with ICU (invenio-search[elasticsearch7] ≥ 3.0) | Search and facets |
+| Tasks | Celery (invenio-celery ≥ 2.0.2), RabbitMQ 4.2, sqlalchemy-celery-beat ≥ 0.8.3 | Background and scheduled jobs |
+| Cache | Redis | Cache, sessions, rate limiting |
+| Conversion | DoJSON ≥ 1.4, dcxml, isbnlib | MARC21/UNIMARC/Dublin Core conversion |
+| Frontend | Jinja2, Bootstrap-Flask ≥ 2.5, Angular UI (`@rero/rero-ils-ui` 21.3.1, Node 24) | Public and professional interfaces |
+| Auth | invenio-accounts ≥ 6.0, invenio-oauth2server ≥ 6.1, invenio-oauthclient ≥ 5.0 | Login, API tokens |
+| Self-check | invenio-sip2 ≥ 0.6.25 | SIP2 self-check machines |
+| Testing | pytest-invenio ≥ 3.0, pytest-playwright ≥ 0.8, freezegun, ruff ≥ 0.12.8 | Unit/API/UI/E2E tests and linting |
+| Tooling | uv, poethepoet | Dependency management and task runner |
+| Deployment | Docker, uWSGI ≥ 2.0.30, nginx, haproxy | Container images and serving |
+
 ## License
 
 Biblion is released under the GNU Affero General Public License v3.0 or later. See [LICENSE](LICENSE).
