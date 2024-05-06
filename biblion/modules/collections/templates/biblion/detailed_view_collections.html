@@ -1,0 +1,90 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends 'biblion/page.html' %}
+{%- set title = _('Exhibition/course')  ~ ' | ' ~ _(config.THEME_SITENAME) %}
+{% from 'biblion/macros/macro.html' import div, dict_values, div_list, dl, dl_row, dl_dict, dl_list, div_json %}
+
+{%- block body %}
+<div class="row">
+  <div class="col-sm-12 col-md-12">
+    <h1>{{ record.title }}</h1>
+    {%- for subject in record.subjects %}
+      <span class="badge badge-secondary mr-1 ng-star-inserted">
+        <i class="fa-solid fa-tag"></i> {{ subject.name }}
+      </span>
+    {%- endfor %}
+    <dl class="row pt-0 ml-0">
+      {%- if record.teachers %}
+        {{ dl(_('Teachers'), record|get_teachers) }}
+      {%- endif %}
+      {{ dl(_('Type'), _(record.collection_type)) }}
+      {{ dl(_('Description'), record.description) }}
+      {{ dl(_('Date'), record.date) }}
+      {%- if record.libraries %}
+        {{ dl(_('Libraries'), record.libraries) }}
+      {%- endif %}
+  </div>
+</div>
+
+{%- set items = record.get('items') %}
+{%- if items|length > 0 %}
+<h3>{{ _('Items') }}</h3>
+  <ul class="list-unstyled">
+    {%- for item in items %}
+      <li class="border-bottom py-2">
+        {%- set document = item.get('document') %}
+          {%- set icon_name = document | document_main_type(false) %}
+        {%- set covert_art = document | get_cover_art %}
+        <div class="row">
+          <figure id="thumbnail" class="figure-img col-sm-2 d-sm-block mx-auto figure text-center">
+            <img class="img-fluid img-thumbnail thumb"
+            src="{% if covert_art %}{{ covert_art }}{% else %}{{ url_for('static', filename='images/icon_%s.svg' % icon_name) }}{% endif %}">
+            <figcaption class="figure-caption mt-2">
+              <ul class="list-unstyled mb-1">
+                {% for document_type in document | document_types %}
+                  <li>{{ document_type }}</li>
+                {% endfor %}
+              </ul>
+            </figcaption>
+          </figure>
+          <div class="col-sm-10">
+            <h5>
+              <a href="{{ url_for('invenio_records_ui.doc', viewcode=viewcode, pid_value=document.pid) }}">
+                {{ document.title | create_title_text }}
+              </a>
+            </h5>
+            <!-- CONTRIBUTION -->
+            {% if document.contribution %}
+              {{ div(document.contribution | contribution_format(current_i18n.language, viewcode, true)) }}
+            {% endif %}
+            <!-- PROVISION ACTIVITY -->
+            {% if document.provisionActivity %}
+              {%- for provision_activity in document.provisionActivity %}
+                {%- if provision_activity.type == 'bf:Publication' %}
+                  {%- for statement in provision_activity | create_publication_statement %}
+                    {{ statement }}
+                  {%- endfor %}
+                {%- endif %}
+              {%- endfor %}
+            {% endif %}
+            <dl class="row pt-2">
+              <!-- BARCODE-->
+              {%- if item.barcode %}
+                {{ dl(_('Barcode'), item.barcode) }}
+              {%- endif %}
+              <!-- CALL NUMBERS -->
+              {%- if item.call_number %}
+                {{ dl(_('Call number'), item.call_number) }}
+              {%- endif %}
+              {%- if item.second_call_number %}
+                {{ dl(_('Second call number'), item.second_call_number) }}
+              {%- endif %}
+            </dl>
+          </div>
+        </div>
+      </li>
+    {%- endfor %}
+  </ul>
+{%- endif %}
+{%- endblock %}
