@@ -1,0 +1,331 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Exhibition/course",
+  "description": "Grouping of items within a library.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "title",
+    "collection_type",
+    "start_date",
+    "end_date",
+    "organisation",
+    "libraries",
+    "published"
+  ],
+  "propertiesOrder": [
+    "collection_type",
+    "title",
+    "start_date",
+    "end_date",
+    "collection_id",
+    "teachers",
+    "description",
+    "subjects",
+    "teachers",
+    "libraries",
+    "items",
+    "published"
+  ],
+  "widget": {
+    "formlyConfig": {
+      "props": {
+        "containerCssClass": "ui:grid ui:grid-cols-12 ui:gap-2"
+      }
+    }
+  },
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schema/collections/collection-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Internal collection PID",
+      "type": "string",
+      "minLength": 1
+    },
+    "collection_id": {
+      "title": "Identifier",
+      "description": "Identifier or code used locally for this collection",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    },
+    "title": {
+      "title": "Title",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-9"
+          }
+        }
+      }
+    },
+    "collection_type": {
+      "title": "Type",
+      "type": "string",
+      "enum": [
+        "course",
+        "exhibition"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+            "sort": true,
+            "options": [
+              {
+                "label": "course",
+                "value": "course"
+              },
+              {
+                "label": "exhibition",
+                "value": "exhibition"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "teachers": {
+      "title": "Teachers",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Teacher",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "propertiesOrder": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          },
+          "expressions": {
+            "props.required": true,
+            "hide": "field?.parent?.model?.collection_type !== 'course'"
+          }
+        }
+      }
+    },
+    "subjects": {
+      "title": "Subjects",
+      "type": "array",
+      "minLength": 1,
+      "items": {
+        "title": "Subject",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    },
+    "description": {
+      "title": "Description",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "type": "textarea",
+          "props": {
+            "itemCssClass": "ui:col-span-12",
+            "rows": 5
+          }
+        }
+      }
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+                "datesGreaterThan": "The start date must be less than the end date."
+              },
+              "validators": {
+                "datesGreaterThan": {
+                  "dateFirst": "start_date",
+                  "dateLast": "end_date",
+                  "strict": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "widget": {
+        "formlyConfig": {
+          "type": "datePicker",
+          "props": {
+            "itemCssClass": "ui:col-span-12 ui:md:col-span-3",
+            "validation": {
+              "messages": {
+                "patternMessage": "Should be in the following format: 2022-12-31 (YYYY-MM-DD).",
+                "datesGreaterThan": "The end date must be greater than the start date."
+              },
+              "validators": {
+                "datesGreaterThan": {
+                  "dateFirst": "start_date",
+                  "dateLast": "end_date",
+                  "strict": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "libraries": {
+      "title": "Libraries",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Library",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$ref"
+        ],
+        "properties": {
+          "$ref": {
+            "title": "Name",
+            "type": "string",
+            "pattern": "^https://bib.rero.ch/api/libraries/.*?$",
+            "widget": {
+              "formlyConfig": {
+                "props": {
+                  "fieldMap": "library"
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    },
+    "items": {
+      "title": "Items",
+      "description": "Items must belong to one of the libraries defined above.",
+      "type": "array",
+      "items": {
+        "title": "Item",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "$ref"
+        ],
+        "properties": {
+          "$ref": {
+            "title": "Item",
+            "type": "string",
+            "pattern": "^https://bib.rero.ch/api/items/.*?$",
+            "widget": {
+              "formlyConfig": {
+                "type": "remoteAutoComplete",
+                "props": {
+                  "queryOptions": {
+                    "type": "items"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "fieldMap": "items",
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "published": {
+      "type": "boolean",
+      "title": "Published",
+      "description": "'Published' indicates that the collection appears in the public interface.",
+      "default": true,
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "itemCssClass": "ui:col-span-12"
+          }
+        }
+      }
+    }
+  }
+}
