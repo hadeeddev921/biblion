@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests ui for collections."""
+
+from biblion.modules.collections.api import Collection
+from biblion.modules.collections.views import _start_end_date, get_teachers
+
+
+def test_get_teachers(db, coll_martigny_1_data):
+    """Test get teachers."""
+    result = "Pr. Smith, John, Pr. Nonyme, Anne"
+    assert get_teachers(coll_martigny_1_data) == result
+
+
+def test_start_end_date(db, coll_martigny_1_data, item_lib_martigny, item2_lib_martigny):
+    """Test date format."""
+    result = "01/09/2020 - 31/12/2020"
+    coll = Collection.create(coll_martigny_1_data, delete_pid=True)
+    assert _start_end_date(coll.get("start_date"), coll.get("end_date")) == result
