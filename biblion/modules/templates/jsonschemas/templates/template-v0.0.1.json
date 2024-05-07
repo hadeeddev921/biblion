@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Template",
+  "description": "Standard data with pre-filled values used for the quick creation of a document, holdings, item or patron.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "template_type",
+    "name",
+    "creator",
+    "organisation",
+    "visibility",
+    "data"
+  ],
+  "propertiesOrder": [
+    "name",
+    "description",
+    "template_type",
+    "visibility"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/templates/template-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Template ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "title": "Name",
+      "type": "string",
+      "minLength": 2
+    },
+    "description": {
+      "title": "Description",
+      "type": "string",
+      "minLength": 1,
+      "widget": {
+        "formlyConfig": {
+          "type": "textarea",
+          "props": {
+            "rows": 3
+          }
+        }
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$ref"
+      ],
+      "properties": {
+        "$ref": {
+          "title": "Organisation URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/organisations/.*?$"
+        }
+      }
+    },
+    "creator": {
+      "title": "Creator",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "title": "Creator URI",
+          "type": "string",
+          "pattern": "^https://bib.rero.ch/api/patrons/.*?$"
+        }
+      }
+    },
+    "visibility": {
+      "title": "Visibility",
+      "description": "Public templates are visible by all users of the organisation. Private templates are visible only by its creator (you).",
+      "type": "string",
+      "default": "private",
+      "enum": [
+        "public",
+        "private"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "type": "select",
+          "props": {
+            "sort": true,
+            "options": [
+              {
+                "label": "public",
+                "value": "public"
+              },
+              {
+                "label": "private",
+                "value": "private"
+              }
+            ],
+            "fieldMap": "visibility"
+          }
+        }
+      }
+    },
+    "template_type": {
+      "title": "Template type",
+      "type": "string",
+      "enum": [
+        "documents",
+        "items",
+        "holdings",
+        "patrons"
+      ],
+      "widget": {
+        "formlyConfig": {
+          "props": {
+            "alwaysHidden": true,
+            "options": [
+              {
+                "label": "documents",
+                "value": "documents"
+              },
+              {
+                "label": "items",
+                "value": "items"
+              },
+              {
+                "label": "holdings",
+                "value": "holdings"
+              },
+              {
+                "label": "patrons",
+                "value": "patrons"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "data": {
+      "title": "Template json data",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
