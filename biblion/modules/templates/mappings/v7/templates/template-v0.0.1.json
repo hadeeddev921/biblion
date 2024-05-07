@@ -1,0 +1,56 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "copy_to": "name_sort"
+      },
+      "name_sort": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text"
+      },
+      "organisation": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "creator": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "visibility": {
+        "type": "keyword"
+      },
+      "template_type": {
+        "type": "keyword"
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  }
+}
