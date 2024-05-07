@@ -1,0 +1,101 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests REST API collections."""
+
+from unittest import mock
+
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+
+from biblion.modules.collections.api import CollectionsSearch
+from tests.utils import VerifyRecordPermissionPatch, get_json
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_collections_facets(client, biblion_json_header, coll_martigny_1):
+    """Test record retrieval."""
+    list_url = url_for("invenio_records_rest.coll_list")
+
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    aggs = data["aggregations"]
+    # check all facets are present
+    for facet in ["type", "library", "subject", "teacher"]:
+        assert aggs[facet]
+
+    # FILTERS
+    # type
+    list_url = url_for("invenio_records_rest.coll_list", type="course")
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+    # library
+    list_url = url_for("invenio_records_rest.coll_list", library="lib1")
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+    # subject
+    list_url = url_for("invenio_records_rest.coll_list", subject="geographic")
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+    # teacher
+    list_url = url_for("invenio_records_rest.coll_list", teacher="Pr. Smith, John")
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+
+    # malformed 'published' value must return a clean 400, not a 500
+    list_url = url_for("invenio_records_rest.coll_list", published="foo")
+    res = client.get(list_url, headers=biblion_json_header)
+    assert res.status_code == 400
+
+
+def test_collection_enrich_data(
+    client,
+    document,
+    item_type_standard_martigny,
+    item_lib_martigny,
+    item2_lib_martigny,
+    loc_public_martigny,
+    coll_martigny_1,
+    json_header,
+):
+    """Test record retrieval."""
+    coll_martigny_1.reindex()
+    CollectionsSearch.flush_and_refresh()
+    query = CollectionsSearch().filter("term", pid=coll_martigny_1.pid).source().scan()
+    coll_martigny_1_search_data = next(query)
+    assert coll_martigny_1_search_data.organisation.pid == "org1"
+
+
+def test_collection_search(client, coll_sion_1, coll_martigny_1, librarian_martigny, librarian_sion, biblion_json_header):
+    """Test retrieve collection by a librarian.
+
+    A librarian should only receive collections from their organization.
+    """
+    # Not logged in
+    list_url = url_for("invenio_records_rest.coll_list", type="course")
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 2
+
+    # logged in as a librarian
+    login_user_via_session(client, librarian_martigny.user)
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+    assert data["hits"]["hits"][0]["metadata"]["pid"] == coll_martigny_1.pid
+
+    login_user_via_session(client, librarian_sion.user)
+    res = client.get(list_url, headers=biblion_json_header)
+    data = get_json(res)
+    assert data["hits"]["total"] == 1
+    assert data["hits"]["hits"][0]["metadata"]["pid"] == coll_sion_1.pid
