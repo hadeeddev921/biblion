@@ -1,0 +1,720 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Operation log",
+  "description": "An action of edition performed on another resource.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "record",
+    "operation"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schema/operation_logs/operation_log-v0.0.1.json"
+    },
+    "pid": {
+      "title": "Operation log PID",
+      "type": "string",
+      "minLength": 1
+    },
+    "record": {
+      "title": "Record",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "doc",
+            "hold",
+            "recid",
+            "item",
+            "file",
+            "loan",
+            "illr",
+            "notif",
+            "locent",
+            "ptrn",
+            "scan_item"
+          ]
+        },
+        "value": {
+          "title": "Value",
+          "type": "string",
+          "minLength": 1
+        },
+        "organisation_pid": {
+          "title": "Organisation Pid",
+          "type": "string",
+          "minLength": 1
+        },
+        "library_pid": {
+          "title": "Library Pid",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "user": {
+      "title": "User",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "const": "ptrn"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "user_name": {
+      "title": "User name",
+      "type": "string",
+      "minLength": 2
+    },
+    "date": {
+      "title": "Operation date",
+      "type": "string",
+      "format": "date-time"
+    },
+    "operation": {
+      "title": "Operation type",
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    "notification": {
+      "title": "Notification",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "type",
+        "date",
+        "sender_library_pid",
+        "recipients"
+      ],
+      "properties": {
+        "pid": {
+          "title": "Notification pid",
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "title": "Notification type",
+          "type": "string",
+          "minLength": 1
+        },
+        "date": {
+          "title": "Notification date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "sender_library_pid": {
+          "title": "Sender library pid",
+          "type": "string",
+          "minLength": 1
+        },
+        "reminder_counter": {
+          "title": "Current reminder count",
+          "type": "number"
+        },
+        "recipients": {
+          "title": "Recipients",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Recipient",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "ill_request": {
+      "title": "ILL request status",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "title": "Status",
+          "type": "string",
+          "enum": [
+            "pending",
+            "validated",
+            "denied",
+            "closed"
+          ]
+        },
+        "loan_status": {
+          "title": "Loan state",
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "ITEM_AT_DESK",
+            "ITEM_ON_LOAN",
+            "ITEM_RETURNED"
+          ]
+        },
+        "library_pid": {
+          "title": "Library PID",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "organisation": {
+      "title": "User organisation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "const": "org"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "library": {
+      "title": "User library",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string",
+          "const": "lib"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "file": {
+      "recid": {
+        "title": "File Record Pid",
+        "type": "string",
+        "minLength": 1
+      },
+      "document": {
+        "title": "Document",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pid",
+          "type",
+          "title"
+        ],
+        "properties": {
+          "pid": {
+            "title": "Document PID",
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "title": "Title",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "loan": {
+      "title": "Loan",
+      "description": "Loan specific data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "trigger",
+        "override_flag",
+        "transaction_channel",
+        "transaction_location",
+        "pickup_location",
+        "patron",
+        "item"
+      ],
+      "properties": {
+        "pid": {
+          "title": "Loan PID",
+          "type": "string",
+          "minLength": 1
+        },
+        "trigger": {
+          "title": "Action Trigger",
+          "type": "string",
+          "enum": [
+            "request",
+            "checkin",
+            "checkout",
+            "validate_request",
+            "cancel",
+            "receive",
+            "extend",
+            "scan_item"
+          ]
+        },
+        "override_flag": {
+          "title": "Override flag",
+          "description": "Allow a transaction which is normally not possible.",
+          "type": "boolean",
+          "default": false
+        },
+        "auto_extend": {
+          "type": "boolean",
+          "title": "Defines if the latest renewal was automatic or manual."
+        },
+        "transaction_channel": {
+          "title": "Transaction channel",
+          "type": "string",
+          "enum": [
+            "ui",
+            "system",
+            "sip2"
+          ]
+        },
+        "request_expire_date": {
+          "format": "date-time",
+          "title": "Request expire datetime",
+          "type": "string"
+        },
+        "request_start_date": {
+          "format": "date-time",
+          "title": "Request start datetime",
+          "type": "string"
+        },
+        "transaction_user": {
+          "title": "Transaction user",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "name"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Patron PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Patron name",
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "transaction_location": {
+          "title": "Transaction location",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "name"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Location PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Location name",
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "pickup_location": {
+          "title": "Transaction location",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "name"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Location PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Location Name",
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "patron": {
+          "title": "Patron",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "type",
+            "age",
+            "postal_code",
+            "gender",
+            "pid",
+            "hashed_pid"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Patron PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "hashed_pid": {
+              "title": "Hashed Patron PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "minLength": 1
+            },
+            "type": {
+              "title": "Type",
+              "type": "string",
+              "minLength": 1
+            },
+            "age": {
+              "title": "Age",
+              "type": "number",
+              "minLength": 1
+            },
+            "postal_code": {
+              "title": "Postal code",
+              "type": "string",
+              "minLength": 1
+            },
+            "gender": {
+              "title": "Gender",
+              "type": "string",
+              "enum": [
+                "male",
+                "female",
+                "other",
+                "no_information"
+              ]
+            },
+            "local_codes": {
+              "title": "Local codes",
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "title": "Local code",
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "item": {
+          "title": "Item",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "holding",
+            "document",
+            "library_pid"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Item PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "category": {
+              "title": "Category",
+              "type": "string",
+              "minLength": 1
+            },
+            "call_number": {
+              "title": "Call number",
+              "type": "string",
+              "minLength": 1
+            },
+            "library_pid": {
+              "title": "Library PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "holding": {
+              "title": "Holding",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pid",
+                "location_name"
+              ],
+              "properties": {
+                "pid": {
+                  "title": "PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "location_pid": {
+                  "title": "Location PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "location_name": {
+                  "title": "Location name",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "document": {
+              "title": "Document",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pid",
+                "type",
+                "title"
+              ],
+              "properties": {
+                "pid": {
+                  "title": "Document PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": {
+                  "title": "Type",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "title": "Title",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "enumerationAndChronology": {
+              "title": "Unit",
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "note": {
+          "title": "Note",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "scan": {
+      "title": "Item scan",
+      "description": "Item scan specific data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transaction_location",
+        "item"
+      ],
+      "properties": {
+        "transaction_location": {
+          "title": "Transaction location",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "name"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Location PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Location name",
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "pickup_location": {
+          "title": "Transaction location",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "name"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Location PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "title": "Location Name",
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "item": {
+          "title": "Item",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "holding",
+            "document",
+            "library_pid"
+          ],
+          "properties": {
+            "pid": {
+              "title": "Item PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "category": {
+              "title": "Category",
+              "type": "string",
+              "minLength": 1
+            },
+            "call_number": {
+              "title": "Call number",
+              "type": "string",
+              "minLength": 1
+            },
+            "library_pid": {
+              "title": "Library PID",
+              "type": "string",
+              "minLength": 1
+            },
+            "holding": {
+              "title": "Holding",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pid",
+                "location_name"
+              ],
+              "properties": {
+                "pid": {
+                  "title": "PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "location_pid": {
+                  "title": "Location PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "location_name": {
+                  "title": "Location name",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "document": {
+              "title": "Document",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pid",
+                "type",
+                "title"
+              ],
+              "properties": {
+                "pid": {
+                  "title": "Document PID",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": {
+                  "title": "Type",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "title": "Title",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "enumerationAndChronology": {
+              "title": "Unit",
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "note": {
+          "title": "Note",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "_created": {
+      "title": "Creation date",
+      "type": "string",
+      "format": "date-time"
+    },
+    "_updated": {
+      "title": "Modification date",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
