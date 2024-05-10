@@ -1,0 +1,380 @@
+{
+  "index_patterns": [
+    "operation_logs*"
+  ],
+  "settings": {
+    "number_of_shards": "2",
+    "number_of_replicas": "1",
+    "max_result_window": "100000"
+  },
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword"
+      },
+      "pid": {
+        "type": "keyword"
+      },
+      "record": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "value": {
+            "type": "keyword"
+          },
+          "organisation_pid": {
+            "type": "keyword"
+          },
+          "library_pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "user": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "value": {
+            "type": "keyword"
+          }
+        }
+      },
+      "user_name": {
+        "type": "keyword"
+      },
+      "date": {
+        "type": "date"
+      },
+      "operation": {
+        "type": "keyword"
+      },
+      "notification": {
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          },
+          "date": {
+            "type": "date"
+          },
+          "sender_library_pid": {
+            "type": "keyword"
+          },
+          "reminder_counter": {
+            "type": "integer"
+          },
+          "recipients": {
+            "type": "text"
+          }
+        }
+      },
+      "ill_request": {
+        "properties": {
+          "status": {
+            "type": "keyword"
+          },
+          "loan_status": {
+            "type": "keyword"
+          },
+          "library_pid": {
+            "type": "keyword"
+          }
+        }
+      },
+      "organisation": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "value": {
+            "type": "keyword"
+          }
+        }
+      },
+      "library": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "value": {
+            "type": "keyword"
+          }
+        }
+      },
+      "loan": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "type": "keyword"
+          },
+          "trigger": {
+            "type": "keyword"
+          },
+          "override_flag": {
+            "type": "boolean"
+          },
+          "auto_extend": {
+            "type": "boolean"
+          },
+          "transaction_channel": {
+            "type": "keyword"
+          },
+          "request_expire_date": {
+            "type": "date"
+          },
+          "request_start_date": {
+            "type": "date"
+          },
+          "transaction_user": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "transaction_location": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "pickup_location": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "patron": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "hashed_pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              },
+              "type": {
+                "type": "keyword"
+              },
+              "age": {
+                "type": "integer"
+              },
+              "postal_code": {
+                "type": "keyword"
+              },
+              "gender": {
+                "type": "keyword"
+              },
+              "local_codes": {
+                "type": "keyword"
+              }
+            }
+          },
+          "item": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "category": {
+                "type": "keyword"
+              },
+              "call_number": {
+                "type": "text",
+                "fields": {
+                  "raw": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "library_pid": {
+                "type": "keyword"
+              },
+              "holding": {
+                "type": "object",
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "location_pid": {
+                    "type": "keyword"
+                  },
+                  "location_name": {
+                    "type": "text",
+                    "fields": {
+                      "raw": {
+                        "type": "keyword"
+                      }
+                    }
+                  }
+                }
+              },
+              "document": {
+                "type": "object",
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "title": {
+                    "type": "text"
+                  },
+                  "type": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "enumerationAndChronology": {
+                "type": "keyword"
+              }
+            }
+          },
+          "note": {
+            "type": "text"
+          }
+        }
+      },
+      "file": {
+        "type": "object",
+        "properties": {
+          "recid": {
+            "type": "keyword"
+          },
+          "document": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "title": {
+                "type": "text"
+              },
+              "type": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "scan": {
+        "type": "object",
+        "properties": {
+          "transaction_location": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "pickup_location": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "item": {
+            "type": "object",
+            "properties": {
+              "pid": {
+                "type": "keyword"
+              },
+              "category": {
+                "type": "keyword"
+              },
+              "call_number": {
+                "type": "text",
+                "fields": {
+                  "raw": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "library_pid": {
+                "type": "keyword"
+              },
+              "holding": {
+                "type": "object",
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "location_pid": {
+                    "type": "keyword"
+                  },
+                  "location_name": {
+                    "type": "text",
+                    "fields": {
+                      "raw": {
+                        "type": "keyword"
+                      }
+                    }
+                  }
+                }
+              },
+              "document": {
+                "type": "object",
+                "properties": {
+                  "pid": {
+                    "type": "keyword"
+                  },
+                  "title": {
+                    "type": "text"
+                  },
+                  "type": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "enumerationAndChronology": {
+                "type": "keyword"
+              }
+            }
+          },
+          "note": {
+            "type": "text"
+          }
+        }
+      },
+      "_created": {
+        "type": "date"
+      },
+      "_updated": {
+        "type": "date"
+      }
+    }
+  },
+  "aliases": {
+    "operation_logs": {}
+  }
+}
