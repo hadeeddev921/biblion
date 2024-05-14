@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Statistics configuration for report."""
+
+from functools import partial
+
+from biblion.modules.api import IlsRecord, IlsRecordsIndexer, IlsRecordsSearch
+from biblion.modules.fetchers import id_fetcher
+from biblion.modules.minters import id_minter
+from biblion.modules.providers import Provider
+from biblion.modules.utils import extracted_data_from_ref
+
+from .dumpers import indexer_dumper
+from .models import StatCfgIdentifier, StatCfgMetadata
+
+# provider
+StatCfgProvider = type(
+    "StatCfgProvider",
+    (Provider,),
+    {"identifier": StatCfgIdentifier, "pid_type": "stacfg"},
+)
+# minter
+stat_cfg_id_minter = partial(id_minter, provider=StatCfgProvider)
+# fetcher
+stat_cfg_id_fetcher = partial(id_fetcher, provider=StatCfgProvider)
+
+
+class StatsConfigurationSearch(IlsRecordsSearch):
+    """Statistics configuration search."""
+
+    class Meta:
+        """Search only on stats_cfg index."""
+
+        index = "stats_cfg"
+        doc_types = None
+        fields = ("*",)
+        facets = {}
+
+        default_filter = None
+
+
+class StatConfiguration(IlsRecord):
+    """Statistics configuration class."""
+
+    minter = stat_cfg_id_minter
+    fetcher = stat_cfg_id_fetcher
+    provider = StatCfgProvider
+    model_cls = StatCfgMetadata
+    enable_jsonref = False
+
+    def get_links_to_me(self, get_pids=False):
+        """Record links.
+
+        :param get_pids: if True list of linked pids
+                         if False count of linked reports
+        :return: dict with number of reports or reports pids
+        """
+        from biblion.modules.stats.api.api import StatsSearch
+
+        links = {}
+
+        query = StatsSearch().filter("term", type="report").filter("term", config__pid=self.pid)
+
+        if get_pids:
+            query = query.source(["pid"]).scan()
+            reports = [s.pid for s in query]
+        else:
+            reports = query.count()
+
+        # get number of reports or list of reports pids for configuration
+        if reports:
+            links["reports"] = reports
+        return links
+
+    def reasons_not_to_delete(self):
+        """Get reasons not to delete report config.
+
+        :return: dict with number of reports or reports pids
+        """
+        cannot_delete = {}
+        if links := self.get_links_to_me():
+            cannot_delete["links"] = links
+        return cannot_delete
+
+    @property
+    def organisation_pid(self):
+        """Shortcut for organisation pid."""
+        library = extracted_data_from_ref(self.get("library"), data="record")
+        return library.organisation_pid
+
+    @property
+    def library_pid(self):
+        """Shortcut for library pid."""
+        return extracted_data_from_ref(self.get("library"))
+
+
+class StatsConfigurationIndexer(IlsRecordsIndexer):
+    """Indexing stats configuration in search index."""
+
+    record_cls = StatConfiguration
+    record_dumper = indexer_dumper
+
+    def bulk_index(self, record_id_iterator):
+        """Bulk index records.
+
+        :param record_id_iterator: Iterator yielding record UUIDs.
+        """
+        super().bulk_index(record_id_iterator, doc_type="stacfg")
