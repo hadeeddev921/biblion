@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Stats",
+  "description": "Indicator of the system use collected at a given time, or for a specified period.",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "pid",
+    "values"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "type": "string",
+      "minLength": 9,
+      "default": "https://bib.rero.ch/schemas/stats/stat-v0.0.1.json"
+    },
+    "type": {
+      "title": "Statistics type",
+      "type": "string",
+      "enum": [
+        "billing",
+        "librarian",
+        "report"
+      ]
+    },
+    "date_range": {
+      "title": "Statistics date range",
+      "type": "object"
+    },
+    "pid": {
+      "title": "Stat ID.",
+      "type": "string",
+      "minLength": 1
+    },
+    "config": {
+      "$ref": "https://bib.rero.ch/schemas/stats_cfg/stat_cfg-v0.0.1.json"
+    },
+    "values": {
+      "title": "Statistics",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Statistic",
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {}
+      }
+    }
+  }
+}
