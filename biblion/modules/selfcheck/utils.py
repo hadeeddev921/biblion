@@ -1,0 +1,155 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Selfcheck Utilities."""
+
+import importlib
+from datetime import UTC, datetime
+
+from flask import current_app
+from flask_security.utils import verify_password
+from invenio_db import db
+from invenio_oauth2server.provider import get_token
+
+from biblion.modules.items.models import ItemStatus
+from biblion.modules.patron_types.api import PatronType
+from biblion.modules.users.api import User
+
+
+def check_sip2_module():
+    """Check if invenio-sip2 module is installed.
+
+    :return: ``True``` if module spec found for `ìnvenio-sip2`` or ``False``.
+    """
+    sip2_spec = importlib.util.find_spec("invenio_sip2")
+    return sip2_spec is not None
+
+
+def authorize_selfckeck_terminal(terminal, access_token, **kwargs):
+    """Authorize selfcheck terminal for given creditential.
+
+    Grant 'token' for terminal.
+    :param terminal: terminal instance.
+    :param access_token: access token.
+    :return: The granted user instance or ``None``.
+    """
+    if terminal and terminal.access_token == access_token:
+        if token := get_token(access_token=access_token):
+            terminal.last_login_at = datetime.now(UTC)
+            terminal.last_login_ip = kwargs.get("terminal_ip")
+            db.session.merge(terminal)
+            return token.user
+    return None
+
+
+def authorize_selfckeck_user(login, password, **kwargs):
+    """Get user for sip2 client password.
+
+    Grant 'password' for user.
+    :param login: User login such as username or email.
+    :param password: Password.
+    :return: The user instance or ``None``.
+    """
+    user = User.get_by_username_or_email(login)
+    if user and verify_password(password, user.user.password):
+        return user
+    return None
+
+
+def format_patron_address(patron):
+    """Format the patron address for sip2.
+
+    :param patron: patron instance.
+    :return: Formated address like 'street postal code city' for patron.
+    """
+    if address := patron.get("second_address"):
+        street = (address.get("street"),)
+        postal_code = address.get("postal_code")
+        city = address.get("city")
+    else:
+        profile = patron.user.user_profile
+        street = profile.get("street", "").strip()
+        postal_code = profile.get("postal_code", "").strip()
+        city = profile.get("city", "").strip()
+    formated_address = f"{street}, {postal_code} {city}"
+    # Should never append, but can be imported from an old system
+    return formated_address.replace(r"\n", " ").replace(r"\r", " ").replace("\n", " ").replace("\r", " ")
+
+
+def get_patron_status(patron):
+    """Return patron status useful for sip2.
+
+    * check if the user is blocked ?
+    * check if the user reaches the maximum loans limit ?
+    * check if the user reaches the maximum fee amount limit ?
+
+    add PatronStatusType e.g.:
+        patron_status.add_patron_status_type(
+            SelfcheckPatronStatusTypes.CARD_REPORTED_LOST)
+
+    :return SelfcheckPatronStatus object or None.
+    """
+    if not check_sip2_module():
+        return None
+    from invenio_sip2.models import PatronStatus, PatronStatusTypes
+
+    patron_status = PatronStatus()
+    # check if patron is blocked
+    if patron.is_blocked:
+        patron_status.add_patron_status_type(PatronStatusTypes.CHARGE_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.RENEWAL_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.RECALL_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.HOLD_PRIVILEGES_DENIED)
+
+    patron_type = PatronType.get_record_by_pid(patron.patron_type_pid)
+    # check the patron type checkout limit
+    if not patron_type.check_checkout_count_limit(patron):
+        patron_status.add_patron_status_type(PatronStatusTypes.CHARGE_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.RENEWAL_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.HOLD_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.TOO_MANY_ITEMS_CHARGED)
+
+    # check the patron type fee amount limit
+    if not patron_type.check_fee_amount_limit(patron):
+        patron_status.add_patron_status_type(PatronStatusTypes.CHARGE_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.RENEWAL_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.HOLD_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.EXCESSIVE_OUTSTANDING_FINES)
+        patron_status.add_patron_status_type(PatronStatusTypes.EXCESSIVE_OUTSTANDING_FEES)
+
+    # check the patron type overdue limit
+    if not patron_type.check_overdue_items_limit(patron):
+        patron_status.add_patron_status_type(PatronStatusTypes.CHARGE_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.RENEWAL_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.HOLD_PRIVILEGES_DENIED)
+        patron_status.add_patron_status_type(PatronStatusTypes.TOO_MANY_ITEMS_OVERDUE)
+
+    return patron_status
+
+
+def map_media_type(media_type):
+    """Get mapped media type.
+
+    :param media_type: Document type
+    :return: sip2 media type (see invenio_sip2.models.SelfcheckMediaType)
+    """
+    return current_app.config.get("SIP2_MEDIA_TYPES").get(media_type, "docmaintype_other")
+
+
+def map_item_circulation_status(item_status):
+    """Get mapped item status.
+
+    :param item_status: Item circulation status
+    :return: sip2 circulation status
+             (see invenio_sip2.models.SelfcheckCirculationStatus)
+    """
+    circulation_status = {
+        ItemStatus.ON_SHELF: "AVAILABLE",
+        ItemStatus.AT_DESK: "WAITING_ON_HOLD_SHELF",
+        ItemStatus.ON_LOAN: "CHARGED",
+        ItemStatus.IN_TRANSIT: "IN_TRANSIT",
+        ItemStatus.EXCLUDED: "OTHER",
+        ItemStatus.MISSING: "MISSING",
+    }
+
+    return circulation_status.get(item_status, "OTHER")
