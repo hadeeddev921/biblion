@@ -1,0 +1,206 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Test api harvester cli."""
+
+import json
+from os.path import dirname, join
+from unittest import mock
+
+from click.testing import CliRunner
+
+from biblion.modules.api_harvester.cli import (
+    add_api_source_config,
+    harvest,
+    info,
+    init_api_harvest_config,
+    set_last_run,
+)
+from biblion.modules.documents.api import Document
+from biblion.modules.holdings.api import Holding
+from tests.utils import mock_response
+
+
+def test_cli(app, org_sion, lib_sion, loc_online_sion, item_type_online_sion):
+    """Test count cli."""
+    runner = CliRunner()
+
+    config_file = join(dirname(__file__), "../data/apisources.yml")
+    result = runner.invoke(init_api_harvest_config, [config_file])
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output[0] == "ApiHarvestConfig NJ-CANTOOK: Add"
+    assert output[1] == "ApiHarvestConfig VS-CANTOOK: Add"
+
+    result = runner.invoke(info)
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output == [
+        "NJ-CANTOOK",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://bm.ebibliomedia.ch",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : ebibliomedia",
+        "\tsettings  : None",
+        "VS-CANTOOK",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://mediatheque-valais.cantookstation.eu",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : mv-cantook",
+        "\tsettings  : None",
+        "VS-MEMO",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://archives.memovs.ch/docs/api/",
+        "\tclassname : biblion.modules.api_harvester.memovs.api.ApiMemovs",
+        "\tcode      : memovs",
+        "\tsettings  : {'location_pid': None, 'item_type_pid': None}",
+    ]
+
+    result = runner.invoke(set_last_run, ["NJ-CANTOOK", "-d", "2002-02-02"])
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output == ["Set last run NJ-CANTOOK: 2002-02-02 00:00:00"]
+
+    result = runner.invoke(info)
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output == [
+        "NJ-CANTOOK",
+        "\tlastrun   : 2002-02-02 00:00:00",
+        "\turl       : https://bm.ebibliomedia.ch",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : ebibliomedia",
+        "\tsettings  : None",
+        "VS-CANTOOK",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://mediatheque-valais.cantookstation.eu",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : mv-cantook",
+        "\tsettings  : None",
+        "VS-MEMO",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://archives.memovs.ch/docs/api/",
+        "\tclassname : biblion.modules.api_harvester.memovs.api.ApiMemovs",
+        "\tcode      : memovs",
+        "\tsettings  : {'location_pid': None, 'item_type_pid': None}",
+    ]
+
+    result = runner.invoke(add_api_source_config, ["NJ-CANTOOK", "-c", "ebibliomedia-test", "-u"])
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output == ["ApiHarvestConfig NJ-CANTOOK: Update code:ebibliomedia-test"]
+
+    result = runner.invoke(info)
+    assert result.exit_code == 0
+    output = result.output.strip().split("\n")
+    assert output == [
+        "NJ-CANTOOK",
+        "\tlastrun   : 2002-02-02 00:00:00",
+        "\turl       : https://bm.ebibliomedia.ch",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : ebibliomedia-test",
+        "\tsettings  : None",
+        "VS-CANTOOK",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://mediatheque-valais.cantookstation.eu",
+        "\tclassname : biblion.modules.api_harvester.cantook.api.ApiCantook",
+        "\tcode      : mv-cantook",
+        "\tsettings  : None",
+        "VS-MEMO",
+        "\tlastrun   : 1900-01-01 00:00:00",
+        "\turl       : https://archives.memovs.ch/docs/api/",
+        "\tclassname : biblion.modules.api_harvester.memovs.api.ApiMemovs",
+        "\tcode      : memovs",
+        "\tsettings  : {'location_pid': None, 'item_type_pid': None}",
+    ]
+
+    # test --setting patches individual settings keys
+    result = runner.invoke(add_api_source_config, ["VS-MEMO", "-u", "-s", "location_pid=loc1"])
+    assert result.exit_code == 0
+    assert (
+        result.output.strip()
+        == "ApiHarvestConfig VS-MEMO: Update settings:{'location_pid': 'loc1', 'item_type_pid': None}"
+    )
+
+    result = runner.invoke(
+        add_api_source_config, ["VS-MEMO", "-u", "-s", "location_pid=loc2", "-s", "item_type_pid=itty1"]
+    )
+    assert result.exit_code == 0
+    assert (
+        result.output.strip()
+        == "ApiHarvestConfig VS-MEMO: Update settings:{'location_pid': 'loc2', 'item_type_pid': 'itty1'}"
+    )
+
+    # test --delete-setting removes a key
+    result = runner.invoke(add_api_source_config, ["VS-MEMO", "-u", "-d", "item_type_pid"])
+    assert result.exit_code == 0
+    assert result.output.strip() == "ApiHarvestConfig VS-MEMO: Update settings:{'location_pid': 'loc2'}"
+
+    # test --setting with bad format (no =) exits with error
+    result = runner.invoke(add_api_source_config, ["VS-MEMO", "-u", "-s", "bad_format"])
+    assert result.exit_code != 0
+
+    # test harvest with create
+    content = json.load(open(join(dirname(__file__), "../data/mv_cantook.json")))
+    headers_1 = {
+        "X-Total-Pages": 1,
+        "X-Total-Items": len(content.get("resources", [])),
+        "X-Current-Page": 1,
+    }
+    mock_response_1 = mock_response(json_data=content, headers=headers_1)
+    headers_2 = {
+        "X-Total-Pages": 1,
+        "X-Total-Items": len(content.get("resources", [])),
+        "X-Current-Page": 2,
+    }
+    mock_response_2 = mock_response(json_data={"resources": []}, headers=headers_2)
+    with mock.patch(
+        "requests.Session.get",
+        side_effect=[mock_response_1, mock_response_2],
+    ):
+        result = runner.invoke(harvest, ["-n", "VS-CANTOOK", "-v"])
+        assert result.exit_code == 0
+        output = result.output.strip().split("\n")
+        assert output == [
+            "Harvest api: VS-CANTOOK",
+            (
+                "API page: 1 url: "
+                "https://mediatheque-valais.cantookstation.eu/v1/resources.json?start_at=1900-01-01T00:00:00&page=1"
+            ),
+            "1: CANTOOK:mv-cantook cantook-immateriel.frO1109367 = CREATED",
+            "2: CANTOOK:mv-cantook cantook-immateriel.frO1097420 = CREATED",
+            "3: CANTOOK:mv-cantook cantook-feedhttps-www-feedbooks-com-item-6177668 = CREATED",
+            "API harvest VS-CANTOOK items=3 | got=3 new=3 updated=0 deleted=0",
+        ]
+        assert Document.count() == 3
+        assert Holding.count() == 3
+
+    # test harvest with update and delete
+    runner.invoke(set_last_run, ["VS-CANTOOK", "-d", "1900-01-01"])
+    content = json.load(open(join(dirname(__file__), "../data/mv_cantook_deleted.json")))
+    headers_1 = {
+        "X-Total-Pages": 1,
+        "X-Total-Items": len(content.get("resources", [])),
+        "X-Current-Page": 1,
+    }
+    mock_response_1 = mock_response(json_data=content, headers=headers_1)
+    with mock.patch(
+        "requests.Session.get",
+        side_effect=[mock_response_1, mock_response_2],
+    ):
+        result = runner.invoke(harvest, ["-n", "VS-CANTOOK", "-v"])
+        assert result.exit_code == 0
+        output = result.output.strip().split("\n")
+        assert output == [
+            "Harvest api: VS-CANTOOK",
+            (
+                "API page: 1 url: "
+                "https://mediatheque-valais.cantookstation.eu/v1/resources.json?start_at=1900-01-01T00:00:00&page=1"
+            ),
+            "1: CANTOOK:mv-cantook cantook-immateriel.frO1109367 = DELETED",
+            "2: CANTOOK:mv-cantook cantook-immateriel.frO1097420 = UPDATED",
+            "3: CANTOOK:mv-cantook cantook-feedhttps-www-feedbooks-com-item-6177668 = DELETED",
+            "API harvest VS-CANTOOK items=3 | got=3 new=0 updated=1 deleted=2",
+        ]
+        assert Document.count() == 1
+        assert Holding.count() == 1
