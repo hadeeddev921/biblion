@@ -1,0 +1,81 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends 'biblion/page.html' %}
+{%- set title = _('Reports') %}
+{%- block body %}
+<div class="mt-2 mb-4">
+  {% if type=="billing"%}
+    <a class="btn btn-primary float-right" href="{{url_for('stats.live_stats_billing')}}" role="button">{{_('Live values')}}</a>
+    <h2>{{_('Statistics - billing')}}</h2>
+  {% elif type=="librarian" %}
+    <h2>{{_('Statistics')}}</h2>
+  {% endif %}
+</div>
+{% if type=="billing" %}
+  <div class="list-group">
+    {%- for rec in records %}
+    <span class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+      <a href="{{url_for('invenio_records_ui.stats', pid_value=rec._source.pid)}}">
+        {%- if 'date_range' in rec._source and 'from' in rec._source.date_range  %}
+          {%- if (rec._source.date_range.to|stringtodatetime).month - (rec._source.date_range.from|stringtodatetime).month == 11  %}
+            {% set stat_name = (rec._source.date_range.from|stringtodatetime).year|string+
+            ' (from '+rec._source.date_range.from.split('T')[0]+' to '+rec._source.date_range.to.split('T')[0]+')'%}
+          {%- else %}
+            {% set stat_name = rec._source.date_range.from|yearmonthfilter+
+            ' (from '+rec._source.date_range.from.split('T')[0]+' to '+rec._source.date_range.to.split('T')[0]+')'%}
+          {%- endif %}
+          {{_(stat_name)}}
+        {% else %}
+          {{rec._source._created | format_date}}
+        {% endif %}
+      </a>
+      <div class="btn-group">
+        <a class="btn btn-outline-secondary" href="/api/stats/{{rec._source.pid}}?format=csv" role="button" aria-label="{{_('Export to CSV')}}"><i class="fa-solid fa-file-csv"></i></a>
+        <a class="btn btn-outline-secondary" href="/api/stats/{{rec._source.pid}}?format=xlsx" role="button" aria-label="{{_('Export to Excel')}}"><i class="fa-regular fa-file-excel"></i></a>
+      </div>
+    </span>
+    {%- endfor %}
+  </div>
+{% elif type=="librarian" %}
+  <table class="table table-hover border">
+    <tbody>
+    {%- for rec in records %}
+    <tr class="border bg-dark text-white">
+      <td class="col-xs-12">
+        {%- if 'date_range' in rec._source and 'from' in rec._source.date_range  %}
+          {%- if (rec._source.date_range.to|stringtodatetime).month - (rec._source.date_range.from|stringtodatetime).month == 11  %}
+            {% set stat_name = (rec._source.date_range.from|stringtodatetime).year|string+
+            ' (from '+rec._source.date_range.from.split('T')[0]+' to '+rec._source.date_range.to.split('T')[0]+')'%}
+          {%- else %}
+            {% set stat_name = rec._source.date_range.from|yearmonthfilter+
+            ' (from '+rec._source.date_range.from.split('T')[0]+' to '+rec._source.date_range.to.split('T')[0]+')'%}
+          {%- endif %}
+          {{_(stat_name)}}
+        {% else %}
+          {{rec._source._created | format_date}}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td class="col-xs-12">
+        <a href="{{url_for('invenio_records_ui.stats', pid_value=rec._source.pid)}}">{{_('View statistics')}}</a>
+        <a class="btn btn-outline-secondary float-right" href="/api/stats/{{rec._source.pid}}?format=xlsx" role="button" aria-label="{{_('Export to Excel')}}"><i class="fa-regular fa-file-excel"></i></a>
+        <a class="btn btn-outline-secondary float-right mr-1" href="/api/stats/{{rec._source.pid}}?format=csv" role="button" aria-label="{{_('Export to CSV')}}"><i class="fa-solid fa-file-csv"></i></a>
+      </td>
+    </tr>
+    <tr>
+      <td>{{_('Loans of the transaction library by item location')}}
+        <a class="btn btn-outline-secondary float-right"
+        href="{{url_for('stats.stats_librarian_queries_xlsx', record_pid=rec._source.pid, query_id='loans_of_transaction_library_by_item_location')}}"
+        role="button" aria-label="{{_('Export to Excel')}}"><i class="fa-regular fa-file-excel"></i></a>
+        <a class="btn btn-outline-secondary float-right mr-1"
+        href="{{url_for('stats.stats_librarian_queries', record_pid=rec._source.pid, query_id='loans_of_transaction_library_by_item_location')}}"
+        role="button" aria-label="{{_('Export to CSV')}}"><i class="fa-solid fa-file-csv"></i></a>
+      </td>
+    </tr>
+    {%- endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{%- endblock body %}
