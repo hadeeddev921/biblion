@@ -1,0 +1,155 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests statistics REST API."""
+
+from unittest import mock
+
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+
+from tests.utils import (
+    VerifyRecordPermissionPatch,
+    get_csv,
+    get_json,
+    inspect_xlsx,
+    parse_csv,
+    parse_xlsx,
+    to_relative_url,
+)
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_stats_get(client, stats, csv_header):
+    """Test record retrieval."""
+    item_url = url_for("invenio_records_rest.stat_item", pid_value=stats.pid)
+    res = client.get(item_url)
+    assert res.status_code == 200
+    assert res.headers["ETag"]
+    data = get_json(res)
+    for k in ["created", "updated", "metadata", "links"]:
+        assert k in data
+
+    # Check self links
+    res = client.get(to_relative_url(data["links"]["self"]))
+    assert res.status_code == 200
+
+    # CSV format
+    params = {"pid_value": stats.pid, "format": "csv"}
+    item_url = url_for("invenio_records_rest.stat_item", **params)
+    res = client.get(item_url, headers=csv_header)
+    assert res.status_code == 200
+    data = get_csv(res)
+    assert data == (
+        "files_volume,library id,library name,number_of_active_patrons,"
+        "number_of_checkins,number_of_checkouts,number_of_deleted_items,"
+        "number_of_docs_with_files,number_of_documents,number_of_files,"
+        "number_of_ill_requests,number_of_items,number_of_librarians,"
+        "number_of_libraries,number_of_new_items,number_of_new_patrons,"
+        "number_of_order_lines,number_of_patrons,number_of_renewals,"
+        "number_of_requests\r\n"
+        "0.000,lib3,Library of Fully,0,0,0,0,0,1,0,0,1,0,2,1,1,0,1,0,0\r\n"
+        "0.000,lib1,Library of Martigny-ville,"
+        "0,0,0,0,0,1,0,1,1,0,2,1,1,0,1,0,0\r\n"
+        "0.000,lib4,Library of Sion,0,0,0,0,0,1,0,0,1,0,1,1,0,0,0,0,0\r\n"
+    )
+
+    params = {"pid_value": stats.pid, "format": "xlsx"}
+    item_url = url_for("invenio_records_rest.stat_item", **params)
+    res = client.get(item_url)
+    assert res.status_code == 200
+    assert res.mimetype == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    assert res.headers["Content-Disposition"].endswith('.xlsx"')
+    assert parse_xlsx(res.get_data()) == list(parse_csv(data))
+
+    list_url = url_for("invenio_records_rest.stat_list")
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["hits"]
+
+
+def test_stats_librarian_data(client, stats_librarian, librarian_martigny, system_librarian_martigny):
+    """Test librarian statistics."""
+    params = {"pid_value": stats_librarian.pid}
+    item_url = url_for("invenio_records_rest.stat_item", **params)
+
+    # system librarian could view all libraries stats for its own organisation
+    login_user_via_session(client, system_librarian_martigny.user)
+    res = client.get(item_url)
+    data = res.get_json()
+    filtered_stat_libs = {value["library"]["pid"] for value in data["metadata"]["values"]}
+    manageable_libs = set(system_librarian_martigny.manageable_library_pids)
+
+    assert not filtered_stat_libs.difference(manageable_libs)
+
+    # Check filtered librarian stats by libraries
+    librarian_martigny["roles"].append("pro_statistic_manager")
+    librarian_martigny.update(librarian_martigny, dbcommit=False, reindex=False)
+    login_user_via_session(client, librarian_martigny.user)
+
+    res = client.get(item_url)
+    data = res.get_json()
+
+    # Check response contains 'date_range' and 'librarian'
+    assert data["metadata"]["date_range"]
+    assert data["metadata"]["type"] == "librarian"
+
+    # Check that response contains only stats for the manageable libraries.
+    # This filter is applied by the 'pre_dump' resource extension
+    manageable_libs = set(librarian_martigny.manageable_library_pids)
+    initial_stat_libs = {value["library"]["pid"] for value in stats_librarian["values"]}
+    filtered_stat_libs = {value["library"]["pid"] for value in data["metadata"]["values"]}
+    assert initial_stat_libs.difference(manageable_libs)
+    assert not filtered_stat_libs.difference(manageable_libs)
+    from invenio_db import db
+
+    db.session.rollback()
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_stats_report_get(client, stats_report_martigny, csv_header):
+    """Test record retrieval."""
+    item_url = url_for("invenio_records_rest.stat_item", pid_value=stats_report_martigny.pid)
+    res = client.get(item_url)
+    assert res.status_code == 200
+    assert res.headers["ETag"]
+    data = get_json(res)
+    for k in ["created", "updated", "metadata", "links"]:
+        assert k in data
+    # Check self links
+    res = client.get(to_relative_url(data["links"]["self"]))
+    assert res.status_code == 200
+
+    # CSV format
+    params = {"pid_value": stats_report_martigny.pid, "format": "csv"}
+    item_url = url_for("invenio_records_rest.stat_item", **params)
+    res = client.get(item_url, headers=csv_header)
+    assert res.status_code == 200
+    csv_data = get_csv(res)
+    assert csv_data
+
+    params = {"pid_value": stats_report_martigny.pid, "format": "xlsx"}
+    item_url = url_for("invenio_records_rest.stat_item", **params)
+    res = client.get(item_url)
+    assert res.status_code == 200
+    assert res.mimetype == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    assert res.headers["Content-Disposition"].endswith('.xlsx"')
+    xlsx_data = res.get_data()
+    assert parse_xlsx(xlsx_data) == list(parse_csv(csv_data))
+    workbook = inspect_xlsx(xlsx_data)
+    assert workbook["freeze_pane"] is None
+    assert workbook["auto_filter"] is None
+    assert not any(cell["bold"] for cell in workbook["rows"][0])
+
+    list_url = url_for("invenio_records_rest.stat_list")
+    res = client.get(list_url)
+    assert res.status_code == 200
+    data = get_json(res)
+    assert data["hits"]["hits"]
