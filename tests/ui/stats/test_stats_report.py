@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Stats Report tests creation."""
+
+from datetime import datetime
+from unittest import mock
+
+from biblion.modules.stats.api.api import Stat
+from biblion.modules.stats.api.report import StatsReport
+
+
+def test_stats_report_create(lib_martigny, document):
+    """Test the stat report creation."""
+    cfg = {
+        "$schema": "https://bib.rero.ch/schemas/stats_cfg/stat_cfg-v0.0.1.json",
+        "library": {"$ref": f"https://bib.rero.ch/api/libraries/{lib_martigny.pid}"},
+        "is_active": True,
+        "pid": "1",
+        "name": "foo",
+        "frequency": "month",
+        "category": {
+            "type": "catalog",
+            "indicator": {
+                "type": "number_of_documents",
+                "distributions": ["owning_library"],
+            },
+        },
+    }
+    assert StatsReport(cfg)
+    cfg["is_active"] = False
+    assert not StatsReport(cfg).collect()
+
+    res = StatsReport(cfg).collect()
+    assert Stat.create(data={"type": "report", "config": cfg, "values": [{"results": res}]})
+
+
+def test_stats_report_range(app, lib_martigny):
+    """Test the report range period."""
+    cfg = {
+        "library": {"$ref": f"https://bib.rero.ch/api/libraries/{lib_martigny.pid}"},
+        "category": {
+            "indicator": {
+                "type": "number_of_documents",
+                "distributions": ["owning_library"],
+            }
+        },
+    }
+    with mock.patch("biblion.modules.stats.api.report.datetime") as mock_datetime:
+        mock_datetime.now.return_value = datetime(year=2023, month=2, day=1)
+        assert StatsReport(cfg).get_range_period("month") == {
+            "gte": "2023-01-01T00:00:00",
+            "lte": "2023-01-31T23:59:59",
+        }
+        assert StatsReport(cfg).get_range_period("year") == {"gte": "2022-01-01T00:00:00", "lte": "2022-12-31T23:59:59"}
+        mock_datetime.now.return_value = datetime(year=2023, month=1, day=5)
+        assert StatsReport(cfg).get_range_period("month") == {
+            "gte": "2022-12-01T00:00:00",
+            "lte": "2022-12-31T23:59:59",
+        }
+        assert not StatsReport(cfg).get_range_period("foo")
