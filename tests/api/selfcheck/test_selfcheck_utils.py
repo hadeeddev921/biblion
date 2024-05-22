@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Tests Selfcheck api."""
+
+from biblion.modules.items.models import ItemIssueStatus, ItemStatus
+from biblion.modules.selfcheck.utils import map_item_circulation_status, map_media_type
+
+
+def test_media_type(client):
+    """Test invenio-sip2 media type mapping."""
+    # TODO: test all document types
+    assert map_media_type("docmaintype_book") == "BOOK"
+    assert map_media_type("docmaintype_article") == "MAGAZINE"
+    assert map_media_type("docmaintype_serial") == "MAGAZINE"
+    assert map_media_type("docmaintype_series") == "BOUND_JOURNAL"
+    assert map_media_type("docmaintype_audio") == "AUDIO"
+    assert map_media_type("docmaintype_movie_series") == "VIDEO"
+
+
+def test_circulation_status():
+    """Test invenio-sip2 item circultation status mapping."""
+    assert map_item_circulation_status(ItemStatus.ON_SHELF) == "AVAILABLE"
+    assert map_item_circulation_status(ItemStatus.AT_DESK) == "WAITING_ON_HOLD_SHELF"
+    assert map_item_circulation_status(ItemStatus.ON_LOAN) == "CHARGED"
+    assert map_item_circulation_status(ItemStatus.IN_TRANSIT) == "IN_TRANSIT"
+    assert map_item_circulation_status(ItemStatus.MISSING) == "MISSING"
+    assert map_item_circulation_status(ItemStatus.EXCLUDED) == "OTHER"
+    assert map_item_circulation_status(ItemIssueStatus.RECEIVED) == "OTHER"
+    assert map_item_circulation_status(ItemIssueStatus.DELETED) == "OTHER"
+    assert map_item_circulation_status(ItemIssueStatus.LATE) == "OTHER"
