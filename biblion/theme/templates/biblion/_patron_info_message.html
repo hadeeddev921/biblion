@@ -1,0 +1,36 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% set patron_message = patron_message() %}
+{% if patron_message and patron_message.show_info %}
+<div class="patron-info-message">
+  <div class="container mt-0">
+    {% set view = viewcode or config.BIBLION_SEARCH_GLOBAL_VIEW_CODE %}
+    {% if view == config.BIBLION_SEARCH_GLOBAL_VIEW_CODE %}
+      <ul class="list-unstyled py-2 mb-0">
+        {% for key, patron in patron_message.data.items() %}
+          {% if patron.blocked.is_blocked or patron.is_expired %}
+          <li class="py-1">
+            <span class="font-weight-bold">{{ patron.name }}</span>
+            {% with data=patron %}
+              {%- include "biblion/_patron_info_message_data.html" -%}
+            {% endwith %}
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      {% if view in patron_message.data %}
+        {% set message = patron_message.data[view] %}
+        {% if message.blocked.is_blocked or message.is_expired %}
+          <div class="py-2">
+            {% with data=message %}
+              {%- include "biblion/_patron_info_message_data.html" -%}
+            {% endwith %}
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endif %}

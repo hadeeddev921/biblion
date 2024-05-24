@@ -1,0 +1,13 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<div class="btn-group btn-group-sm align-self-end" role="group" aria-label="Buttons to edit records">
+  <a href="#source-{{ json.id }}" data-toggle="collapse" type="button" role="button" class="btn btn-info"
+    aria-expanded="false" aria-controls="JSON display">
+    <i class="fa-solid fa-magnifying-glass-plus  fa-fw"></i> {{ _('JSON') }}
+  </a>
+</div>
+
+<div id="source-{{ json.id }}" class="card bg-light collapse mt-2">
+  <pre class="mb-0 p-2 text-muted">{{ json.dumps()|tojson_pretty }}</pre>
+</div>

@@ -1,0 +1,20 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<section>
+{% if viewcode == config.BIBLION_SEARCH_GLOBAL_VIEW_CODE %}
+  <h5>{{ _('Biblion catalogue') }}</h5>
+  <ul class="list-unstyled">
+    {% for org in organisations %}
+      {% if  not org.is_test_organisation() %}
+        <li><a href="{{ url_for('biblion.index_with_view_code', viewcode=org.code) }}">{{ org.name }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% else %}
+  <h5>{{ _('Union catalogue') }}</h5>
+  <ul class="list-unstyled">
+    <li><a href="{{ url_for('biblion.index') }}">{{ _('Global catalog') }}</a></li>
+  </ul>
+{% endif %}
+</section>

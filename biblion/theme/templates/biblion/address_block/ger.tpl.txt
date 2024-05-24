@@ -1,0 +1,13 @@
+{{ data.name }}
+{{ data.address.street }}
+{{ data.address.zip_code }} - {{ data.address.city }}
+{{ data.address.country | translate('country_') }}
+{%- if data.email %}
+E-mail: {{ data.email }}
+{%- endif %}
+{%- if data.phone %}
+Telefon: {{ data.phone }}
+{%- if data.extra %}
+{{ data.extra }}
+{%- endif %}
+{%- endif %}

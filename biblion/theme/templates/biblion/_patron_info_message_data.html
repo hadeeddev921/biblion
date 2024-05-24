@@ -1,0 +1,9 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% if data.blocked.is_blocked %}
+  <div class="message-blocked">{{ data.blocked.message }}</div>
+{% endif %}
+{% if data.is_expired %}
+  <div class="message-expired">{{ _('Your account has expired.') }} {{ _('Please contact your library.') }}</div>
+{% endif %}
