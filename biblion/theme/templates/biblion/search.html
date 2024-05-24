@@ -1,0 +1,15 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% extends 'biblion/page.html' %}
+{%- set title = _('Documents') ~ ' | ' ~ _(config.THEME_SITENAME) %}
+
+{%- block page_body %}
+   <public-search-root class="container mt-4 rero-ils-ui" />
+{%- endblock page_body -%}
+
+{%- block javascript %}
+{{ webpack['biblion_public.js']}}
+{{ angular_assets('@rero/rero-ils-ui/dist/public-search/browser', 'modulepreload') }}
+{{ angular_assets('@rero/rero-ils-ui/dist/public-search/browser', 'js') }}
+{%- endblock javascript %}

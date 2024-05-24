@@ -1,0 +1,10 @@
+{%- if user.user_profile.first_name and user.user_profile.last_name %}
+{{ _('Dear') }} {{ user.user_profile.first_name }} {{ user.user_profile.last_name }},
+{%- else %}
+{{ _('Dear patron') }},
+{%- endif %}
+
+{{ _('Your password has been successfully reset.') }}
+
+{{ _('Best regards,') }}
+{{ _('Your library') }}

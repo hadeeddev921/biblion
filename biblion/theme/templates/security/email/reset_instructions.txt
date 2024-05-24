@@ -1,0 +1,15 @@
+
+{%- if user.user_profile.first_name and user.user_profile.last_name %}
+{{ _('Dear') }} {{ user.user_profile.first_name }} {{ user.user_profile.last_name }},
+{%- else %}
+{{ _('Dear patron') }},
+{%- endif %}
+
+{{ _('Someone requested that the password for your Biblion ID account be reset.') }}
+
+{{ _('Reset my password') }} {{ reset_link.replace('/api', '') }}
+
+{{ _("If you didn't request this, you can ignore this e-mail. Your password won't change until you create a new password.") }}
+
+{{ _('Best regards') }}
+{{ _('Your library') }}

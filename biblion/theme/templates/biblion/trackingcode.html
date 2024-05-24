@@ -1,0 +1,17 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% if config.get('BIBLION_GOOGLE_ANALYTICS_TAG_ID') %}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+{% set TAG_ID = config.get('BIBLION_GOOGLE_ANALYTICS_TAG_ID') %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ TAG_ID }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ TAG_ID }}');
+</script>
+
+{% endif %}
