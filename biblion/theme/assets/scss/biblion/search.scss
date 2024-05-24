@@ -1,0 +1,42 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+/*
+ ****************************************
+
+  Cards (Facets, authorities, brief views)
+
+ ****************************************
+ */
+
+.card {
+  icon-thumnail {
+    flex-basis: 10%;
+  }
+  // facets
+  h6 i.fa-caret-down,
+  // detailed view mef persons
+  h4 i.fa-caret-down {
+    float: right;
+  }
+  a.collapsed .fa-caret-down {
+    transform: rotate(-90deg);
+  }
+}
+
+/*
+ ***************************************
+
+          Not categorized yet
+
+ ***************************************
+ */
+
+.biblion-import {
+    margin-top: 27px;
+}
+
+
+.biblion-circulation {
+    margin-top: 10px;
+}

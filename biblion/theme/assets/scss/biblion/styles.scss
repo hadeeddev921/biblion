@@ -1,0 +1,193 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+@use "@fortawesome/fontawesome-free/scss/variables" with (
+  $font-path: "~@fortawesome/fontawesome-free/webfonts"
+);
+@use "@fortawesome/fontawesome-free/scss/fontawesome";
+@use "@fortawesome/fontawesome-free/scss/solid";
+@use "@fortawesome/fontawesome-free/scss/regular";
+
+:root {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+}
+
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+
+@layer bootstrap {
+  @import "variables";
+
+  // Setting the path to fonts files.
+  @import "~bootstrap/scss/bootstrap";
+
+  // general styles
+  @import "page";
+  @import "header";
+  @import "footer";
+  @import "search";
+  @import "frontpage";
+  @import "thumbnail";
+
+  // modules
+  @import "contributions/detailed";
+  @import "patrons/profile";
+  @import "documents/detailed";
+
+  // bootstrap extension
+
+  .mw-25 {
+    max-width: 25%;
+  }
+
+  .mw-50 {
+    max-width: 50%;
+  }
+
+  .mw-75 {
+    max-width: 75%;
+  }
+
+  // cover
+  .biblion-cover-logo {
+    width: 10em;
+  }
+
+  .biblion-cover-panel {
+    max-width: 40rem;
+  }
+
+  // CSS code to allow `ng-csp="no-inline-css"`
+  [ng\:cloak],
+  [ng-cloak],
+  [data-ng-cloak],
+  [x-ng-cloak],
+  .ng-cloak,
+  .x-ng-cloak,
+  .ng-hide:not(.ng-hide-animate) {
+    display: none !important;
+  }
+
+  ng\:form {
+    display: block;
+  }
+
+  .ng-animate-shim {
+    visibility: hidden;
+  }
+
+  .ng-anchor {
+    position: absolute;
+  }
+
+  // TODO: to correct a display bug with webkit browsers
+
+  html [type="button"] {
+    -webkit-appearance: none;
+  }
+
+  /*
+ *********************************
+
+         GLOBAL
+
+ ********************************
+*/
+
+  .biblion-external-link:after {
+    font-size: $font-size-very-small;
+    vertical-align: top;
+    content: " \2197"; // ↗ external link indicator
+  }
+
+  .required::after {
+    content: " *";
+    color: $red;
+    font-weight: bold;
+  }
+
+  .no-data {
+    color: $secondary;
+  }
+
+  button:disabled {
+    pointer-events: none;
+  }
+
+  div.tooltip div.tooltip-inner {
+    text-align: left;
+    max-width: 400px;
+  }
+
+  /*
+ *********************************
+
+         TOAST
+
+ ********************************
+*/
+
+  .toast {
+    min-width: 350px;
+  }
+
+  .toast-container {
+    position: fixed;
+    z-index: 9999999;
+    top: 0;
+    right: 0;
+  }
+
+  .toast-top-right {
+    top: 12px;
+    right: 24px;
+  }
+
+  .toast-info .toast-body {
+    background-color: $dark-blue;
+    color: white;
+  }
+
+  .toast-success .toast-body {
+    background-color: $green;
+    color: white;
+  }
+
+  .toast-warning .toast-body {
+    background-color: $orange;
+    color: white;
+  }
+
+  .toast-danger .toast-body {
+    background-color: $red;
+    color: white;
+  }
+
+  /*
+ *********************************
+
+         BUTTON
+
+ ********************************
+*/
+  .btn-mini {
+    padding: 0.25rem 0.35rem 0.25rem 0.45rem;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    border-radius: 0.2rem;
+  }
+
+  .btn:focus,
+  .btn:active:focus,
+  .btn.active:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  #password-show-hide-icon:hover {
+    cursor: pointer;
+  }
+}

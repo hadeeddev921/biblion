@@ -1,0 +1,22 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+figure#thumbnail .thumb {
+  width: 96px;
+  figcaption {
+    overflow-wrap: anywhere;
+  }
+}
+
+figure#thumbnail .figure-caption {
+  line-height: 1.2em;
+}
+
+@include media-breakpoint-down(sm) {
+  figure#thumbnail .thumb {
+    max-width: 70px;
+    figcaption {
+      overflow-wrap: anywhere;
+    }
+  }
+}
