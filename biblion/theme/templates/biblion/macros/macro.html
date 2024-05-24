@@ -1,0 +1,198 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% macro div(content) %}
+  <div>
+    {{ content|safe }}
+  </div>
+{% endmacro %}
+
+{% macro dict_values(dict) %}
+  {% if dict %}
+    <div>
+      {% if dict is string %}
+        {{ dict }}
+      {% else %}
+        <ul class="list-unstyled biblion-person mb-0">
+          {% for element in dict %}
+            <li>{{ dict[element] }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro div_list(list) %}
+  {% if list %}
+    <div>
+      {% if list is string %}
+        {{ list }}
+      {% else %}
+        <ul class="list-unstyled biblion-person mb-0">
+          {% for element in list %}
+            <li>{{ element }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro dl(title, content) %}
+  <dt class="col-sm-3">
+    {{ title }}
+  </dt>
+  <dd class="col-sm-9 col-md-9 mb-0">
+    {{ content|safe }}
+  </dd>
+{% endmacro %}
+
+{% macro dl_row(title, content) %}
+  <div class="row">
+    <dt class="col-sm-2">
+      {{ title }}
+    </dt>
+    <dd class="col-sm-10 col-md-10 mb-0">
+      {{ content|safe }}
+    </dd>
+  </div>
+{% endmacro %}
+
+{% macro dl_dict(name, dict) %}
+  {% if dict %}
+    <dt class="col-sm-3">
+      {{ name }}
+    </dt>
+    <dd class="col-sm-9 col-md-9 mb-0">
+      {% if dict is string %}
+        {{ dict }}
+      {% else %}
+        <ul class="list-unstyled biblion-person mb-0">
+          {% for element in dict %}
+            <li>{{ dict[element] }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </dd>
+  {% endif %}
+{% endmacro %}
+
+{% macro dl_list(name, list) %}
+  {% if list %}
+    <dt class="col-sm-3">
+      {{ name }}
+    </dt>
+    <dd class="col-sm-9 col-md-9 mb-0">
+      {% if list is string %}
+        {{ list }}
+      {% else %}
+        <ul class="list-unstyled biblion-person mb-0">
+          {% for elements in list %}
+            <li>{{ elements }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </dd>
+  {% endif %}
+{% endmacro %}
+
+{% macro dl_language(name, list) %}
+{% if list %}
+<dt class="col-sm-3">
+  {{ name }}
+</dt>
+<dd class="col-sm-9 col-md-9 mb-0">
+  {% if list is string %}
+    {{ list }}
+  {% else %}
+    <ul class="list-unstyled biblion-person mb-0">
+      {% for elements in list %}
+        <li>{{ elements.value }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</dd>
+{% endif %}
+{% endmacro %}
+
+{% macro div_row(title, content) %}
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-2">
+      {{ title }}:
+    </div>
+    <div class="col-xs-8">
+      {{ content|safe }}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro div_row_xs3_xs9(title, content) %}
+<div class="row">
+    <div class="col-xs-3 col-sm-2">
+        {{ title }}:
+    </div>
+    <div class="col-xs-9 col-sm-10">
+        {{ content|safe }}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro div_json(title, data) %}
+<div class="align-self-end">
+  <a href="#source-{{ data.id }}" data-toggle="collapse" type="button" role="button" class="btn btn-info" aria-expanded="false" aria-controls="JSON display">
+    <i class="fa-solid fa-magnifying-glass-plus fa-fw"></i> {{ title }}
+  </a>
+</div>
+
+<div id="source-{{ data.id }}" class="card bg-light collapse mt-2">
+  <pre class="text-muted p-2 mb-0" >{{ data|tojson_pretty }}</pre>
+</div>
+{% endmacro %}
+
+{% macro render_field(field, icon="", autofocus=False, errormsg=True, size="input-group-lg", placeholder=None) %}
+{%- set placeholder = placeholder if placeholder else _(field.label.text | string) -%}
+  <div class="input-group {{size}}{% if icon %} has-feedback{% endif %}{% if field.errors %} has-error{% endif %} mb-2">
+    {%- set extras = dict(autofocus="") if autofocus else dict() %}
+    {{field(class_="form-control", placeholder=placeholder, **extras)}}
+    {%- if icon and field.id != 'password' %}
+    <div class="input-group-append">
+      <span class="input-group-text">
+        <i class="{{icon}} form-control-feedback" aria-hidden="true"></i>
+      </span>
+    </div>
+    {%- endif%}
+
+    {% if field.id == 'password' %}
+    <div class="input-group-append">
+      <span id="password-show-hide" class="input-group-text">
+        <small><i id="password-show-hide-icon" class="fa-solid fa-eye form-control-feedback" aria-hidden="true" title="{{ _('Show password') }}"></i></small>
+      </span>
+    </div>
+    {% endif %}
+  </div>
+  {%- if field.errors and errormsg %}
+  <div class="text-danger text-left" role="alert">
+    {%- for error in field.errors %}
+    <p>{{error}}</p>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+{% endmacro %}
+
+{% macro form_errors(form) %}
+  {%- if form.errors %}
+  <div class="alert alert-danger alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      {%- for key,err_obj in form.errors.items() recursive%}
+          {%  if err_obj is mapping %}
+              {{  loop(err_obj.items()) }}
+          {% else %}
+              {% for single_message in err_obj %}
+                <p class="mb-0">{{ single_message }}</p>
+              {% endfor %}
+          {% endif %}
+      {%- endfor %}
+  </div>
+  {%- endif %}
+{% endmacro %}

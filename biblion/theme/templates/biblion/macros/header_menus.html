@@ -1,0 +1,54 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% macro menu_icon(item) -%}
+  {% set icon_type = item.get_icon_type() %}
+    {%- if icon_type %}
+      {% set icon_value = item.get_icon_value() %}
+      {% if icon_type == 'fa' %}
+        <i class="fa-solid {{ icon_value }}"></i>
+      {% elif icon_type == 'image' %}
+        <img src="{{ url_for('static', filename=icon_value) }}" alt="menu image">
+      {% elif icon_type == 'image-url' %}
+        <img src="{{ icon_value }}" alt="menu image">
+      {% endif %}
+    {% endif %}
+{%- endmacro %}
+
+{% macro menu(menu_root=None) %}
+    <ul class="navbar-nav flex-wrap">
+      {%- for item in menu_root %}
+        {%- if item.is_category() -%}
+        {% set children = item.get_children() %}
+          {%- if children %}
+          {% set class_name = item.get_class_name() %}
+            <li class="nav-item {{ class_name if class_name }}">
+            {% set item_id =  item.name  | text_to_id %}
+              <a data-toggle="collapse"
+                 class="nav-link collapsed"
+                 href="#{{ item_id }}"
+                 role="button"
+                 aria-controls="collapseExample"
+                 aria-expanded="false">
+                {{ menu_icon(item) }} {{ _(item.name) }}
+                <i class="fa-solid fa-caret-down" aria-hidden="true"></i>
+              </a>
+            </li>
+          {% endif %}
+          {%- else %}
+          {%- if item.is_accessible() and item.is_visible() -%}
+            {% set class_name = item.get_class_name() %}
+            <li class="nav-item {{ class_name if class_name }}">
+              <a class="nav-link" href="{{ item.get_url() }}"
+                 {% if item.target %}
+                 target="{{ item.target }}"
+                 {% endif %}
+              >
+                {{ menu_icon(item) }} {{ _(item.name) }}
+              </a>
+            </li>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor %}
+    </ul>
+{% endmacro %}

@@ -1,0 +1,17 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<!DOCTYPE html>
+<html lang="{{ current_i18n.locale.language|safe }}" dir="{{ current_i18n.locale.text_direction }}">
+
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title or _(config.THEME_SITENAME) }}</title>
+  {{ webpack['global.css'] }}
+</head>
+
+<body style="padding: 4em;">
+  {%- block page_body %}{%- endblock page_body %}
+</body>
+
+</html>

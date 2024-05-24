@@ -1,0 +1,22 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Admin | {{ _(config.THEME_SITENAME) }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="/professional" />
+    {% include 'biblion/_favicon.html' %}
+    {{ angular_assets('@rero/rero-ils-ui/dist/admin/browser', 'css') }}
+</head>
+
+<body>
+    <admin-root></admin-root>
+    {{ angular_assets('@rero/rero-ils-ui/dist/admin/browser', 'modulepreload') }}
+    {{ angular_assets('@rero/rero-ils-ui/dist/admin/browser', 'js') }}
+</body>
+
+</html>

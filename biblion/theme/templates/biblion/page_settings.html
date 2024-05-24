@@ -1,0 +1,24 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends config.THEME_BASE_TEMPLATE %}
+
+{%- block body scoped %}
+  {%- block settings_content scoped %}
+  <div class="panel-group mt-2">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        {%- block settings_content_title scoped %}
+        <h3>{{ panel_title | default("") }}</h3>
+        {%- endblock %}
+      </div>
+      {%- block settings_body scoped %}
+      <div class="panel-body">
+        {%- block settings_form scoped %}
+        {%- endblock settings_form %}
+      </div>
+      {%- endblock settings_body %}
+    </div>
+  </div>
+  {%- endblock %}
+{%- endblock %}

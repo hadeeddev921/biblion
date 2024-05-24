@@ -1,0 +1,11 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% extends 'biblion/page.html' %}
+{%- set title = _('Error') ~ ' | ' ~ _(config.THEME_SITENAME) %}
+
+{% block body %}
+<div class="text-center">
+  {% block message %}{% endblock message %}
+</div>
+{% endblock body %}

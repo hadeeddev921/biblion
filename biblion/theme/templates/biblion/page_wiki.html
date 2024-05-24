@@ -1,0 +1,34 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% extends 'biblion/page.html' %}
+{% set title = _('Help') ~ ' | ' ~ _(config.THEME_SITENAME) %}
+
+{%- block css %}
+{{ super() }}
+<link href="{{ url_for('wiki.static', filename='css/wiki.css') }}" rel="stylesheet" />
+{%- endblock %}
+
+
+{%- block page_body %}
+<div class="container-fluid flex-grow-1">
+
+{% block navigation %}
+{%- include "wiki/navigation.html" %}
+{%- endblock navigation %}
+
+{# The messages flashed by the server are rendered by the theme header, so this
+   stack only holds the toasts the wiki raises from the browser. #}
+<div class="toast-container">
+  {%- include "wiki/toasts.html" %}
+</div>
+
+{% block content %}{% endblock %}
+</div>
+{%- endblock page_body %}
+
+{%- block javascript %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('wiki.static', filename='js/wiki.js') }}">
+</script>
+{%- endblock javascript %}

@@ -1,0 +1,50 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{% extends 'biblion/page.html' %}
+{%- set body_css_classes=['bg-dark', 'd-flex', 'flex-column'] %}
+
+{%- block outer_body %}
+  {%- block browserupgrade %}
+    <!--[if lt IE 8]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade  your   browser</a> to improve your experience.</p>
+    <![endif]-->
+  {%- endblock browserupgrade %}
+  {%- block flashmessages %}
+    {%- include "biblion/_flashed_messages.html" %}
+  {%- endblock flashmessages %}
+  <div class="d-flex flex-column flex-grow-1 align-items-center justify-content-center">
+  {% block page_header %}
+    <header class="">
+      {%- block brand %}
+        {%- if config.THEME_LOGO %}
+          <a href="/" id="homepage-logo" aria-label="{{ _(config.THEME_SITENAME) }} — {{ _('Home') }}">
+            <img class="text-center biblion-cover-logo"
+            src="{{ url_for('static', filename=config.THEME_LOGO)}}"
+            alt="{{ _(config.THEME_SITENAME) }}" />
+          </a>
+          {%- elif config.THEME_SITENAME %}
+          <a href="/" class="text-center mb-4" id="homepage-logo">
+            {{ _(config.THEME_SITENAME) }}
+        </a>
+        {% endif %}
+      {%- endblock brand %}
+    </header>
+  {% endblock page_header%}
+  {% block page_body%}
+    {% block message %}{% endblock %}
+    <section class="text-center">
+      {% block panel %}
+      {% endblock panel %}
+    </section>
+  {% endblock page_body%}
+  {% block page_footer %}
+  {% endblock page_footer %}
+</div>
+{%- block javascript %}
+{% include 'biblion/javascript.html' %}
+{%- endblock javascript %}
+{%- block trackingcode %}
+{% include 'biblion/trackingcode.html' %}
+{%- endblock %}
+{%- endblock outer_body %}

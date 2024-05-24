@@ -1,0 +1,8 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- block javascript %}
+{{ webpack['biblion_public.js']}}
+{{ angular_assets('@rero/rero-ils-ui/dist/search-bar/browser', 'modulepreload') }}
+{{ angular_assets('@rero/rero-ils-ui/dist/search-bar/browser', 'js') }}
+{%- endblock javascript %}
