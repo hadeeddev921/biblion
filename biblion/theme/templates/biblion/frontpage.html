@@ -1,0 +1,79 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+{%- extends 'biblion/page.html' %}
+
+{%- block page_header %}
+{%- include "biblion/header_frontpage.html" %}
+{%- endblock page_header %}
+
+{%- block page_body %}
+<div class="flex-grow-1">
+{%- block body %}
+  {% set homepage = view_organisation.homepage|default({}) if view_organisation else {} %}
+  {% set blocks = homepage.blocks|default({}) %}
+  {% set slogan = homepage.slogan|default([])|localizedLabel(current_i18n.language) %}
+  {% set placeholder = homepage.placeholder|default([])|localizedLabel(current_i18n.language) %}
+  {% set block_left = blocks.left|default([])|localizedLabel(current_i18n.language, none) %}
+  {% set block_center = blocks.center|default([])|localizedLabel(current_i18n.language, none) %}
+  {% set block_right = blocks.right|default([])|localizedLabel(current_i18n.language, none) %}
+  <header class="biblion-frontpage d-flex flex-column justify-content-center text-white pt-4">
+    <!-- Slogan -->
+    {% if slogan %}
+      <div class="biblion-slogan mb-4">
+        <div class="container text-center">
+          <h1>{{ slogan }}</h1>
+        </div>
+      </div>
+    {% elif not view_organisation %}
+      {%- include config.BIBLION_HOMEPAGE_GENERAL_SLOGAN %}
+    {% endif %}
+
+    <!-- Search bar -->
+    <div class="rero-search-bar">
+      <div class="container">
+        <main-search-bar
+          placeholder="{{ (_('What are you looking for?') if not view_organisation else placeholder if placeholder) }}"
+          viewcode="{{ viewcode or config.BIBLION_SEARCH_GLOBAL_VIEW_CODE }}"
+          inputstyleclass="ui:md:text-xl ui:w-full"
+          styleclass="ui:w-full"
+        />
+      </div>
+    </div>
+  </header>
+  {% if viewcode == 'bulle' %}
+  <!-- Display a copyright notice for the Bulle banner image -->
+  <div class="w-100 text-right">
+    <small class="mr-1 text-secondary">© Vincent Levrat</small>
+  </div>
+  {% endif %}
+
+  <!-- Block links -->
+  <div class="container">
+    <article class="row mt-md-4">
+      {% if block_left or block_center or block_right %}
+        <section class="col-md-4 order-1 order-md-1 px-4 pt-4">
+          {% if block_left %}
+            {{ block_left|safe }}
+          {% endif %}
+        </section>
+
+        <section class="col-md-4 order-2 order-md-2 px-4 pt-4">
+          {% if block_center %}
+            {{ block_center|safe }}
+          {% endif %}
+        </section>
+
+        <section class="col-md-4 order-3 order-md-3 px-4 pt-4">
+          {% if block_right %}
+            {{ block_right|safe }}
+          {% endif %}
+        </section>
+      {% elif not view_organisation %}
+        {%- include config.BIBLION_HOMEPAGE_GENERAL_BLOCK %}
+      {% endif %}
+    </article>
+  </div>
+{%- endblock body %}
+</div>
+{%- endblock page_body %}

@@ -1,0 +1,19 @@
+{# SPDX-FileCopyrightText: Hadeed #}
+{# SPDX-License-Identifier: AGPL-3.0-or-later #}
+
+<footer class="biblion-footer border-top mt-4 bg-light d-flex">
+  <div class="container d-flex justify-content-center align-items-center py-4">
+    <p class="text-secondary mb-0">
+      {{ _('Powered by') }} <a href="https://github.com/hadeeddev921/biblion" target="_blank">Biblion</a> &
+      <a href="https://inveniosoftware.org/" target="_blank" rel="noopener">Invenio</a> |
+      <a href="https://github.com/hadeeddev921/biblion/releases/tag/v{{version}}" target="_blank">v{{ version }}</a>
+      {% if config.BIBLION_PRIVACY_POLICY_URL %} |
+      <a href="{{ config.BIBLION_PRIVACY_POLICY_URL }}" target="_blank">{{ _('Privacy policy') }}</a>
+      {% endif %}
+      {% set footer_message = footer_message() %}
+      {% if footer_message %} |
+        <a>{{ footer_message }}</a>
+      {% endif %}
+    </p>
+  </div>
+</footer>
