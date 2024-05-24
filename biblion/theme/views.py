@@ -1,0 +1,297 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Blueprint used for loading templates."""
+
+import copy
+import re
+from copy import deepcopy
+from functools import wraps
+from urllib.parse import urlparse
+
+from flask import (
+    Blueprint,
+    Response,
+    abort,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from flask_babel import gettext as _
+from invenio_cache import current_cache
+from invenio_jsonschemas import current_jsonschemas
+from invenio_jsonschemas.errors import JSONSchemaNotFound
+from invenio_jsonschemas.proxies import current_refresolver_store
+
+from biblion.modules.messages import Message
+from biblion.modules.organisations.api import Organisation
+from biblion.modules.organisations.cache import (
+    homepage_organisation_cache_key,
+)
+from biblion.modules.utils import cached
+from biblion.permissions import can_access_professional_view
+
+blueprint = Blueprint(
+    "biblion",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+)
+
+
+def check_organisation_viewcode(fn):
+    """Check if viewcode parameter is defined."""
+
+    @wraps(fn)
+    def decorated_view(*args, **kwargs):
+        viewCodes = Organisation.all_code()
+        # Add default view code
+        viewCodes.append(current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE"))
+        if kwargs["viewcode"] not in viewCodes:
+            abort(404)
+        return fn(*args, **kwargs)
+
+    return decorated_view
+
+
+@blueprint.route("/error")
+def error():
+    """Error to generate exception for test purposes."""
+    raise RuntimeError("this is an error for test purposes")
+
+
+@blueprint.route("/robots.txt")
+@cached(timeout=60 * 60, query_string=True)  # 1 hour timeout
+def robots():
+    """Robots.txt generate response."""
+    response = current_app.config["BIBLION_ROBOTS"]
+    response = Response(response=response, status=200, mimetype="text/plain")
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    return response
+
+
+@blueprint.route("/")
+def index():
+    """Home Page."""
+    global_view_code = current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE")
+    return render_template(
+        "biblion/frontpage.html",
+        organisations=Organisation.get_all(),
+        view_organisation=None,
+        viewcode=global_view_code,
+        title=_(view_organisation_name(global_view_code)) + " | " + _(current_app.config["THEME_SITENAME"]),
+    )
+
+
+def get_cached_organisation_by_viewcode(viewcode):
+    """Get cached organisation by viewcode or create new one with cache."""
+    cache_key = homepage_organisation_cache_key(viewcode)
+    organisation = current_cache.get(cache_key)
+    if organisation is None:
+        organisation = Organisation.get_record_by_viewcode(viewcode)
+        current_cache.set(cache_key, organisation, timeout=0)
+    return organisation
+
+
+@blueprint.route("/<string:viewcode>")
+@blueprint.route("/<string:viewcode>/")
+@check_organisation_viewcode
+def index_with_view_code(viewcode):
+    """Home Page with viewcode."""
+    if viewcode == current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE"):
+        return redirect(url_for("biblion.index"))
+    organisation = get_cached_organisation_by_viewcode(viewcode)
+    return render_template(
+        "biblion/frontpage.html",
+        organisations=Organisation.get_all(),
+        view_organisation=organisation,
+        viewcode=viewcode,
+        title=organisation["name"] + " | " + _(current_app.config["THEME_SITENAME"]),
+    )
+
+
+@blueprint.route("/language", methods=["POST", "PUT"])
+def set_language():
+    """Set language in session.
+
+    The call should be a POST or a PUT HTTP request with a JSON body as follow:
+
+    .. code-block:: json
+
+        {
+            "lang": "fr"
+        }
+    """
+    data = request.get_json()
+    if not data or not data.get("lang"):
+        return (
+            jsonify({"errors": [{"code": 400, "title": "missing lang property"}]}),
+            400,
+        )
+    lang_code = data.get("lang")
+    languages = dict(current_app.extensions["invenio-i18n"].get_languages())
+    if lang_code not in languages:
+        return (
+            jsonify({"errors": [{"code": 400, "title": "unsupported language"}]}),
+            400,
+        )
+    session[current_app.config["I18N_SESSION_KEY"]] = lang_code.lower()
+    return jsonify({"lang": lang_code})
+
+
+@blueprint.route("/<string:viewcode>/search/<recordType>")
+@check_organisation_viewcode
+def search(viewcode, recordType):
+    """Search page ui."""
+    return render_template(current_app.config.get("BIBLION_SEARCH_TEMPLATE"), viewcode=viewcode)
+
+
+@blueprint.app_template_filter()
+def nl2br(string):
+    """Replace return to <br>."""
+    return string.replace("\n", "<br>")
+
+
+@blueprint.app_template_filter("urlActive")
+def url_active(string, target):
+    """Add link url on text if http detected."""
+    result = re.findall("(https?://[\\w|.|\\-|\\/]+)", string)
+    for link in result:
+        if link:
+            string = string.replace(link, f'<a href="{link}" target="{target}">{link}</a>')
+    return string
+
+
+@blueprint.app_template_filter("viewOrganisationName")
+def view_organisation_name(viewcode):
+    """Get view name."""
+    if viewcode != current_app.config.get("BIBLION_SEARCH_GLOBAL_VIEW_CODE"):
+        if org := Organisation.get_record_by_viewcode(viewcode):
+            return org["name"]
+    return current_app.config.get("BIBLION_SEARCH_GLOBAL_NAME", "")
+
+
+@blueprint.app_template_filter("localizedLabel")
+def localized_label(values, language, fallback_language="fr"):
+    """Get a localized label from a language/label list."""
+    if not values:
+        return None
+
+    def get_value(value, key):
+        if isinstance(value, dict):
+            return value.get(key)
+        return getattr(value, key, None)
+
+    labels = {}
+    for value in values:
+        item_language = get_value(value, "language")
+        item_label = get_value(value, "value")
+        if item_language and item_label:
+            labels[item_language] = item_label
+
+    if label := labels.get(language):
+        return label
+    if fallback_language is None:
+        # Avoid displaying "None" when a localized homepage block is missing.
+        return " "
+    return labels.get(fallback_language) or next(iter(labels.values()), None)
+
+
+@blueprint.add_app_template_global
+def footer_message():
+    """Get footer message."""
+    if message := Message.get("footer"):
+        return message["message"]
+    return None
+
+
+def prepare_jsonschema(schema):
+    """Json schema prep."""
+    schema = copy.deepcopy(schema)
+    schema.pop("$schema", None)
+    if "pid" in schema.get("required", []):
+        schema["required"].remove("pid")
+    default_country = current_app.config.get("USERPROFILES_DEFAULT_COUNTRY")
+    # users
+    field = schema.get("properties", {}).get("country")
+    # patrons: allOf does not works to remove property
+    if not field:
+        field = schema.get("properties", {}).get("second_address", {}).get("properties", {}).get("country")
+    if field and default_country:
+        field["default"] = default_country
+    return schema
+
+
+@blueprint.route("/schemas/<document_type>")
+def schemaform(document_type):
+    """Return schema and form options for the editor."""
+    doc_type = document_type
+    doc_type = re.sub("ies$", "y", doc_type)
+    doc_type = re.sub("s$", "", doc_type)
+    doc_type = re.sub("s_cfg$", "_cfg", doc_type)
+    data = {}
+    schema = None
+    schema_name = None
+    try:
+        if current_app.debug:
+            current_jsonschemas.get_schema.cache_clear()
+        schema_name = f"{document_type}/{doc_type}-v0.0.1.json"
+        schema = current_jsonschemas.get_schema(schema_name, with_refs=True)
+        data["schema"] = prepare_jsonschema(schema)
+    except JSONSchemaNotFound:
+        abort(404)
+
+    return jsonify(data)
+
+
+def replace_ref_url(schema, new_host):
+    """Replace all $refs with local $refs.
+
+    :param: schema: Schema to replace the $refs
+    :param: new_host: The host to replace the $ref with.
+    :returns: modified schema.
+    """
+    jsonschema_host = current_app.config.get("JSONSCHEMAS_HOST")
+    for k, v in schema.items():
+        if isinstance(v, dict):
+            schema[k] = replace_ref_url(schema=schema[k], new_host=new_host)
+    if "$ref" in schema and isinstance(schema["$ref"], str):
+        schema["$ref"] = schema["$ref"].replace(jsonschema_host, new_host)
+    # Todo: local://
+    return schema
+
+
+@blueprint.route("/schemas/<path>/<schema>")
+def get_schema(path, schema):
+    """Retrieve a schema."""
+    schema_path = f"{path}/{schema}"
+    try:
+        schema = deepcopy(current_refresolver_store[f"local://{schema_path}"])
+    except KeyError:
+        abort(404)
+    resolved = request.args.get("resolved", current_app.config.get("JSONSCHEMAS_RESOLVE_SCHEMA"), type=int)
+    new_host = urlparse(request.base_url).netloc
+    # Change schema['properties']['$schema']['default'] URL
+    if default := schema.get("properties", {}).get("$schema", {}).get("default"):
+        schema["properties"]["$schema"]["default"] = default.replace(
+            current_app.config.get("JSONSCHEMAS_HOST"), new_host
+        )
+    # Change $refs
+    schema = replace_ref_url(schema=schema, new_host=new_host)
+    if resolved:
+        if current_app.debug:
+            current_jsonschemas.get_schema.cache_clear()
+        schema = deepcopy(current_jsonschemas.get_schema(schema_path, with_refs=True))
+    return jsonify(schema)
+
+
+@blueprint.route("/professional/", defaults={"path": ""})
+@blueprint.route("/professional/<path:path>")
+@can_access_professional_view
+def professional(path):
+    """Return professional view."""
+    return render_template("biblion/professional.html")
