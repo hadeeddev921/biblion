@@ -1,0 +1,68 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+.item-row {
+  position: relative;
+  & + & {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    &:before {
+      position: absolute;
+      content: "";
+      border-top: 1px solid #CCC;
+      height: 1px;
+      width: 96%;
+      left: 2%;
+      top: 0;
+    }
+  }
+  dd {
+    margin-bottom: 0.1rem;
+  }
+  .action-buttons {
+     position: absolute;
+     top: 0;
+     right: 1rem;
+  }
+}
+
+.div-striped {
+  .row:nth-of-type(odd) {
+    background: #F8F8F8;
+  }
+  .row:nth-of-type(even) {
+    background: #FFFFFF;
+  }
+  .row:last-child {
+    margin-bottom: 10px;
+  }
+  .row div:first-of-type {
+    padding-left: 10px;
+  }
+  ul {
+    margin-bottom: 0;
+  }
+  .list-inline-item {
+    margin-right: 0;
+  }
+  .list-inline-item:after {
+    content: ", ";
+  }
+  .list-inline-item:last-child:after {
+    content: "";
+  }
+}
+
+#documents-get {
+  .card {
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .list-unstyled {
+      margin-bottom: 0;
+    }
+  }
+}
+

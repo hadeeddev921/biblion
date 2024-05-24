@@ -1,0 +1,44 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+.biblion-logo {
+  max-height: $navbar-brand-height;
+  margin: 7px 0;
+}
+
+.biblion-header-search {
+  min-width: 0;
+}
+
+@include media-breakpoint-down(md) {
+  .biblion-header-actions:has(.biblion-header-search) {
+    min-width: 10rem;
+  }
+}
+
+header {
+  position: relative;
+}
+
+.biblion-page-body {
+  height: calc(100vh - 0px);
+  overflow: auto;
+}
+
+.nav-link,
+.navbar-toggler:focus,
+.navbar-brand {
+  outline: 0;
+}
+
+.nav-item a.collapsed .fa-caret-down {
+  transform: rotate(-90deg);
+}
+
+.biblion-second-menu:not(.d-none){
+  border-top: solid #F0F0F0 1px;
+}
+
+.patron-info-message {
+  background: rgba(255,243,205, 1);
+}

@@ -1,0 +1,46 @@
+// SPDX-FileCopyrightText: Hadeed
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+ .biblion-frontpage {
+  background-image: url(#{$static-images}/homepage_image_bleu.jpg);
+  background-size: cover;
+  background-position: center;
+  form {
+    margin: 0 auto;
+    width: 80%;
+  }
+
+  @media (max-height: 500px){
+    height: 85vh;
+  }
+  @media (min-height: 500px){
+    height: 70vh;
+  }
+  @media (min-height: 700px){
+    height: 45vh;
+  }
+}
+
+// Hides rounded corners for small mobile devices
+@include media-breakpoint-up(md) {
+  .rero-rounded{
+    border-radius: 10px;
+  }
+ }
+
+.biblion-list-logo {
+  width: 28px;
+}
+
+.biblion-logo-alt {
+  width: 80px;
+}
+.biblion-rero-logo {
+  img {
+    width: 160px;
+  }
+}
+
+.btn-rero {
+  background-color: $dark;
+}
