@@ -1,0 +1,40 @@
+/* SPDX-FileCopyrightText: Hadeed */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+@layer bootstrap {
+  body#view-highlands nav.biblion-header {
+    background-color: #333333 !important;
+  }
+  
+  body#view-highlands nav.biblion-header img.biblion-logo {
+    display: none;
+  }
+  
+  div#highlands-logo {
+    content: url('/static/themes/images/logo-highlands.svg');
+    max-height: 44px;
+  }
+  
+  #view-global .biblion-slogan {
+      margin-bottom: 4em;
+  }
+  
+  
+  @media (max-width: 576px) {
+      .h1, h1 {
+          font-size: 1.5rem;
+      }
+  
+      .h2, h2 {
+          font-size: 1.2rem;
+      }
+  
+      #view-global .biblion-frontpage {
+          height: 20vh;
+      }
+  
+      #view-global .biblion-slogan {
+          margin-bottom: 1em;
+      }
+  }
+}
