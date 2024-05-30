@@ -1,0 +1,3849 @@
+[
+  {
+    "pid": "1",
+    "address": "Via Challand 132, 11100 Aosta",
+    "code": "AOSTE-CANT1",
+    "email": "biblion.demo+aoste1@example.com",
+    "name": "Biblioth\u00e8que cantonale vald\u00f4taine, site d'Aoste",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "12:00"
+          },
+          {
+            "start_time": "13:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "12:00"
+          },
+          {
+            "start_time": "13:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "12:00"
+          },
+          {
+            "start_time": "13:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "12:00"
+          },
+          {
+            "start_time": "13:00",
+            "end_time": "21:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "title": "Vacances de No\u00ebl",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "end_date": "2019-01-06"
+      },
+      {
+        "title": "Vacances de Carnaval",
+        "is_open": false,
+        "start_date": "2019-03-01",
+        "end_date": "2019-03-11"
+      },
+      {
+        "title": "1er mai",
+        "is_open": false,
+        "start_date": "2019-05-01",
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "title": "Vacances d'\u00e9t\u00e9",
+        "is_open": false,
+        "start_date": "2019-07-15",
+        "end_date": "2019-08-15"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aoste1@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+aoste1@example.com"
+      }
+    ],
+    "communication_language": "ita",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Doe, John",
+        "email": "biblion.demo+shippingaoste1@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/1",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Doe, John",
+        "email": "biblion.demo+shippingaoste1@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/1",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Cover, Harry",
+        "email": "biblion.demo+serial+shipping@gmail.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/2",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Derata, Daisy",
+        "email": "biblion.demo+serial+billing@gmail.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Challand 133 bte/10",
+          "zip_code": "11100",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      }
+    },
+    "online_harvested_source": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://la-chaux-de-fonds.ebibliomedia.ch"
+      }
+    ],
+    "rollover_settings": {
+      "account_transfer": "rollover_allocated_amount"
+    }
+  },
+  {
+    "pid": "2",
+    "address": "Viale Carlo Viola 931, 11026 Pont-Saint-Martin",
+    "code": "AOSTE-CANT2",
+    "email": "biblion.demo+aoste2@example.com",
+    "name": "Biblioth\u00e8que cantonale vald\u00f4taine, site de Pont-saint-Martin",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "12:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "12:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "12:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "17:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "title": "Vacances de No\u00ebl",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "end_date": "2019-01-06"
+      },
+      {
+        "title": "8 f\u00e9vrier apr\u00e8s-midi",
+        "is_open": false,
+        "start_date": "2019-02-08",
+        "times": [
+          {
+            "start_time": "12:00",
+            "end_time": "18:00"
+          }
+        ]
+      },
+      {
+        "title": "Dimanche du livre",
+        "is_open": true,
+        "start_date": "2019-05-24",
+        "times": [
+          {
+            "start_time": "10:00",
+            "end_time": "16:00"
+          }
+        ]
+      },
+      {
+        "title": "1er ao\u00fbt",
+        "is_open": false,
+        "start_date": "2019-08-01",
+        "repeat": {
+          "interval": 1,
+          "period": "yearly",
+          "data": [
+            8
+          ]
+        }
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+aoste2@example.com",
+        "delay": 5
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+aoste2@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+aoste2@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aoste2@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aoste2@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aoste2@example.com"
+      },
+      {
+        "type": "auto_extend",
+        "email": "biblion.demo+aoste2@example.com"
+      }
+    ],
+    "communication_language": "ita",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Cover, Harry",
+        "email": "biblion.demo+shippingaoste1@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "Viale Carlo Viola 931 bte/4",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Derata, Daisy",
+        "email": "biblion.demo+billingaoste1@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "Viale Carlo Viola 931 bte/5",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Cover, Harry",
+        "email": "biblion.demo+shippingaoste1@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "Viale Carlo Viola 931 bte/4",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Derata, Daisy",
+        "email": "biblion.demo+billingaoste1@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "Viale Carlo Viola 931 bte/5",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "online_harvested_source": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://bv-lelocle.ebibliomedia.ch/"
+      }
+    ],
+    "rollover_settings": {
+      "account_transfer": "rollover_allocated_amount"
+    }
+  },
+  {
+    "pid": "3",
+    "address": "Avise 345, 11010 Avise",
+    "code": "AOSTE-AVISE",
+    "email": "biblion.demo+aoste3@example.com",
+    "name": "Biblioth\u00e8que communale et scolaire d'Avise",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          },
+          {
+            "start_time": "15:00",
+            "end_time": "18:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          },
+          {
+            "start_time": "15:00",
+            "end_time": "18:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          },
+          {
+            "start_time": "15:00",
+            "end_time": "18:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          },
+          {
+            "start_time": "15:00",
+            "end_time": "18:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "11:00"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "title": "Inventaire mensuel",
+        "is_open": false,
+        "start_date": "2019-01-03",
+        "repeat": {
+          "interval": 1,
+          "period": "monthly",
+          "data": [
+            8
+          ]
+        }
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+aoste3@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+aoste3@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+aoste3@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aoste3@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aoste3@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aoste3@example.com"
+      }
+    ],
+    "communication_language": "ita",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Smith, John",
+        "email": "biblion.demo+shippingaoste3@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Avise 345",
+          "zip_code": "11010",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Smith, John",
+        "email": "biblion.demo+shippingaoste3@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Avise 345",
+          "zip_code": "11010",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Smith, John",
+        "email": "biblion.demo+shippingaoste3@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Avise 345",
+          "zip_code": "11010",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Smith, John",
+        "email": "biblion.demo+shippingaoste3@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Avise 345",
+          "zip_code": "11010",
+          "city": "Aosta",
+          "country": "sz"
+        }
+      }
+    },
+    "online_harvested_source": [
+      {
+        "source": "ebibliomedia",
+        "url": "https://bpu-neuchatel.ebibliomedia.ch"
+      }
+    ],
+    "rollover_settings": {
+      "account_transfer": "rollover_allocated_amount"
+    }
+  },
+  {
+    "pid": "4",
+    "address": "Via Piave 3, 11027 Saint-Vincent",
+    "code": "AOSTE-LYCEE",
+    "email": "biblion.demo+aoste4@example.com",
+    "name": "Biblioth\u00e8que du Lyc\u00e9e de la Vall\u00e9e d'Aoste",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "wednesday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "07:00",
+            "end_time": "19:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "saturday",
+        "is_open": false,
+        "times": []
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "14:00",
+            "end_time": "18:00"
+          }
+        ]
+      }
+    ],
+    "exception_dates": [
+      {
+        "title": "Vacances de No\u00ebl",
+        "is_open": false,
+        "start_date": "2018-12-22",
+        "end_date": "2019-01-15"
+      },
+      {
+        "title": "Vacances de Carnaval",
+        "is_open": false,
+        "start_date": "2019-03-01",
+        "end_date": "2019-03-11"
+      },
+      {
+        "title": "Assembl\u00e9e annuelle",
+        "is_open": true,
+        "start_date": "2019-09-15",
+        "times": [
+          {
+            "start_time": "14:00",
+            "end_time": "16:00"
+          }
+        ]
+      },
+      {
+        "title": "Vacances d'\u00e9t\u00e9",
+        "is_open": false,
+        "start_date": "2019-07-01",
+        "end_date": "2019-08-22"
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+aoste4@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+aoste4@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+aoste4@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aoste4@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aoste4@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aoste4@example.com"
+      }
+    ],
+    "communication_language": "ita",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Gomez, Selena",
+        "email": "biblion.demo+shippingaoste4@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Piave 3",
+          "zip_code": "11027",
+          "city": "Saint-Vincent",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Gomez, Selena",
+        "email": "biblion.demo+shippingaoste4@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Piave 3",
+          "zip_code": "11027",
+          "city": "Saint-Vincent",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Gomez, Selena",
+        "email": "biblion.demo+shippingaoste4@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Piave 3",
+          "zip_code": "11027",
+          "city": "Saint-Vincent",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Gomez, Selena",
+        "email": "biblion.demo+shippingaoste4@example.com",
+        "phone": "+4134567890",
+        "address": {
+          "street": "Via Piave 3",
+          "zip_code": "11027",
+          "city": "Saint-Vincent",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_allocated_amount"
+    }
+  },
+  {
+    "pid": "5",
+    "address": "Highlands, Scotland, Great Britain",
+    "code": "HOG",
+    "email": "biblion.demo+magic1@example.com",
+    "name": "Hogwarts Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/2"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "20:00"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "20:00"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "20:00"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "20:00"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "09:00",
+            "end_time": "20:00"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "13:00",
+            "end_time": "17:00"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": false,
+        "times": []
+      }
+    ],
+    "exception_dates": [
+      {
+        "title": "House Cup Ceremony",
+        "is_open": false,
+        "start_date": "2019-06-30",
+        "repeat": {
+          "interval": 1,
+          "period": "yearly",
+          "data": [
+            8
+          ]
+        }
+      },
+      {
+        "title": "Hogwarts Quidditch Cup: final match",
+        "is_open": false,
+        "start_date": "2019-04-15",
+        "repeat": {
+          "interval": 1,
+          "period": "yearly",
+          "data": [
+            8
+          ]
+        }
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+aoste5@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+aoste5@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+aoste5@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+aoste5@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+aoste5@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+aoste5@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+aoste5@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Highlander, John",
+        "email": "biblion.demo+magic1@example.com",
+        "phone": "+4134567891",
+        "address": {
+          "street": "Highlands, Scotland, Great Britain",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Highlander, John",
+        "email": "biblion.demo+magic1@example.com",
+        "phone": "+4134567891",
+        "address": {
+          "street": "Highlands, Scotland, Great Britain",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Highlander, John",
+        "email": "biblion.demo+magic1@example.com",
+        "phone": "+4134567891",
+        "address": {
+          "street": "Highlands, Scotland, Great Britain",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Highlander, John",
+        "email": "biblion.demo+magic1@example.com",
+        "phone": "+4134567891",
+        "address": {
+          "street": "Highlands, Scotland, Great Britain",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "6",
+    "address": "street of jedi.",
+    "code": "JEDI",
+    "email": "biblion.demo+jedi@example.com",
+    "name": "Jedi Archives",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+jedi@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+jedi@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+jedi@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+jedi@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+jedi@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+jedi@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Jedi, John",
+        "email": "biblion.demo+jedi@example.com",
+        "phone": "+4134567892",
+        "address": {
+          "street": "street of jedi",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Jedi, John",
+        "email": "biblion.demo+jedi@example.com",
+        "phone": "+4134567892",
+        "address": {
+          "street": "street of jedi",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "7",
+    "address": "street of citadelle.",
+    "code": "CITADELLE",
+    "email": "biblion.demo+citadelle@example.com",
+    "name": "La Citadelle",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+citadelle@example.com",
+        "delay": 5
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+citadelle@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+citadelle@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+citadelle@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+citadelle@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+citadelle@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Citadelle, John",
+        "email": "biblion.demo+citadelle@example.com",
+        "phone": "+4134567893",
+        "address": {
+          "street": "street of citadelle",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Citadelle, John",
+        "email": "biblion.demo+citadelle@example.com",
+        "phone": "+4134567893",
+        "address": {
+          "street": "street of citadelle",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Citadelle, John",
+        "email": "biblion.demo+citadelle@example.com",
+        "phone": "+4134567893",
+        "address": {
+          "street": "street of citadelle",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Citadelle, John",
+        "email": "biblion.demo+citadelle@example.com",
+        "phone": "+4134567893",
+        "address": {
+          "street": "street of citadelle",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "8",
+    "address": "street of beast.",
+    "code": "BEAST",
+    "email": "biblion.demo+beast@example.com",
+    "name": "Beast's Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+beast@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+beast@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+beast@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+beast@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+beast@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+beast@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Beast, John",
+        "email": "biblion.demo+beast@example.com",
+        "phone": "+4134567894",
+        "address": {
+          "street": "street of beast",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Beast, John",
+        "email": "biblion.demo+beast@example.com",
+        "phone": "+4134567894",
+        "address": {
+          "street": "street of beast",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Beast, John",
+        "email": "biblion.demo+beast@example.com",
+        "phone": "+4134567894",
+        "address": {
+          "street": "street of beast",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Beast, John",
+        "email": "biblion.demo+beast@example.com",
+        "phone": "+4134567894",
+        "address": {
+          "street": "street of beast",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "9",
+    "address": "street of dream.",
+    "code": "DREAM",
+    "email": "biblion.demo+dream@example.com",
+    "name": "Dream's Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+dream@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+dream@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+dream@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+dream@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+dream@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+dream@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Dream, John",
+        "email": "biblion.demo+dream@example.com",
+        "phone": "+4134567895",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Dream, John",
+        "email": "biblion.demo+dream@example.com",
+        "phone": "+4134567895",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Dream, John",
+        "email": "biblion.demo+dream@example.com",
+        "phone": "+4134567895",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Dream, John",
+        "email": "biblion.demo+dream@example.com",
+        "phone": "+4134567895",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "10",
+    "address": "street of who.",
+    "code": "WHO",
+    "email": "biblion.demo+who@example.com",
+    "name": "Lux Foundation Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+who@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+who@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+who@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+who@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+who@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+who@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+who@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Who, John",
+        "email": "biblion.demo+who@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Who, John",
+        "email": "biblion.demo+who@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "street of who",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Who, John",
+        "email": "biblion.demo+who@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "street of dream",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Who, John",
+        "email": "biblion.demo+who@example.com",
+        "phone": "+4134567896",
+        "address": {
+          "street": "street of who",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "11",
+    "address": "street of hog.",
+    "code": "HOG",
+    "email": "biblion.demo+hog@example.com",
+    "name": "Hogwarts Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+hog@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+hog@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+hog@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+hog@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+hog@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+hog@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "Hog, John",
+        "email": "biblion.demo+hog@example.com",
+        "phone": "+4134567897",
+        "address": {
+          "street": "street of hog",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Hog, John",
+        "email": "biblion.demo+hog@example.com",
+        "phone": "+4134567897",
+        "address": {
+          "street": "street of hog",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "Hog, John",
+        "email": "biblion.demo+hog@example.com",
+        "phone": "+4134567897",
+        "address": {
+          "street": "street of hog",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "Hog, John",
+        "email": "biblion.demo+hog@example.com",
+        "phone": "+4134567897",
+        "address": {
+          "street": "street of hog",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "12",
+    "address": "street of babel.",
+    "code": "BABEL",
+    "email": "biblion.demo+babel@example.com",
+    "name": "Biblioth\u00e8que de Babel",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+babel@example.com",
+        "delay": 5
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+babel@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+babel@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+babel@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+babel@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+babel@example.com"
+      }
+    ],
+    "communication_language": "fre",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "babel, John",
+        "email": "biblion.demo+babel@example.com",
+        "phone": "+4134567898",
+        "address": {
+          "street": "street of babel",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "babel, John",
+        "email": "biblion.demo+babel@example.com",
+        "phone": "+4134567898",
+        "address": {
+          "street": "street of babel",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "babel, John",
+        "email": "biblion.demo+babel@example.com",
+        "phone": "+4134567898",
+        "address": {
+          "street": "street of babel",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "babel, John",
+        "email": "biblion.demo+babel@example.com",
+        "phone": "+4134567898",
+        "address": {
+          "street": "street of babel",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "13",
+    "address": "street of rose.",
+    "code": "ROSE",
+    "email": "biblion.demo+rose@example.com",
+    "name": "Biblioth\u00e8que de l\u2019abbaye",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+rose@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+rose@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+rose@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+rose@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+rose@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+rose@example.com"
+      }
+    ],
+    "communication_language": "fre",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "rose, John",
+        "email": "biblion.demo+rose@example.com",
+        "phone": "+4134567899",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "rose, John",
+        "email": "biblion.demo+rose@example.com",
+        "phone": "+4134567899",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "rose, John",
+        "email": "biblion.demo+rose@example.com",
+        "phone": "+4134567899",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "rose, John",
+        "email": "biblion.demo+rose@example.com",
+        "phone": "+4134567899",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "14",
+    "address": "street of uni.",
+    "code": "UNI",
+    "email": "biblion.demo+uni@example.com",
+    "name": "The University's Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+uni@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+uni@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+uni@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+uni@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+uni@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+uni@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "uni, John",
+        "email": "biblion.demo+uni@example.com",
+        "phone": "+4134567880",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "uni, John",
+        "email": "biblion.demo+uni@example.com",
+        "phone": "+4134567880",
+        "address": {
+          "street": "street of uni",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "uni, John",
+        "email": "biblion.demo+uni@example.com",
+        "phone": "+4134567880",
+        "address": {
+          "street": "street of rose",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "uni, John",
+        "email": "biblion.demo+uni@example.com",
+        "phone": "+4134567880",
+        "address": {
+          "street": "street of uni",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "15",
+    "address": "street of cemetery.",
+    "code": "CEMETERY",
+    "email": "biblion.demo+cemetery@example.com",
+    "name": "Cemetery of Forgotten Books",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+cemetery@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+cemetery@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+cemetery@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+cemetery@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+cemetery@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+cemetery@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+cemetery@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "cemetery, John",
+        "email": "biblion.demo+cemetery@example.com",
+        "phone": "+4134567881",
+        "address": {
+          "street": "street of cemetery",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "cemetery, John",
+        "email": "biblion.demo+cemetery@example.com",
+        "phone": "+4134567881",
+        "address": {
+          "street": "street of cemetery",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "cemetery, John",
+        "email": "biblion.demo+cemetery@example.com",
+        "phone": "+4134567881",
+        "address": {
+          "street": "street of cemetery",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "cemetery, John",
+        "email": "biblion.demo+cemetery@example.com",
+        "phone": "+4134567881",
+        "address": {
+          "street": "street of cemetery",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "16",
+    "address": "street of truth.",
+    "code": "TRUTH",
+    "email": "biblion.demo+truth@example.com",
+    "name": "Ministry of Truth",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+truth@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+truth@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+truth@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+truth@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+truth@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+truth@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "truth, John",
+        "email": "biblion.demo+truth@example.com",
+        "phone": "+4134567882",
+        "address": {
+          "street": "street of truth",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "truth, John",
+        "email": "biblion.demo+truth@example.com",
+        "phone": "+4134567882",
+        "address": {
+          "street": "street of truth",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "truth, John",
+        "email": "biblion.demo+truth@example.com",
+        "phone": "+4134567882",
+        "address": {
+          "street": "street of truth",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "truth, John",
+        "email": "biblion.demo+truth@example.com",
+        "phone": "+4134567882",
+        "address": {
+          "street": "street of truth",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "17",
+    "address": "street of rive.",
+    "code": "RIVE",
+    "email": "biblion.demo+rive@example.com",
+    "name": "Rivendell Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+rive@example.com",
+        "delay": 5
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+rive@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+rive@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+rive@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+rive@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+rive@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "rive, John",
+        "email": "biblion.demo+rive@example.com",
+        "phone": "+4134567883",
+        "address": {
+          "street": "street of rive",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "rive, John",
+        "email": "biblion.demo+rive@example.com",
+        "phone": "+4134567883",
+        "address": {
+          "street": "street of rive",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "rive, John",
+        "email": "biblion.demo+rive@example.com",
+        "phone": "+4134567883",
+        "address": {
+          "street": "street of rive",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "rive, John",
+        "email": "biblion.demo+rive@example.com",
+        "phone": "+4134567883",
+        "address": {
+          "street": "street of rive",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "18",
+    "address": "street of matilda.",
+    "code": "MATILDA",
+    "email": "biblion.demo+matilda@example.com",
+    "name": "Matilda's Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+matilda@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+matilda@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+matilda@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+matilda@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+matilda@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+matilda@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "matilda, John",
+        "email": "biblion.demo+matilda@example.com",
+        "phone": "+4134567884",
+        "address": {
+          "street": "street of matilda",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "matilda, John",
+        "email": "biblion.demo+matilda@example.com",
+        "phone": "+4134567884",
+        "address": {
+          "street": "street of matilda",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "matilda, John",
+        "email": "biblion.demo+matilda@example.com",
+        "phone": "+4134567884",
+        "address": {
+          "street": "street of matilda",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "matilda, John",
+        "email": "biblion.demo+matilda@example.com",
+        "phone": "+4134567884",
+        "address": {
+          "street": "street of matilda",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "19",
+    "address": "street of unseen.",
+    "code": "UNSEEN",
+    "email": "biblion.demo+unseen@example.com",
+    "name": "Unseen University Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+unseen@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+unseen@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+unseen@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+unseen@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+unseen@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+unseen@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "unseen, John",
+        "email": "biblion.demo+unseen@example.com",
+        "phone": "+4134567885",
+        "address": {
+          "street": "street of unseen",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "unseen, John",
+        "email": "biblion.demo+unseen@example.com",
+        "phone": "+4134567885",
+        "address": {
+          "street": "street of unseen",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "unseen, John",
+        "email": "biblion.demo+unseen@example.com",
+        "phone": "+4134567885",
+        "address": {
+          "street": "street of unseen",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "unseen, John",
+        "email": "biblion.demo+unseen@example.com",
+        "phone": "+4134567885",
+        "address": {
+          "street": "street of unseen",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "20",
+    "address": "street of wan.",
+    "code": "WAN",
+    "email": "biblion.demo+wan@example.com",
+    "name": "Wan Shi Tong's Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+wan@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+wan@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+wan@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+wan@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+wan@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+wan@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+wan@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "wan, John",
+        "email": "biblion.demo+wan@example.com",
+        "phone": "+4134567886",
+        "address": {
+          "street": "street of wan",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "wan, John",
+        "email": "biblion.demo+wan@example.com",
+        "phone": "+4134567886",
+        "address": {
+          "street": "street of wan",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "wan, John",
+        "email": "biblion.demo+wan@example.com",
+        "phone": "+4134567886",
+        "address": {
+          "street": "street of wan",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "wan, John",
+        "email": "biblion.demo+wan@example.com",
+        "phone": "+4134567886",
+        "address": {
+          "street": "street of wan",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "21",
+    "address": "street of buffy.",
+    "code": "BUFFY",
+    "email": "biblion.demo+buffy@example.com",
+    "name": "Sunnydale High School library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+buffy@example.com",
+        "delay": 5
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+buffy@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+buffy@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+buffy@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+buffy@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "buffy, John",
+        "email": "biblion.demo+buffy@example.com",
+        "phone": "+4134567887",
+        "address": {
+          "street": "street of buffy",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "buffy, John",
+        "email": "biblion.demo+buffy@example.com",
+        "phone": "+4134567887",
+        "address": {
+          "street": "street of buffy",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "buffy, John",
+        "email": "biblion.demo+buffy@example.com",
+        "phone": "+4134567887",
+        "address": {
+          "street": "street of buffy",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "buffy, John",
+        "email": "biblion.demo+buffy@example.com",
+        "phone": "+4134567887",
+        "address": {
+          "street": "street of buffy",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "22",
+    "address": "On board the Enterprise",
+    "code": "ENTERPRISE",
+    "email": "biblion.demo+e2e1@example.com",
+    "name": "Starfleet library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/4"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+e2e1@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+e2e1@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+e2e1@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+e2e1@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+e2e1@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "e2e1, John",
+        "email": "biblion.demo+e2e1@example.com",
+        "phone": "+4134567888",
+        "address": {
+          "street": "street of e2e1",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "e2e1, John",
+        "email": "biblion.demo+e2e1@example.com",
+        "phone": "+4134567888",
+        "address": {
+          "street": "street of e2e1",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "e2e1, John",
+        "email": "biblion.demo+e2e1@example.com",
+        "phone": "+4134567888",
+        "address": {
+          "street": "street of e2e1",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "e2e1, John",
+        "email": "biblion.demo+e2e1@example.com",
+        "phone": "+4134567888",
+        "address": {
+          "street": "street of e2e1",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "23",
+    "address": "Somewhere on Vulcan",
+    "code": "VULCAN",
+    "email": "biblion.demo+e2e2@example.com",
+    "name": "Vulcan Sciences Academy",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/4"
+    },
+    "opening_hours": [
+      {
+        "day": "monday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "tuesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "wednesday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "thursday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "friday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "saturday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      },
+      {
+        "day": "sunday",
+        "is_open": true,
+        "times": [
+          {
+            "start_time": "01:00",
+            "end_time": "23:59"
+          }
+        ]
+      }
+    ],
+    "notification_settings": [
+      {
+        "type": "availability",
+        "email": "biblion.demo+e2e2@example.com",
+        "delay": 5
+      },
+      {
+        "type": "due_soon",
+        "email": "biblion.demo+e2e2@example.com"
+      },
+      {
+        "type": "overdue",
+        "email": "biblion.demo+e2e2@example.com"
+      },
+      {
+        "type": "recall",
+        "email": "biblion.demo+e2e2@example.com"
+      },
+      {
+        "type": "request",
+        "email": "biblion.demo+e2e2@example.com"
+      },
+      {
+        "type": "transit_notice",
+        "email": "biblion.demo+e2e2@example.com"
+      },
+      {
+        "type": "booking",
+        "email": "biblion.demo+e2e2@example.com"
+      }
+    ],
+    "communication_language": "eng",
+    "acquisition_settings": {
+      "shipping_informations": {
+        "name": "e2e2, John",
+        "email": "biblion.demo+e2e2@example.com",
+        "phone": "+4134567889",
+        "address": {
+          "street": "street of e2e2",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "e2e2, John",
+        "email": "biblion.demo+e2e2@example.com",
+        "phone": "+4134567889",
+        "address": {
+          "street": "street of e2e2",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "serial_acquisition_settings": {
+      "shipping_informations": {
+        "name": "e2e2, John",
+        "email": "biblion.demo+e2e2@example.com",
+        "phone": "+4134567889",
+        "address": {
+          "street": "street of e2e2",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      },
+      "billing_informations": {
+        "name": "e2e2, John",
+        "email": "biblion.demo+e2e2@example.com",
+        "phone": "+4134567889",
+        "address": {
+          "street": "street of e2e2",
+          "zip_code": "11026",
+          "city": "Pont-Saint-Martin",
+          "country": "sz"
+        }
+      }
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    }
+  },
+  {
+    "pid": "24",
+    "address": "Rue Bourgeois",
+    "code": "COGNE",
+    "email": "biblion.demo+cogne@example.com",
+    "name": "Cogne Library",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "rollover_settings": {
+      "account_transfer": "rollover_no_transfer"
+    },
+    "communication_language": "eng"
+  }
+]
