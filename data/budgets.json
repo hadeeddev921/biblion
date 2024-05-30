@@ -1,0 +1,40 @@
+[
+  {
+    "pid": "1",
+    "is_active": true,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    }
+  },
+  {
+    "pid": "2",
+    "is_active": true,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/2"
+    }
+  },
+  {
+    "pid": "3",
+    "is_active": true,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    }
+  },
+  {
+    "pid": "4",
+    "is_active": true,
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/4"
+    }
+  },
+  {
+    "pid": "5",
+    "is_active": false,
+    "name": "2021",
+    "start_date": "2021-01-01",
+    "end_date": "2021-12-31",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    }
+  }
+]
