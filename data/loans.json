@@ -1,0 +1,313 @@
+[
+  {
+    "barcode": "biblion1",
+    "loans": {
+      "active": 2,
+      "overdue_active": 1,
+      "overdue_paid": 1,
+      "requested_by_others": 2
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1
+    }
+  },
+  {
+    "barcode": "2000000001",
+    "loans": {
+      "active": 1,
+      "overdue_active": 1,
+      "overdue_paid": 1
+    },
+    "requests": {
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "10000001",
+    "loans": {
+      "active": 2,
+      "overdue_active": 1,
+      "overdue_paid": 1
+    },
+    "requests": {
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "2050124312",
+    "loans": {
+      "active": 14
+    },
+    "requests": {
+      "requests": 8
+    }
+  },
+  {
+    "barcode": "kad001",
+    "loans": {
+      "active": 1,
+      "overdue_active": 1,
+      "overdue_paid": 1
+    },
+    "requests": {
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "kad002",
+    "loans": {
+      "active": 1,
+      "overdue_active": 1
+    },
+    "requests": {
+      "requests": 1
+    },
+    "blocked": "Lost card"
+  },
+  {
+    "barcode": "2030124287",
+    "loans": {
+      "active": 2,
+      "extended": 1,
+      "overdue_active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1,
+      "requests": 3
+    }
+  },
+  {
+    "barcode": "2050124311",
+    "loans": {
+      "active": 5,
+      "extended": 1,
+      "overdue_active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1,
+      "requests": 2
+    }
+  },
+  {
+    "barcode": "3050124311",
+    "loans": {
+      "active": 5,
+      "extended": 1,
+      "overdue_active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1,
+      "requests": 2
+    },
+    "blocked": "Another reason to block someone."
+  },
+  {
+    "barcode": "3050124312",
+    "loans": {
+      "active": 5,
+      "extended": 1,
+      "overdue_active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1,
+      "requests": 2
+    }
+  },
+  {
+    "barcode": "920001",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920002",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920003",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920004",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920005",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920006",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920007",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920008",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920009",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920010",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920011",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920012",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920013",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920014",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920015",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "920016",
+    "loans": {
+      "active": 2,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "requests": 1
+    }
+  },
+  {
+    "barcode": "999999",
+    "loans": {
+      "active": 1,
+      "overdue_active": 1,
+      "requested_by_others": 1
+    },
+    "requests": {
+      "rank_1": 1,
+      "rank_2": 1
+    }
+  }
+]

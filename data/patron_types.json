@@ -1,0 +1,145 @@
+[
+  {
+    "pid": "1",
+    "name": "Standard",
+    "description": "Standard patron.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "subscription_amount": 10,
+    "limits": {
+      "unpaid_subscription": false,
+      "checkout_limits": {
+        "global_limit": 25
+      },
+      "request_limits": {
+        "global_limit": 25
+      }
+    }
+  },
+  {
+    "pid": "2",
+    "name": "Extended rights",
+    "description": "Patron with extended rights: staff, professors, supporting members.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "limits": {
+      "unpaid_subscription": false,
+      "checkout_limits": {
+        "global_limit": 40
+      }
+    }
+  },
+  {
+    "pid": "3",
+    "name": "Children",
+    "description": "Children and teenagers (< 16 years old).",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "limits": {
+      "unpaid_subscription": false,
+      "checkout_limits": {
+        "global_limit": 15
+      },
+      "request_limits": {
+        "global_limit": 15
+      }
+    }
+  },
+  {
+    "pid": "4",
+    "name": "Standard",
+    "description": "Standard patron.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/2"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  {
+    "pid": "5",
+    "name": "Default",
+    "description": "Default patron type",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/3"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  {
+    "pid": "6",
+    "name": "Children",
+    "description": "Children and teenagers (< 16 years old).",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/2"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  {
+    "pid": "7",
+    "name": "Standard",
+    "description": "Standard patron.",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/4"
+    },
+    "limits": {
+      "unpaid_subscription": false
+    }
+  },
+  {
+    "pid": "8",
+    "name": "Limited",
+    "description": "Patron with restriction on checkout",
+    "organisation": {
+      "$ref": "https://bib.rero.ch/api/organisations/1"
+    },
+    "limits": {
+      "unpaid_subscription": false,
+      "checkout_limits": {
+        "global_limit": 10,
+        "library_limit": 8,
+        "library_exceptions": [
+          {
+            "library": {
+              "$ref": "https://bib.rero.ch/api/libraries/1"
+            },
+            "value": 5
+          },
+          {
+            "library": {
+              "$ref": "https://bib.rero.ch/api/libraries/2"
+            },
+            "value": 12
+          }
+        ]
+      },
+      "request_limits": {
+        "global_limit": 10,
+        "library_limit": 8,
+        "library_exceptions": [
+          {
+            "library": {
+              "$ref": "https://bib.rero.ch/api/libraries/1"
+            },
+            "value": 5
+          },
+          {
+            "library": {
+              "$ref": "https://bib.rero.ch/api/libraries/2"
+            },
+            "value": 12
+          }
+        ]
+      },
+      "overdue_items_limits": {
+        "default_value": 3
+      }
+    }
+  }
+]
