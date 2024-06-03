@@ -1,0 +1,105 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+services:
+  # Load balancer
+  lb:
+    extends:
+      file: docker-services.yml
+      service: lb
+    links:
+      - frontend
+  # Frontend
+  frontend:
+    extends:
+      file: docker-services.yml
+      service: frontend
+    volumes:
+      - static_data:/invenio/var/instance/static
+    links:
+      - web-ui
+      - web-api
+  # UI Application
+  web-ui:
+    extends:
+      file: docker-services.yml
+      service: app
+    command: uv run uwsgi /invenio/var/instance/uwsgi_ui.ini
+    image: biblion-web-ui
+    ports:
+      - "5000:5000"
+    volumes:
+      - static_data:/invenio/var/instance/static
+    links:
+      - cache
+      - es
+      - mq
+      - db
+  # API Rest Application
+  web-api:
+    extends:
+      file: docker-services.yml
+      service: app
+    command: uv run uwsgi /invenio/var/instance/uwsgi_rest.ini
+    image: biblion-web-api
+    ports:
+      - "5001"
+    volumes:
+      - static_data:/invenio/var/instance/static
+    links:
+      - cache
+      - es
+      - mq
+      - db
+  # Worker
+  worker:
+    extends:
+      file: docker-services.yml
+      service: app
+    restart: "unless-stopped"
+    command: "uv run celery --app biblion.celery worker --loglevel=INFO"
+    image: biblion-worker
+    links:
+      - cache
+      - es
+      - mq
+      - db
+  # Beat
+  beat:
+    extends:
+      file: docker-services.yml
+      service: app
+    restart: "unless-stopped"
+    command: "uv run celery --app biblion.celery beat -S biblion.schedulers.DatabaseScheduler --loglevel=INFO"
+    image: biblion-beat
+    links:
+      - cache
+      - es
+      - mq
+      - db
+  # Monitoring
+  flower:
+    extends:
+      file: docker-services.yml
+      service: flower
+    links:
+      - mq
+  # Base services
+  cache:
+    extends:
+      file: docker-services.yml
+      service: cache
+  db:
+    extends:
+      file: docker-services.yml
+      service: db
+  mq:
+    extends:
+      file: docker-services.yml
+      service: mq
+  es:
+    extends:
+      file: docker-services.yml
+      service: es
+volumes:
+  static_data:
