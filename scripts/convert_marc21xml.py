@@ -1,0 +1,119 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Converter for the `cogne` migration fixture of scripts/setup_batches.
+
+Production converters live in `biblion-migrations`, one module per campaign,
+resolved by dotted path from `Migration.conversion_code`. That package is
+private and absent from PyPI, so it cannot be a dependency here and the fixture
+needs its own. This one pairs the MARC21 conversion of
+`converter_marc21xml_rero` with a working `dedup`: that converter inherits
+`dedup` abstract and never implements it, and the fixture calls it.
+
+It stays in scripts/ rather than under biblion/ because only biblion/ goes
+into the wheel, and fixture code has no business being shipped.
+"""
+
+from dojson.contrib.marc21.utils import create_record
+from lxml import etree
+
+from biblion.modules.deduplications.api import Deduplication
+from biblion.modules.documents.dojson.contrib.marc21tojson.rero import marc21
+from biblion.modules.imports.serializers.serializers import ImportsMarcSearchSerializer
+from biblion.modules.utils import read_xml_record
+
+
+class Marc21XMLConverter:
+    """Marc21XML converter class."""
+
+    @classmethod
+    def convert(cls, data):
+        """Convert a xml marc 21 data into a Biblion JSON format."""
+        converted = marc21.do(create_record(data))
+        _id = None
+        for identifier in converted.get("identifiedBy", []):
+            if identifier.get("source") == "RERO":
+                _id = identifier["value"]
+        if _id is None:
+            logs = {
+                "warning": ["Fixtures conversions"],
+                "error": ["Unable to extract the main identifier"],
+            }
+            return None, {}, "error", logs
+        logs = {
+            "info": ["Conversion ok"],
+            "warning": ["Fixtures conversions"],
+        }
+        return _id, converted, "complete", logs
+
+    @classmethod
+    def loads(cls, file):
+        """Read a marc xml file and iterate over all records."""
+        for record in read_xml_record(file):
+            yield etree.tostring(record, encoding="utf-8", method="xml", pretty_print=True)
+
+    @classmethod
+    def markdown(cls, data):
+        """Convert an marc21 xml record into a markdown table."""
+        record = ImportsMarcSearchSerializer.convert_marc_to_marc_text_dict(create_record(data))
+        formatted_record = ["| Marc&nbsp;Field | Marc&nbsp;Value |", "| --- | --- |"]
+        for leader, fields in record:
+            leader = leader.replace(" ", "&nbsp;")
+            if isinstance(fields, list):
+                subfields = []
+                for field in fields:
+                    field[0] = f"${field[0]}"
+                    subfields.append(" ".join(field))
+                fields = " ".join(subfields)
+            formatted_record.append(f"| {leader} | {fields} |")
+        return "\n".join(formatted_record)
+
+    @classmethod
+    def dedup(cls, data, force=False):
+        """Deduplication function.
+
+        :param data: Data of record.
+        :param force: Force recalculation of score if exists.
+        :returns: ils_pid,logs, status and candidates.
+        """
+        ils_pid = None
+        if data.conversion.status == "error":
+            return (
+                ils_pid,
+                {"warning": ["Please resolve conversion errors before deduplication."]},
+                "pending",
+                [],
+            )
+        candidates = [
+            (c.pid, c.json.to_dict(), c.score, c.detailed_score.to_dict()) for c in data.deduplication.candidates
+        ]
+        logs = {}
+        status = "no match"
+        if data.deduplication.status == "pending" or force:
+            try:
+                candidates = Deduplication().get_candidates(data.conversion.json.to_dict())
+            except Exception as err:
+                logs["error"] = [f"{err}"]
+                status = "error"
+        if status != "error":
+            if not candidates:
+                status = "no match"
+            else:
+                scores = [c[2] for c in candidates]
+                if max(scores) < 0.8:
+                    status = "check"
+                elif len([s for s in scores if s > 0.8]) > 1:
+                    status = "multiple match"
+                else:
+                    status = "match"
+                    best = candidates[0]
+                    best_detailed_score = best[-1]
+                    # force check status if the publication date mismatch
+                    if (
+                        best_detailed_score.get("publication_date")
+                        and best_detailed_score["publication_date"]["value"] < 1
+                    ):
+                        status = "check"
+                        logs["warning"] = ["Publication date inaccurate: status forced to 'check'."]
+                    ils_pid = best[0]
+        return ils_pid, logs, status, candidates

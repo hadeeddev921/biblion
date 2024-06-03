@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Colored message helpers: msg, info_msg, error_msg, error_msg+exit,
+# success_msg, colored_msg.
+. "$(dirname "${BASH_SOURCE[0]}")/messages"
+
+PROGRAM=`basename $0`
+
+set -e
+
+# Displays program name
+msg "PROGRAM: ${PROGRAM}"
+
+set -e
+
+# uv is a mandatory condition to launch this program!
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+  error_msg+exit "Error - Launch this script via uv command:\n\tuv run ${PROGRAM}"
+fi
+
+script_path=$(dirname "$0")
+./"$script_path"/bootstrap
+
+invenio alembic upgrade
+invenio biblion utils update_mapping

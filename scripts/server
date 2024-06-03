@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Colored message helpers: msg, info_msg, error_msg, error_msg+exit,
+# success_msg, colored_msg.
+. "$(dirname "${BASH_SOURCE[0]}")/messages"
+
+PROGRAM=`basename $0`
+
+set -e
+
+# Print the usage on standard error, as every other message of this script.
+usage() {
+  cat >&2 <<EOF
+Usage: uv run ${PROGRAM} [options]
+
+Start the development server over HTTPS, along with the celery worker and its
+beat scheduler. The TLS pair is read from .certs/, produced by
+'uv run ./scripts/gen-certs'.
+
+Options:
+  -n, --no-worker        start the server alone, without celery
+  -l, --loglevel LEVEL   celery log level (default: INFO)
+  -h, --help             display this help and exit
+EOF
+}
+
+# Displays program name
+msg "PROGRAM: ${PROGRAM}"
+
+SCRIPT_PATH=$(dirname "$0")
+
+# The options are parsed before anything else, so that --help answers outside a
+# virtual environment too.
+# loglevel: celery log level (Cf. https://docs.celeryproject.org/en/latest/reference/celery.bin.worker.html#cmdoption-celery-worker-l)
+# no-worker: disable celery worker
+CELERY_LOG_LEVEL="INFO"
+worker=true
+while test $# -gt 0
+do
+  case "$1" in
+    -l|--loglevel)
+      CELERY_LOG_LEVEL=$2
+      shift ;;
+    -n|--no-worker)
+      worker=false ;;
+    -h|--help)
+      usage
+      exit 0 ;;
+    (--) shift; break;;
+    (*) error_msg+exit "$0: Unrecognized option $1";;
+  esac
+  shift
+done
+
+# uv is a mandatory condition to launch this program!
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+  error_msg+exit "Error - Launch this script via uv command:\n\tuv run ${PROGRAM}"
+fi
+
+if [[ -z "${FLASK_DEBUG}" ]]; then
+  export FLASK_DEBUG=True
+fi
+if [[ -z "${FLASK_ENV}" ]]; then
+  export FLASK_ENV="development"
+fi
+
+# The certificates are checked, and the trap set, before anything is started:
+# both used to come after the celery worker, so a missing pair left it orphaned.
+CERT="$SCRIPT_PATH"/../.certs/dev.crt
+KEY="$SCRIPT_PATH"/../.certs/dev.key
+if [[ ! -f "${CERT}" || ! -f "${KEY}" ]]; then
+  error_msg+exit "Missing development certificates. Generate them with:\n\tuv run ./scripts/gen-certs"
+fi
+
+# Every descendant of a process, deepest first.
+#
+# Killing the two direct children is not enough: `invenio run` forks the
+# reloader child that holds the port, and celery forks its pool workers, so
+# signalling only the children leaves those behind as orphans.
+tree_of() {
+  local pid=$1 child
+  for child in $(pgrep -P "${pid}" 2>/dev/null); do
+    tree_of "${child}"
+  done
+  echo "${pid}"
+}
+
+cleanup() {
+  # No errexit here: probing a process that is already gone fails, and that
+  # must not abort the escalation below.
+  set +e
+  # Reached once per run: the INT/TERM traps below fall through to EXIT.
+  [[ -n "${cleaned}" ]] && return 0
+  cleaned=1
+  local pid tree waited
+
+  # Collected before signalling, because killing a parent orphans its children
+  # and they can no longer be found by walking down from it.
+  tree=$(for pid in ${PID_CELERY} ${PID_BEAT} ${PID_SERVER}; do tree_of "${pid}"; done)
+
+  # SIGTERM goes to the parents only, so that celery shuts its pool down
+  # in order and releases its semaphores, and werkzeug stops its reloader
+  # child itself. Signalling the pool workers directly aborts that shutdown
+  # and leaks a semaphore per worker.
+  kill -TERM ${PID_CELERY} ${PID_BEAT} ${PID_SERVER} 2>/dev/null
+
+  # Celery's warm shutdown waits for a running task, which can hang the exit
+  # indefinitely; give the tree five seconds, then insist.
+  for waited in $(seq 20); do
+    if ! kill -0 ${tree} 2>/dev/null; then
+      return 0
+    fi
+    sleep 0.25
+  done
+  kill -KILL ${tree} 2>/dev/null
+}
+# INT and TERM are trapped alongside EXIT: bash does not run an EXIT trap when
+# it is killed by Ctrl-C, so the cleanup below would never run otherwise.
+trap cleanup EXIT INT TERM
+
+# Start Worker and Beat
+if $worker; then
+  # billiard spawns its processes on macOS since 4.3, which pickles the app
+  # config and fails on its lambdas: the pool runs threads there, and beat
+  # runs as its own command since the worker's --beat always spawns it.
+  POOL=()
+  [[ "$(uname)" == "Darwin" ]] && POOL=(--pool threads)
+  celery --app biblion.celery worker --loglevel ${CELERY_LOG_LEVEL} "${POOL[@]}" & PID_CELERY=$!
+  celery --app biblion.celery beat --loglevel ${CELERY_LOG_LEVEL} --scheduler biblion.schedulers.DatabaseScheduler & PID_BEAT=$!
+fi
+
+# Start Server
+invenio run --cert "${CERT}" --key "${KEY}" & PID_SERVER=$!
+
+wait $PID_CELERY $PID_BEAT $PID_SERVER

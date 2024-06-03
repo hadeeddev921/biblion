@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Colored message helpers: msg, info_msg, error_msg, error_msg+exit,
+# success_msg, colored_msg.
+. "$(dirname "${BASH_SOURCE[0]}")/messages"
+
+PROGRAM=`basename $0`
+
+set -e
+
+# Displays program name
+msg "PROGRAM: ${PROGRAM}"
+
+# options may be followed by one colon to indicate they have a required argument
+if ! options=$(getopt -o dct: -l deploy,ci,force-certs,tgz_package: -- "$@")
+then
+    # something went wrong, getopt will put out an error message for us
+    exit 1
+fi
+
+# The real bootstrap script starts with app installation below ;-)
+flags=()
+deploy=false
+cmd="uv sync --frozen"
+ci=false
+force_certs=false
+tgz_file=""
+while test $# -gt 0
+do
+  case "$1" in
+    -d|--deploy)
+      # We are probably inside travis, check for env variables
+      deploy=true ;;
+    -c|--ci)
+      # We are probably inside travis, check for env variables
+      ci=true ;;
+    --force-certs)
+      force_certs=true ;;
+    -t|--tgz_package)
+      tgz_file=$2
+      if [[ ! -f "${tgz_file}" ]]
+      then
+        error_msg+exit "package tgz file does not exist: ${tgz_file}"
+      fi
+      shift ;;
+    (--) shift; break;;
+    (-*) flags+=("$1") ;;
+    (*) break;;
+  esac
+  shift
+done
+
+# uv is a mandatory condition to launch this program!
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+  error_msg+exit "Error - Launch this script via uv command:\n\tuv run ${PROGRAM}"
+fi
+
+if $deploy ; then
+  if ! $ci ; then
+      flags=( "--no-group dev --group prod" )
+  fi
+else
+    if $ci ; then
+        cmd="uv sync --upgrade"
+    fi
+fi
+
+# BOOTSTRAP START
+# install the application and all the dependencies
+flag="${flags[@]}"
+info_msg "Install with command: ${cmd} ${flag}"
+${cmd} ${flags[@]}
+
+# collect static files and compile html/css assets
+# ------------------------------------------------
+# install the npm dependencies
+info_msg "Search static folder location"
+static_folder=$(uv run invenio shell --no-term-title -c "print('static_folder:%s' % app.static_folder)"|grep static_folder| cut -d: -f2-)
+
+# install rero-ils-ui
+info_msg "Install static folder npm dependencies in: ${static_folder}"
+if [[ -f "${tgz_file}" ]]
+then
+  info_msg "Install Biblion-UI from tgz: ${tgz_file}"
+  npm install --no-save --only=prod --no-fund --no-audit  "${tgz_file}" --prefix "${static_folder}"
+else
+  npm install --no-save --only=prod --no-fund --no-audit  @rero/rero-ils-ui@21.3.1 --prefix "${static_folder}"
+fi
+
+# build the web assets
+info_msg "Build web assets: collect"
+invenio collect -v
+
+info_msg "Build web assets: using webpack"
+# TODO: remove CI when the following issue is solved:
+# https://github.com/inveniosoftware/invenio-assets/issues/162
+# on the patch-module the option --error-on-fail is switched on by default on CI
+CI="" invenio webpack buildall
+
+if $deploy ; then
+  if ! $ci ; then
+    info_msg "Clean web assets"
+    invenio webpack clean
+
+    info_msg "Clean npm cache"
+    npm cache clean --force
+
+    info_msg "Clean pip cache"
+    pip cache purge
+  fi
+fi
+
+info_msg "Compile translations"
+uv run pybabel compile -d biblion/translations
+
+if ! $deploy ; then
+  # The development server needs a TLS pair; a deployment brings its own.
+  certs_flags=()
+  if $force_certs ; then
+    certs_flags+=("--force")
+  fi
+  "$(dirname "${BASH_SOURCE[0]}")"/gen-certs "${certs_flags[@]}"
+
+  info_msg "Install Playwright browsers (Chromium, Firefox, WebKit) for E2E tests"
+  uv run playwright install chromium firefox webkit
+fi
+
+success_msg "${PROGRAM} finished!"
+exit 0

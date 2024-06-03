@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+PROGRAM=$(basename "$0")
+
+# Colored message helpers: msg, info_msg, error_msg, error_msg+exit,
+# success_msg, colored_msg.
+. "$(dirname "${BASH_SOURCE[0]}")/messages"
+
+# The `batch_*` functions emitting the command lines of each batch.
+. "$(dirname "${BASH_SOURCE[0]}")/setup_batches"
+
+# Print the usage on standard error, as every other message of this script.
+usage() {
+  cat >&2 <<EOF
+Usage: uv run ${PROGRAM} [options]
+
+Set up the instance from scratch: reset the database and the search indices,
+then load the fixtures of the data path.
+
+Options:
+  -d, --deployment       load the fixtures with ebooks and files, and
+                         enable the scheduled tasks
+  -e, --e2e              stop after the fixtures the E2E test suite needs:
+                         roles, users, referential, API config, scheduler
+  -p, --pursue           keep going when a fixture record or a command fails
+  -t, --time             time every command
+  -D, --data_path PATH   read the fixtures from PATH (default: ./data)
+  -h, --help             display this help and exit
+EOF
+}
+
+DEPLOYMENT=false
+E2E=false
+DATA_PATH=./data
+DONT_STOP=""
+BATCH_TIME=""
+BATCH_CONTINUE=""
+
+# Timing prefix, set by --time. `eval ${PREFIX} cmd` would consume the quotes of
+# the command it wraps, so the prefix is applied by a function keeping "$@"
+# intact.
+PREFIX=""
+run() {
+  if [ -n "${PREFIX}" ]; then time "$@"; else "$@"; fi
+}
+
+# Total run time, reported by both exit paths. ${SECONDS} counts from the start
+# of the shell, so there is nothing to initialize.
+elapsed() {
+  printf '%dm%02ds' $((SECONDS / 60)) $((SECONDS % 60))
+}
+
+# Displays program name
+msg "PROGRAM: ${PROGRAM}"
+
+while [ $# -gt 0 ]
+do
+    case $1 in
+    -d|--deployment)
+      DEPLOYMENT=true
+      ;;
+    -e|--e2e)
+      E2E=true
+      ;;
+    -p|--pursue)
+      DONT_STOP="--dont-stop"
+      BATCH_CONTINUE="-k"
+      ;;
+    -t|--time)
+      PREFIX="time"
+      BATCH_TIME="-t"
+      ;;  # Get time for all commands
+    -D|--data_path)
+      DATA_PATH=$2
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    (--) shift; break;;
+    (-*) error_msg+exit "$0: Unrecognized option $1";;
+    (*) break;;
+    esac
+    shift
+done
+
+if ${DEPLOYMENT} && ${E2E}
+then
+    error_msg+exit "Error - --deployment and --e2e exclude each other"
+fi
+
+# uv is a mandatory condition to launch this program!
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+  error_msg+exit "Error - Launch this script via uv command:\n\tuv run ${PROGRAM}"
+fi
+
+if [[ ! -d "${DATA_PATH}" ]]; then
+    error_msg+exit "Error - data path does not exist: ${DATA_PATH}"
+fi
+
+# Every command below must succeed. The two that may legitimately fail carry
+# their own `|| info_msg`.
+set -e
+
+info_msg "Purge celery"
+# `biblion.celery` builds a full application at import, so this line costs a
+# boot like the others and is timed with them.
+run celery --app biblion.celery purge -f
+
+info_msg "Clean redis"
+run invenio shell --no-term-title -c \
+    "import redis; redis.StrictRedis.from_url(app.config['CACHE_REDIS_URL']).flushall(); print('Cache cleared')"
+
+# On a first run the database does not exist yet, so dropping it fails; the
+# creation that follows must succeed. Chaining the two is not an option: click
+# abandons a chained group as soon as one subcommand raises, so a tolerated
+# `drop` would take the `create` down with it.
+info_msg "Reset database"
+if ${DEPLOYMENT}
+then
+  run invenio db drop --yes-i-know || info_msg "no database to drop"
+  run invenio db create
+else
+  run invenio db destroy --yes-i-know || info_msg "no database to destroy"
+  run invenio db init create
+fi
+
+# the files location only registers the path, so emptying it first is unrelated
+# to the batch below and can be done here.
+FILES_PATH="${INVENIO_BIBLION_FILES_FOLDER:=data/files}"
+info_msg "Initialize files location to ${FILES_PATH}."
+rm -fr "${FILES_PATH:?}"/*
+
+info_msg "Reset search indices, indexing queue, operation logs and files location"
+run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_destroy; batch_init)
+
+if ${E2E}
+then
+    info_msg "Roles, users, accesses, tokens, referential fixtures, API config, scheduler"
+    run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_accounts; batch_small_fixtures; batch_e2e_config)
+    success_msg "E2E setup complete in $(elapsed)."
+    exit 0
+fi
+
+info_msg "Roles, users, accesses, tokens, referential fixtures, ILL requests, statistics, local entities"
+run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_accounts; batch_small_fixtures; batch_users_entities)
+
+info_msg "Documents, holdings, items, local fields, patterns, collections"
+run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_biblio)
+
+info_msg "Acquisition: budgets, accounts, orders, order lines, receipts, receipt lines, templates"
+run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_acq)
+
+info_msg "Migration data, circulation, notifications, tokens, API config, scheduler, statistics, wiki"
+run invenio rero batch ${BATCH_TIME} ${BATCH_CONTINUE} <(batch_migration; batch_circulation; batch_final)
+
+success_msg "Perfect ${PROGRAM}! Done in $(elapsed). See you soon…"
+exit 0
