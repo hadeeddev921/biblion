@@ -1,0 +1,279 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Test record permissions API."""
+
+from unittest import mock
+
+from flask import url_for
+from invenio_accounts.testutils import login_user_via_session
+from invenio_cache import current_cache
+from invenio_circulation.proxies import current_circulation
+from invenio_db import db
+
+from biblion.modules.holdings.api import Holding, HoldingsSearch
+from biblion.modules.permissions_cache import record_permissions_cache_key
+from tests.utils import get_json, login_user, postdata
+
+
+def test_document_permissions(
+    client,
+    document,
+    librarian_martigny,
+    patron_martigny,
+    ebook_1,
+    circ_policy_short_martigny,
+):
+    """Test document permissions."""
+    # failed: invalid document pid is given
+    res = client.get(url_for("api_blueprint.permissions", route_name="documents", record_pid="no_pid"))
+    assert res.status_code == 401
+    # failed: no logged user
+    res = client.get(url_for("api_blueprint.permissions", route_name="documents", record_pid=document.pid))
+    assert res.status_code == 401
+
+    # failed: logged patron and a valid document pid is given
+    login_user_via_session(client, patron_martigny.user)
+    res = client.get(url_for("api_blueprint.permissions", route_name="documents", record_pid=document.pid))
+    assert res.status_code == 403
+
+    # success: logged user and a valid document pid is given
+    login_user_via_session(client, librarian_martigny.user)
+    data = call_api_permissions(client, "documents", document.pid)
+    assert "update" in data
+    assert "delete" in data
+
+    # success: logged user and a valid document pid is given
+    login_user_via_session(client, librarian_martigny.user)
+    data = call_api_permissions(client, "documents", ebook_1.pid)
+    assert "update" in data
+    assert "delete" in data
+
+    # failed: invalid route name
+    res = client.get(url_for("api_blueprint.permissions", route_name="no_route", record_pid=document.pid))
+    assert res.status_code == 400
+
+    # failed: permission denied
+    data = call_api_permissions(client, "circ_policies", circ_policy_short_martigny.pid)
+    assert data.get("delete", {}).get("can") is False
+    reasons = data.get("delete", {}).get("reasons", {})
+    assert "others" in reasons and "permission" in reasons["others"]
+
+    # Authentication must still be checked when permissions are cached.
+    with client.session_transaction() as session:
+        session.clear()
+    res = client.get(url_for("api_blueprint.permissions", route_name="documents", record_pid=document.pid))
+    assert res.status_code == 401
+
+
+def test_document_permissions_cache_is_invalidated_by_holding_deletion(
+    client,
+    document,
+    holding_lib_martigny_data_tmp,
+    librarian_martigny,
+    loc_public_martigny,
+    item_type_standard_martigny,
+):
+    """Test document permissions cache invalidation on holding deletion."""
+    holding_data = holding_lib_martigny_data_tmp
+    holding_data["pid"] = "holding-permissions-cache"
+    holding = Holding.create(data=holding_data, delete_pid=False, dbcommit=True, reindex=True)
+    HoldingsSearch.flush_and_refresh()
+
+    login_user_via_session(client, librarian_martigny.user)
+    permissions = call_api_permissions(client, "documents", document.pid)
+    assert not permissions["delete"]["can"]
+    assert permissions["delete"]["reasons"]["links"]["holdings"] == 1
+    cache_key = record_permissions_cache_key("documents", document.pid)
+    current_cache.set(cache_key, permissions, timeout=10)
+
+    holding.delete(dbcommit=False, delindex=True)
+    assert current_cache.get(cache_key) == permissions
+
+    db.session.commit()
+    assert current_cache.get(cache_key) is None
+    HoldingsSearch.flush_and_refresh()
+
+    assert call_api_permissions(client, "documents", document.pid)["delete"]["can"]
+
+
+def test_patrons_permissions(
+    client,
+    patron_martigny,
+    librarian_martigny,
+    librarian2_martigny,
+    librarian_saxon,
+    system_librarian_martigny,
+    system_librarian2_martigny,
+    system_librarian_sion,
+    librarian_sion,
+):
+    """Test permissions for patrons."""
+    # simple librarian -----------------------------------------------
+    login_user(client, librarian_martigny)
+    # 1) should update and delete a librarian of the same library
+    data = call_api_permissions(client, "patrons", librarian2_martigny.pid)
+    assert data["delete"]["can"]
+    assert data["update"]["can"]
+    # 2) should not update and delete a librarian of an other library
+    data = call_api_permissions(client, "patrons", librarian_saxon.pid)
+    assert not data["delete"]["can"]
+    assert not data["update"]["can"]
+    # 3) should not delete a system librarian
+    #    but can update it (except some roles management)
+    data = call_api_permissions(client, "patrons", system_librarian_martigny.pid)
+    assert not data["delete"]["can"]
+    assert data["update"]["can"]
+
+    # system librarian ----------------------------------------------
+    login_user(client, system_librarian_martigny)
+    # should update and delete a librarian of the same library
+    data = call_api_permissions(client, "patrons", librarian2_martigny.pid)
+    assert data["delete"]["can"]
+    assert data["update"]["can"]
+
+    # should update and delete a librarian of an other library
+    data = call_api_permissions(client, "patrons", librarian_saxon.pid)
+    assert data["delete"]["can"]
+    assert data["update"]["can"]
+
+    # should update and delete a system librarian of the same organisation
+    # but not itself
+    data = call_api_permissions(client, "patrons", system_librarian2_martigny.pid)
+    assert data["delete"]["can"]
+    assert data["update"]["can"]
+
+    # should not update and delete a system librarian of another organisation
+    data = call_api_permissions(client, "patrons", system_librarian_sion.pid)
+    assert not data["delete"]["can"]
+    assert not data["update"]["can"]
+
+
+def test_items_permissions(
+    client,
+    item_lib_martigny,
+    item_lib_fully,
+    librarian_martigny,  # on shelf  # on loan
+):
+    """Test record retrieval."""
+    login_user(client, librarian_martigny)
+
+    data = call_api_permissions(client, "items", item_lib_fully.pid)
+    assert not data["delete"]["can"]
+    assert not data["update"]["can"]
+
+    data = call_api_permissions(client, "items", item_lib_martigny.pid)
+    assert data["delete"]["can"]
+    assert data["update"]["can"]
+
+    response = client.get(url_for("api_blueprint.permissions", route_name="items", record_pid="dummy_item_pid"))
+    assert response.status_code == 404
+
+
+def test_item_permissions_cache_is_invalidated_by_request(
+    client,
+    item_lib_martigny,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    lib_martigny,
+    circulation_policies,
+):
+    """Test item permissions cache invalidation after a request."""
+    login_user_via_session(client, librarian_martigny.user)
+    permissions = call_api_permissions(client, "items", item_lib_martigny.pid)
+    assert permissions["delete"]["can"]
+    cache_key = record_permissions_cache_key("items", item_lib_martigny.pid)
+    current_cache.set(cache_key, permissions, timeout=10)
+
+    request_data = {
+        "item_pid": item_lib_martigny.pid,
+        "patron_pid": patron_martigny.pid,
+        "pickup_location_pid": loc_public_martigny.pid,
+        "transaction_library_pid": lib_martigny.pid,
+        "transaction_user_pid": librarian_martigny.pid,
+    }
+
+    # A failed request must not invalidate the permissions cache.
+    response, _ = postdata(
+        client,
+        "api_item.librarian_request",
+        {"item_pid": item_lib_martigny.pid, "patron_pid": patron_martigny.pid},
+    )
+    assert response.status_code == 400
+    assert current_cache.get(cache_key) == permissions
+
+    response, _ = postdata(client, "api_item.librarian_request", request_data)
+    assert response.status_code == 200
+    assert current_cache.get(cache_key) is None
+
+    permissions = call_api_permissions(client, "items", item_lib_martigny.pid)
+    assert not permissions["delete"]["can"]
+    assert permissions["delete"]["reasons"]["links"]["loans"] == 1
+
+
+def test_item_permissions_cache_is_preserved_without_request_state_change(
+    client,
+    item2_lib_martigny,
+    librarian_martigny,
+    patron_martigny,
+    loc_public_martigny,
+    lib_martigny,
+    circulation_policies,
+):
+    """Test item permissions cache preservation without a state change."""
+    login_user_via_session(client, librarian_martigny.user)
+    permissions = call_api_permissions(client, "items", item2_lib_martigny.pid)
+    assert permissions["delete"]["can"]
+    cache_key = record_permissions_cache_key("items", item2_lib_martigny.pid)
+    current_cache.set(cache_key, permissions, timeout=10)
+
+    request_data = {
+        "item_pid": item2_lib_martigny.pid,
+        "patron_pid": patron_martigny.pid,
+        "pickup_location_pid": loc_public_martigny.pid,
+        "transaction_library_pid": lib_martigny.pid,
+        "transaction_user_pid": librarian_martigny.pid,
+    }
+    with mock.patch.object(
+        current_circulation.circulation,
+        "trigger",
+        side_effect=lambda loan, **kwargs: loan,
+    ):
+        response, _ = postdata(client, "api_item.librarian_request", request_data)
+
+    assert response.status_code == 200
+    assert current_cache.get(cache_key) == permissions
+
+
+def test_order_permissions_cache_is_invalidated_by_receipt_deletion(
+    client,
+    librarian_martigny,
+    acq_order_fiction_martigny,
+    acq_receipt_fiction_martigny,
+    acq_receipt_line_1_fiction_martigny,
+):
+    """Test order permissions cache invalidation after receipt deletion."""
+    login_user_via_session(client, librarian_martigny.user)
+
+    order_key = record_permissions_cache_key("acq_orders", acq_order_fiction_martigny.pid)
+    order_permissions = call_api_permissions(client, "acq_orders", acq_order_fiction_martigny.pid)
+    assert not order_permissions["delete"]["can"]
+    assert order_permissions["delete"]["reasons"]["links"]["acq_receipts"] == 1
+    current_cache.set(order_key, order_permissions, timeout=10)
+
+    response = client.delete(url_for("invenio_records_rest.acre_item", pid_value=acq_receipt_fiction_martigny.pid))
+    assert response.status_code == 204
+    assert current_cache.get(order_key) is None
+
+    order_permissions = call_api_permissions(client, "acq_orders", acq_order_fiction_martigny.pid)
+    assert not order_permissions["delete"]["can"]
+    assert "acq_receipts" not in order_permissions["delete"]["reasons"].get("links", {})
+    assert order_permissions["delete"]["reasons"]["others"]["order_already_sent"]
+
+
+def call_api_permissions(client, route_name, pid):
+    """Get permissions from permissions API."""
+    response = client.get(url_for("api_blueprint.permissions", route_name=route_name, record_pid=pid))
+    assert response.status_code == 200
+    return get_json(response)

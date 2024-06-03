@@ -1,0 +1,277 @@
+# SPDX-FileCopyrightText: Hadeed
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+"""Search tests."""
+
+from unittest import mock
+
+from flask import url_for
+
+from tests.utils import VerifyRecordPermissionPatch, get_json
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_documents_search(client, doc_title_travailleurs, doc_title_travailleuses):
+    """Test document search queries."""
+    # phrase search
+    list_url = url_for(
+        "invenio_records_rest.doc_list",
+        q='"Les travailleurs assidus sont de retours"',
+        simple="1",
+    )
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # mixed unfielded and fielded advanced search
+    list_url = url_for(
+        "invenio_records_rest.doc_list",
+        q=r"(travailleurs) AND title.\*:(retours)",
+    )
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # phrase search with punctuations
+    list_url = url_for(
+        "invenio_records_rest.doc_list",
+        q='"Les travailleurs assidus sont de retours."',
+        simple="1",
+    )
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # word search
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleurs", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 2
+
+    # travailleurs == travailleur == travailleuses
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleur", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 2
+
+    # ecole == école
+    list_url = url_for("invenio_records_rest.doc_list", q="ecole", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # Ecole == école
+    list_url = url_for("invenio_records_rest.doc_list", q="Ecole", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # ECOLE == école
+    list_url = url_for("invenio_records_rest.doc_list", q="Ecole", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # _école_ == école
+    list_url = url_for("invenio_records_rest.doc_list", q=" école ", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # Müller
+    list_url = url_for("invenio_records_rest.doc_list", q="Müller", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # Müller == Muller
+    list_url = url_for("invenio_records_rest.doc_list", q="Muller", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # Müller == Mueller
+    list_url = url_for("invenio_records_rest.doc_list", q="Mueller", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # test AND
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleuse école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # test OR in two docs
+    list_url = url_for("invenio_records_rest.doc_list", q="retours | école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 2
+
+    # test AND in two fields (travailleuses == travailleur)
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleuses bientôt", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleuses +bientôt", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # test NOT
+    list_url = url_for("invenio_records_rest.doc_list", q="travailleur -école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # test OR in two docs (each match only one term)
+    list_url = url_for("invenio_records_rest.doc_list", q="retours | école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 2
+
+    # test AND in two docs (each match only one term) => no result
+    list_url = url_for("invenio_records_rest.doc_list", q="retours école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 0
+
+    list_url = url_for("invenio_records_rest.doc_list", q="retours + école", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 0
+
+    # title + subtitle
+    list_url = url_for(
+        "invenio_records_rest.doc_list",
+        q="Les travailleurs assidus sont de retours : les jeunes arrivent bientôt ?",
+        simple="1",
+    )
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # punctuation
+    list_url = url_for(
+        "invenio_records_rest.doc_list",
+        q=r"école : . ... , ; ? \ ! = == - --",
+        simple="1",
+    )
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    list_url = url_for("invenio_records_rest.doc_list", q=r"école:.,;?\!...=-==--", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # special chars
+    # œ in title
+    list_url = url_for("invenio_records_rest.doc_list", q=r"bœuf", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # æ in title
+    list_url = url_for("invenio_records_rest.doc_list", q=r"ex aequo", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # æ in title
+    list_url = url_for("invenio_records_rest.doc_list", q=r"ÆQUO", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # œ in author
+    list_url = url_for("invenio_records_rest.doc_list", q=r"Corminbœuf", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # auto complete should not use ngram
+    list_url = url_for("invenio_records_rest.doc_list", q=r"1000091", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 0
+
+    # wildcard
+    list_url = url_for("invenio_records_rest.doc_list", q="histoire*", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # & char query
+    list_url = url_for("invenio_records_rest.doc_list", q="Boy & Girl", simple="1")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] == 1
+
+    # test wildcard query with boolean sub property
+    # See: search index query_string lenient property
+    #      for more details
+    list_url = url_for("invenio_records_rest.doc_list", q=r"subjects.\*:test")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits
+
+    # test wildcard query with boolean sub property
+    # See: search index query_string lenient property
+    #      for more details
+    list_url = url_for("invenio_records_rest.doc_list", q=r"autocomplete_title:travailleu")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] != 0
+
+    list_url = url_for("invenio_records_rest.doc_list", q=r"autocomplete_title:travailleur")
+    res = client.get(list_url)
+    hits = get_json(res)["hits"]
+    assert hits["total"] != 0
+
+
+@mock.patch(
+    "invenio_records_rest.views.verify_record_permission",
+    mock.MagicMock(return_value=VerifyRecordPermissionPatch),
+)
+def test_search_special_chars_not_rejected(client):
+    """Test that Lucene and MARC special chars in query strings return 200.
+
+    OAUTH2SERVER_ALLOWED_URLENCODE_CHARACTERS extends the oauthlib default so
+    that characters valid per RFC 3986 in query strings are not rejected with
+    a 400 by the OAuth middleware.  Spaces must still be encoded as %20.
+    """
+    base_url = url_for("invenio_records_rest.doc_list")
+
+    # $ — MARC subfield codes ($a, $b, $c); unencoded by Angular's HttpClient
+    res = client.get(f"{base_url}?q=local_fields.fields.field_1:$a%20test%20$b%202026")
+    assert res.status_code == 200
+
+    # [] — Lucene inclusive range query
+    res = client.get(f"{base_url}?q=date:[2024-01-01%20TO%202024-12-31]")
+    assert res.status_code == 200
+
+    # {{}} — Lucene exclusive range query
+    res = client.get(f"{base_url}?q=date:{{2024-01-01%20TO%202024-12-31}}")
+    assert res.status_code == 200
+
+    # ^ — Lucene boost factor
+    res = client.get(f"{base_url}?q=title:test^2")
+    assert res.status_code == 200
+
+    # " — Lucene phrase query (unencoded double quote)
+    res = client.get(f'{base_url}?q=title:"exact%20phrase"')
+    assert res.status_code == 200
+
+    # || — Lucene OR operator
+    res = client.get(f"{base_url}?q=(title:foo)||(title:bar)")
+    assert res.status_code == 200
+
+    # ' — apostrophe in text values (e.g. O'Brien)
+    res = client.get(f"{base_url}?q=author:O'Brien")
+    assert res.status_code == 200
