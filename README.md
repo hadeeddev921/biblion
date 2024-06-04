@@ -101,6 +101,78 @@ biblion/
 | Tooling | uv, poethepoet | Dependency management and task runner |
 | Deployment | Docker, uWSGI ≥ 2.0.30, nginx, haproxy | Container images and serving |
 
+## How to Run This Project
+
+1. **Prerequisites**
+   - Python 3.14 and [uv](https://docs.astral.sh/uv/)
+   - Node.js 24 and npm (to install the Angular UI)
+   - Docker with Docker Compose (PostgreSQL 17, Elasticsearch 7.10.2, Redis, RabbitMQ)
+   - `openssl` (for the development TLS certificate)
+
+2. **Clone**
+   ```bash
+   git clone https://github.com/hadeeddev921/biblion.git
+   cd biblion
+   ```
+
+3. **Install dependencies and build the assets**
+   ```bash
+   ./scripts/bootstrap
+   ```
+   This runs `uv sync --frozen`, installs the Angular UI into the static folder, collects and builds the web assets with webpack, compiles the translations, generates a self-signed certificate in `.certs/` and installs the Playwright browsers used by the E2E tests.
+
+4. **Environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   | Variable | Description | Example |
+   |---|---|---|
+   | `INVENIO_SECRET_KEY` | Flask secret key | `change-me-to-a-long-random-string` |
+   | `INVENIO_SQLALCHEMY_DATABASE_URI` | PostgreSQL connection | `postgresql+psycopg2://biblion:biblion@localhost/biblion` |
+   | `INVENIO_SEARCH_ELASTIC_HOSTS` | Elasticsearch hosts | `['localhost:9200']` |
+   | `INVENIO_CACHE_TYPE` / `INVENIO_CACHE_REDIS_URL` | Cache backend | `redis` / `redis://localhost:6379/0` |
+   | `INVENIO_ACCOUNTS_SESSION_REDIS_URL` | Session store | `redis://localhost:6379/1` |
+   | `INVENIO_CELERY_RESULT_BACKEND` | Celery results | `redis://localhost:6379/2` |
+   | `INVENIO_RATELIMIT_STORAGE_URI` | Rate limit storage | `redis://localhost:6379/3` |
+   | `INVENIO_BROKER_URL` / `INVENIO_CELERY_BROKER_URL` | RabbitMQ broker | `amqp://guest:guest@localhost:5672/` |
+   | `BIBLION_MEF_REF_BASE_URL` | MEF authority server host | `mef.rero.ch` |
+   | `INVENIO_BIBLION_FILES_FOLDER` | Where the setup stores document files | `data/files` |
+   | `INVENIO_BIBLION_ACCESS_TOKEN_*` | Optional fixed API tokens created by the setup | *(empty)* |
+
+   Any other setting in `biblion/config.py` can be overridden the same way with an `INVENIO_` prefix.
+
+5. **Start the services**
+   ```bash
+   docker compose up -d
+   ```
+
+6. **Database, indices and demo data**
+   ```bash
+   uv run poe setup
+   ```
+   `scripts/setup` creates the database and the search indices and loads the demo fixtures from `data/` (organisations, libraries, users, documents, items, circulation, acquisitions). Use `./scripts/setup --e2e` for the minimal data set used by the end-to-end tests. The demo accounts in `data/users.json` use the password `Pw123456` (for example `biblion.demo@example.com`).
+
+7. **Run**
+   ```bash
+   uv run poe server
+   ```
+   This starts the Flask server over HTTPS together with a Celery worker and beat scheduler. Open <https://localhost:5000> (accept the self-signed certificate). Use `./scripts/server --no-worker` to start the web server alone.
+
+8. **Run tests**
+   ```bash
+   uv run poe run_tests   # pip-audit, JSON and license checks, ruff, then pytest
+   uv run poe tests       # pytest only
+   uv run poe e2e         # Playwright E2E tests against a running instance
+   ```
+   The test suite needs the services from step 5. Code style is checked with `uv run poe lint` and `uv run poe format`.
+
+9. **Docker (full stack)**
+   ```bash
+   docker build -t biblion-base -f Dockerfile.base .
+   docker compose -f docker-compose.full.yml up -d --build
+   ```
+   This builds the application image on top of `biblion-base` and starts the web UI, REST API, Celery worker and beat, nginx, haproxy and the backing services.
+
 ## License
 
 Biblion is released under the GNU Affero General Public License v3.0 or later. See [LICENSE](LICENSE).
